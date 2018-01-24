@@ -1,0 +1,262 @@
+{% load static %}
+<html>
+
+<head>
+    <title>{% block title %}CRUDY{% endblock title %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-blue-grey.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <!-- sidebar -->
+    <nav class="w3-sidebar w3-bar-block w3-collapse w3-animate-left w3-card" style="z-index: 3; width: 250px; display: none;"
+        id="mySidebar">
+        {% block icon %}
+        <a class="w3-bar-item w3-button w3-border-bottom w3-large" href="#">
+            <img src="https://www.w3schools.com/images/w3schools.png" style="width:80%;">
+        </a>
+        {% endblock icon %}
+        <a class="w3-bar-item w3-button w3-hide-large w3-large" href="javascript:void(0)" onclick="w3_close()">Close
+            <i class="fa fa-remove"></i>
+        </a>
+        {% block user %}
+        <a class="w3-bar-item w3-button w3-text-theme" href="#">
+            Se connecter...
+        </a>
+        {% endblock user %}
+        {% block menu %}
+        <a class="w3-bar-item w3-button w3-theme" href="#">Titre application</a>
+        <a class="w3-bar-item w3-button" href="#">Vue 1</a>
+        <a class="w3-bar-item w3-button" href="#">Vue 2</a>
+        <a class="w3-bar-item w3-button w3-theme-l3" href="#">Vue 3</a>
+        <a class="w3-bar-item w3-button" href="#">Vue 4</a>
+        <a class="w3-bar-item w3-button" href="#">Vue 5</a>
+        {% endblock menu %}
+        {% block config %}
+        <div>
+            <a class="w3-bar-item w3-button" onclick="myAccordion('demo')" href="javascript:void(0)">
+                Configuration
+                <i class="fa fa-caret-down"></i>
+            </a>
+            <div id="demo" class="w3-hide">
+                <a class="w3-bar-item w3-button" href="#">Lien</a>
+                <a class="w3-bar-item w3-button w3-theme-l3" href="#">Lien</a>
+                <a class="w3-bar-item w3-button" href="#">
+                    <i class="fa fa-question"></i> Aide</a>
+            </div>
+        </div>
+        {% endblock config %}
+    </nav>
+    {# Permet de fermer le sidebar en cliquant dans le Content si small screen #}
+    <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor: pointer; display: none;" id="myOverlay"></div>
+
+    <!-- Content -->
+    <div class="w3-main w3-padding-64" style="margin-left:250px;">
+        {% block toolbar %}
+        <nav id="myTop" class="w3-top w3-bar w3-padding w3-theme-l1" style="width: 100%">
+            <i class="w3-bar-item fa fa-bars w3-opennav w3-hide-large w3-xlarge w3-margin-right" onClick="w3_open()"></i>
+            <span class="w3-bar-item w3-mobile">CRUDY</span>
+            <input type="text" class="w3-bar-item w3-input w3-mobile" placeholder="Rechercher..">
+            <a href="#" class="w3-bar-item w3-button w3-theme-action w3-mobile">Go</a>
+            <!-- boutons de validation -->
+            <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right w3-mobile" onClick="form.submit()">
+                <i class="fa fa-check" style="padding: 4px" ></i>
+            </a>
+        </nav>
+        {% endblock toolbar %}
+        {% block application_list %}
+        <div class="w3-row-padding">
+            <a style="text-decoration: none" class="w3-col m6 l4 w3-margin-top" href="">
+                <div class="w3-card">
+                    <header class="w3-container w3-theme-dark">
+                        <h3>Application 1</h3>
+                    </header>
+
+                    <div class="w3-container">
+                        <p>Description 1</p>
+                    </div>
+
+                    <footer class="w3-container w3-theme">&nbsp;
+                    </footer>
+                </div>
+            </a>
+            <a style="text-decoration: none" class="w3-col m6 l4 w3-margin-top" href="">
+                <div class="w3-card">
+                    <header class="w3-container w3-theme-dark">
+                        <h3>Application 2</h3>
+                    </header>
+
+                    <div class="w3-container">
+                        <p>Description 2</p>
+                    </div>
+
+                    <footer class="w3-container w3-theme">&nbsp;
+                    </footer>
+                </div>
+            </a>
+            <a style="text-decoration: none" class="w3-col m6 l4 w3-margin-top" href="">
+                <div class="w3-card">
+                    <header class="w3-container w3-theme-dark">
+                        <h3>Application 3</h3>
+                    </header>
+
+                    <div class="w3-container">
+                        <p>Description 3</p>
+                    </div>
+
+                    <footer class="w3-container w3-theme">&nbsp;
+                    </footer>
+                </div>
+            </a>
+        </div>
+        {% endblock application_list %}
+        {% block view %}
+        <!-- Vue -->
+        <div class="w3-container">
+            {% block action_add %}
+            <!-- bouton ajout -->
+            <a href="">
+                <span class="w3-button w3-xlarge w3-circle w3-theme-action" title="Ajout bbb" style="z-index: 1000; position: fixed; bottom: 20px; right: 24px">
+                    +
+                </span>
+            </a>
+            {% endblock action_add %}
+            <!-- Table -->
+            <table class="w3-table-all w3-hoverable w3-medium w3-card-3">
+                <thead>
+                    <tr class="w3-theme-l4">
+                        <td colspan="6">
+                            <div class="w3-row">
+                                <!-- filtre -->
+                                <div class="w3-col s3">
+                                    <div class="w3-row">
+                                        <span class="w3-col s9">
+                                            <input class="w3-input w3-border w3-small" name="filter" type="text" placeholder="recherche" onChange="" value="" id="filter"
+                                                onKeyPress="" />
+                                        </span>
+                                        <span class="w3-col s3 w3-padding-8">
+                                            <span class="" style="margin-left: 8px; height: 100%" onClick="">
+                                                <i class="w3-large fa fa-search"></i>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="w3-theme">
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
+                        <th>Col1</th>
+                        <th>Col2</th>
+                        <th>Col3</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="">
+                        <td style="width: 30px">
+                            <a href="" title="Voir...">
+                                <i class="material-icons w3-text-blue-grey">visibility</i>
+                            </a>
+                        </td>
+                        <td style="width: 30px">
+                            <a href="" title="Editer...">
+                                <i class="material-icons w3-text-teal">edit</i>
+                            </a>
+                        </td>
+                        <td>val1</td>
+                        <td>val2</td>
+                        <td>val3</td>
+                        <td style="width: 30px">
+                            <a href="" title="Supprimer...">
+                                <i class="material-icons w3-text-orange">delete</i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr class="w3-leftbar w3-rightbar w3-border w3-border-theme">
+                        <td style="width: 30px">
+                            <a href="" title="Voir...">
+                                <i class="material-icons w3-text-blue-grey">visibility</i>
+                            </a>
+                        </td>
+                        <td style="width: 30px">
+                            <a href="" title="Editer...">
+                                <i class="material-icons w3-text-teal">edit</i>
+                            </a>
+                        </td>
+                        <td>val1</td>
+                        <td>val2</td>
+                        <td>val3</td>
+                        <td style="width: 30px">
+                            <a href="" title="Supprimer...">
+                                <i class="material-icons w3-text-orange">delete</i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr class="">
+                        <td style="width: 30px">
+                            <a href="" title="Voir">
+                                <i class="material-icons w3-text-blue-grey">visibility</i>
+                            </a>
+                        </td>
+                        <td style="width: 30px">
+                            <a href="" title="Voir">
+                                <i class="material-icons w3-text-teal">edit</i>
+                            </a>
+                        </td>
+                        <td>val1</td>
+                        <td>val2</td>
+                        <td>val3</td>
+                        <td style="width: 30px">
+                            <a href="" title="Voir">
+                                <i class="material-icons w3-text-orange">delete</i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        {% endblock view %}
+        {% block form %}
+        <!-- Formulaire -->
+        <!-- Message d'erreur -->
+        <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-border-red">
+            <p>1245 Ya une erreur</p>
+        </div>
+        <div class="w3-container">
+            <div class="w3-row-padding w3-margin-top">
+                <div class="w3-col w3-right-align w3-hide-small m3">
+                    <label class="w3-label">label small</label>
+                </div>
+                <div class="w3-col w3-left-align w3-hide-medium w3-hide-large m3">
+                    <label class="w3-label">label medium</label>
+                </div>
+                <div class="w3-col m9">
+                    <input class="w3-input w3-border" type="text" value="parchemin" id="in1" onKeyPress="" />
+                    <div class="w3-label w3-text-red w3-small">
+                        <span>Erreur sur le champ</span>
+                    </div>
+                    <div class="w3-label w3-small">
+                        <span>aide sur le champ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock form %}
+        <!-- Footer -->
+        <footer class="w3-container w3-theme-l1 w3-padding-16 w3-bottom" style="padding-left: 32px">
+            {% block footer %}
+            <pre>{{ctx}}</pre>
+            {% endblock footer %}
+        </footer>
+
+    </div>
+
+    <script src="{% static 'js/w3.js' %}"></script>
+</body>
+
+</html>

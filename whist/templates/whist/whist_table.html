@@ -1,0 +1,61 @@
+<div class="w3-container">
+    <!-- bouton ajout -->
+    {% if url_add %}
+    <a href="{% url url_add %}">
+        <span class="w3-button w3-xlarge w3-circle w3-theme-action" title="Ajout..." 
+            style="z-index: 1000; position: fixed; bottom: 20px; right: 24px">
+            +
+        </span>
+    </a>
+    {% endif %}
+    <!-- Table -->
+    <table class="w3-table-all w3-hoverable w3-medium w3-card-3">
+        <thead>
+            <tr class="w3-theme">
+                {% if with_selector %}
+                <td>
+                    {% if 0 in ctx.selected %}
+                    <input class="w3-check" style="top: 0px" type="checkbox" checked="checked" onClick="window.location='{% url url_select 0 %}';"></td>
+                    {% else %}
+                    <input class="w3-check" style="top: 0px" type="checkbox" onClick="window.location='{% url url_select 0 %}';">
+                    {% endif %}
+                </td>
+                {% endif %}
+                {% for field in fields %}
+                    {% if forloop.first %}
+                        <th>{{ field.verbose_name }}</th>
+                    {% elif field.name != 'id' %}
+                        <th>{{ field.verbose_name }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for obj in objs %}
+            <tr class="">
+            {% if with_selector %}
+            <td style="width: 30px;">
+                {% if obj.id in ctx.selected %}
+                    <input class="w3-check" style="top: 0px" type="checkbox"
+                    checked="checked"
+                    onClick="window.location='{% url url_select obj.id %}';"
+                    >
+                {% else %}
+                    <input class="w3-check" style="top: 0px" type="checkbox"
+                    onClick="window.location='{% url url_select obj.id %}';"
+                    >
+                {% endif %}
+            </td>
+            {% endif %}
+            {% for key, value in obj.items %}
+                {% if forloop.first and url_update %}
+                    <td><a href="{% url url_update obj.id %}">{{ value }}</a></td>
+                {% elif key != 'id' %}
+                    <td>{{ value }}</td>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

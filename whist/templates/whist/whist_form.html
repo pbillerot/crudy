@@ -1,0 +1,45 @@
+{% load whist_tags %}
+<form method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+    <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-border-red">
+        {% for error in form.non_field_errors %}
+            <p>{{ error|escape }}</p>
+        {% empty%}
+            <p>Corrigez les erreurs suivantes.</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="w3-container">
+        {% for field in form %}
+        <div class="w3-row-padding w3-margin-top">
+            <div class="w3-col w3-right-align w3-hide-small m3">
+                <label for="{{ field.id_for_label }}" class="w3-label">{{ field.label }}
+                    {% if field.required %}<span class="special_class">*</span>{% endif %}
+                </label>
+            </div>
+            <div class="w3-col w3-left-align w3-hide-medium w3-hide-large m3">
+                <label for="{{ field.id_for_label }}" class="w3-label">{{ field.label }}
+                    {% if field.required %}<span class="special_class">*</span>{% endif %}
+                </label>
+            </div>
+            <div class="w3-col m9">
+                {{ field | addclass:"w3-input w3-border" }}
+                <!-- Message d'erreur -->
+                {% if field.errors %}
+                <div class="w3-label w3-text-red w3-small">
+                    {% for error in field.errors %}
+                        <span>{{ error|escape }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="w3-label w3-small">
+                    <span>{{ field.help_text|safe }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</form>

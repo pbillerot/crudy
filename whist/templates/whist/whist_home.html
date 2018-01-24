@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ctx.title}}{% endblock title %}
+{% block icon %}
+{% include "whist/whist_image.html" %}
+{% endblock icon %}
+{% block menu %}
+{% include "whist/whist_menu.html" %}
+{% endblock menu %}
+{% block config %}{% endblock config %}
+{% block header_title %}{{ctx.title}}{% endblock header_title %}
+{% block application_list %}
+<div class="w3-container">
+    <h2>HELLO !</h2>
+    <p>Bienvenue dans CRUDY.</p>
+</div>
+{% endblock application_list %}
+{% block view %}{% endblock view %}
+{% block form %}{% endblock form %}
