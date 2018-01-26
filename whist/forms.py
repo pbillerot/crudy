@@ -1,10 +1,33 @@
 from django import forms
 from .models import WhistPartie, WhistJoueur, WhistParticipant, WhistJeu
 
-class WhistPartieForm(forms.ModelForm):
+
+class WhistForm(forms.ModelForm):
+
+    class Meta:
+        model = None
+        fields = []
+        readonly_fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super(WhistForm, self).__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name in self.Meta.readonly_fields:
+                field.widget.attrs['disabled'] = 'true'
+                field.required = False
+
+    def clean(self):
+        cleaned_data = super(WhistForm, self).clean()
+        for field in self.Meta.readonly_fields:
+            cleaned_data[field] = getattr(self.instance, field)
+        return cleaned_data
+
+class WhistPartieForm(WhistForm):
+
     class Meta:
         model = WhistPartie
         fields = ['name', 'jeu']
+        readonly_fields = ()
 
     # CTR
     def clean_jeu(self):
@@ -27,22 +50,30 @@ class WhistPartieForm(forms.ModelForm):
         # err = self.errors
         return cleaned_data  # N'oublions pas de renvoyer les données si tout est OK
 
-class WhistJoueurForm(forms.ModelForm):
+class WhistJoueurForm(WhistForm):
+
     class Meta:
         model = WhistJoueur
         fields = ['pseudo', 'email']
-    # CTR
+        readonly_fields = ()
+
     def clean_pseudo(self):
         pseudo = self.cleaned_data['pseudo']
         if not pseudo:
             raise forms.ValidationError("Le pseudo est obligatoire")
         return pseudo  # Ne pas oublier de renvoyer le contenu du champ traité
 
-class WhistJeuForm(forms.ModelForm):
+class WhistParticipantForm(WhistForm):
+
+    class Meta:
+        model = WhistParticipant
+        fields = ['partie', 'joueur', 'score']
+        readonly_fields = ('score',)
+
+class WhistJeuForm(WhistForm):
+    
     class Meta:
         model = WhistJeu
-        # fields = '__all__'
-        # exclude = ['title']
         fields = ['partie', 'joueur', 'jeu', 'pari', 'real', 'score']
         readonly_fields = ('score',)
 

@@ -65,7 +65,10 @@ class WhistListView(ListView):
     url_update = None
     url_delete = None
     # query sur la base
-    fields = [] # liste des champs à afficher dans la vue
+    # liste des champs à afficher dans la vue
+    fields = {
+        "name": "title"
+    }
     filters = {} # filtres du query_set
     order_by = () # liste des colonnes à trier
     # Rendu
@@ -81,13 +84,6 @@ class WhistListView(ListView):
         if ctx["view_name"] != url.view_name:
             ctx["selected"] = []
         self.context["model"] = self.model
-        self.context["fields"] = []
-        # on range les champs dans context["fields"] dans le m ordre que les objs
-        fields_obj = self.model._meta.get_fields(include_hidden=True)
-        for field_name in self.fields:
-            for field in fields_obj:
-                if field.name == field_name:
-                    self.context["fields"].append(field)
         self.context["url_add"] = self.url_add
         self.context["url_update"] = self.url_update
         self.context["url_delete"] = self.url_delete
@@ -95,6 +91,8 @@ class WhistListView(ListView):
         self.context["select_all"] = "select_all" # pour tester une variable plutôt qu'une valeur statique dans .html
         self.context["with_selector"] = self.with_selector
         self.context["search_in"] = self.search_in
+        self.context["fields"] = [title for title in self.fields.values()]
+        # Récupération des fields correspondants aux objs
         # cochage des enregistrements sélectionnés
         if 0 in ctx["selected"]:
             for obj in self.objs:
@@ -107,11 +105,11 @@ class WhistListView(ListView):
     def get_queryset(self):
         """ queryset générique """
         if 'id' not in self.fields:
-            self.fields.append("id")
+            self.fields["id"] = "id"
         self.objs = self.model.objects.all()\
         .filter(**self.filters)\
         .order_by(*self.order_by)\
-        .values(*self.fields)
+        .values(*self.fields.keys())
         return self.objs
 
 """
@@ -124,38 +122,25 @@ class WhistPartieListView(WhistListView):
     url_update = "partie_update"
     url_delete = "partie_delete"
     with_selector = True
-    fields = ['name', 'date', 'jeu']
+    fields = {
+        "name": "Partie",
+        "jeu": "Nombre de jeux"
+    }
     filtersx = {
         "name__icontains": "2017"
     }
     order_by = ('name',)
-    search_in = ('name',)
-
-class WhistParticipantListView(WhistListView):
-    """
-        Gestion des participants
-    """
-    model = WhistParticipant
-    fields = ['partie', 'joueur', 'score']
-    order_by = ('partie', 'joueur')
-
-class WhistJeuListView(WhistListView):
-    """
-        Gestion des jeux
-    """
-    model = WhistJeu
-    fields = ['partie', 'joueur', 'jeu', 'pari', 'real', 'points', 'score']
-    order_by = ('partie', 'jeu', '-points')
-    with_selector = True
+    # search_in = ('name',)
 
 def partie_create(request):
     ctx = get_ctx(request)
     model = WhistPartie
+    url_return = "partie_list"
     if request.POST:
         form = forms.WhistPartieForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('partie_list')
+            return redirect(url_return)
     else:
         form = forms.WhistPartieForm()
     return render(request, 'whist/whist_create.html', locals())
@@ -164,16 +149,18 @@ def partie_update(request, id):
     ctx = get_ctx(request)
     obj = get_object_or_404(WhistPartie, id=id)
     model = WhistPartie
+    url_return = "partie_list"
     form = forms.WhistPartieForm(request.POST or None, instance=obj)
     if form.is_valid():
         form.save()
-        return redirect('partie_list')
+        return redirect(url_return)
     return render(request, "whist/whist_create.html", locals())
 
 def partie_delete(request, id):
     obj = get_object_or_404(WhistPartie, id=id)
     obj.delete()
-    return redirect('partie_list')
+    url_return = "partie_list"
+    return redirect(url_return)
 
 """
     Gestion des joueurs
@@ -184,18 +171,22 @@ class WhistJoueurListView(WhistListView):
     url_add = "joueur_create"
     url_update = "joueur_update"
     url_delete = "joueur_delete"
-    fields = ['pseudo', 'email']
+    fields = {
+        "pseudo": "Joueur",
+        "email": "Email"
+    }
     order_by = ('pseudo',)
 
 def joueur_create(request):
     """ création d'un joueur """
     ctx = get_ctx(request)
     model = WhistJoueur
+    url_return = "joueur_list"
     if request.POST:
         form = forms.WhistJoueurForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('joueur_list')
+            return redirect(url_return)
     else:
         form = forms.WhistJoueurForm()
     return render(request, 'whist/whist_create.html', locals())
@@ -205,14 +196,82 @@ def joueur_update(request, id):
     ctx = get_ctx(request)
     model = WhistJoueur
     obj = get_object_or_404(model, id=id)
+    url_return = "joueur_list"
     form = forms.WhistJoueurForm(request.POST or None, instance=obj)
     if form.is_valid():
         form.save()
-        return redirect('joueur_list')
+        return redirect(url_return)
     return render(request, "whist/whist_create.html", locals())
 
 def joueur_delete(request, id):
     """ suppression d'un joueur """
     obj = get_object_or_404(WhistJoueur, id=id)
     obj.delete()
-    return redirect('joueur_list')
+    url_return = "joueur_list"
+    return redirect(url_return)
+
+"""
+    Gestion des participants
+"""
+class WhistParticipantListView(WhistListView):
+    """ Liste des participants """
+    model = WhistParticipant
+    fields = {
+        "partie__name": "Partie",
+        "joueur__pseudo": "Pseudo",
+        "score": "Score",
+    }
+    order_by = ('partie', 'joueur')
+    url_add = "participant_create"
+    url_update = "participant_update"
+    url_delete = "participant_delete"
+
+def participant_create(request):
+    """ création d'un participant """
+    ctx = get_ctx(request)
+    model = WhistParticipant
+    url_return = "joueur_list"
+    if request.POST:
+        form = forms.WhistParticipantForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(url_return)
+    else:
+        form = forms.WhistParticipantForm()
+    return render(request, 'whist/whist_create.html', locals())
+
+def participant_update(request, id):
+    """ mise à jour d'un participant """
+    ctx = get_ctx(request)
+    model = WhistParticipant
+    obj = get_object_or_404(model, id=id)
+    url_return = "joueur_list"
+    form = forms.WhistParticipantForm(request.POST or None, instance=obj)
+    if form.is_valid():
+        form.save()
+        return redirect(url_return)
+    return render(request, "whist/whist_create.html", locals())
+
+def participant_delete(request, id):
+    """ suppression d'un participant """
+    obj = get_object_or_404(WhistParticipant, id=id)
+    obj.delete()
+    url_return = "joueur_list"
+    return redirect(url_return)
+
+"""
+    Gestion des jeux
+"""
+class WhistJeuListView(WhistListView):
+    """ Liste des jeux """
+    model = WhistJeu
+    fields = {
+        "partie__name": "Partie",
+        "joueur__pseudo": "Joueur",
+        "pari": "Pari",
+        "real": "Réalisé",
+        "points": "Points",
+        "score": "Score"
+    }
+    order_by = ('partie', 'jeu', '-points')
+    with_selector = True

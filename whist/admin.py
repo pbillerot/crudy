@@ -39,6 +39,7 @@ class WhistParticipantAdmin(admin.ModelAdmin):
     search_fields = ('partie', 'joueur')
     ordering = ('partie', '-score')
     list_filter = ('partie',)
+    readonly_fields = ('score',)
 
 admin.site.register(WhistJoueur, WhistJoueurAdmin)
 admin.site.register(WhistPartie, WhistPartieAdmin)

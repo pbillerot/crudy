@@ -23,9 +23,9 @@
                 {% endif %}
                 {% for field in fields %}
                     {% if forloop.first %}
-                        <th>{{ field.verbose_name }}</th>
-                    {% elif field.name != 'id' %}
-                        <th>{{ field.verbose_name }}</th>
+                        <th>{{ field }}</th>
+                    {% elif field != 'id' %}
+                        <th>{{ field }}</th>
                     {% endif %}
                 {% endfor %}
             </tr>

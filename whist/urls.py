@@ -18,6 +18,9 @@ urlpatterns = [
     url(r'^joueur/delete/(.+)/$', views.joueur_delete, name='joueur_delete'),
 
     url(r'^participant/list/$', views.WhistParticipantListView.as_view(), name='participant_list'),
+    url(r'^participant/create/$', views.participant_create, name='participant_create'),
+    url(r'^participant/update/(.+)/$', views.participant_update, name='participant_update'),
+    url(r'^participant/delete/(.+)/$', views.participant_delete, name='participant_delete'),
 
     url(r'^jeu/list/$', views.WhistJeuListView.as_view(), name='jeu_list'),
 

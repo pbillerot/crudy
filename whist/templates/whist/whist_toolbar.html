@@ -1,25 +1,29 @@
 {% load whist_tags %}
 <nav id="myTop" class="w3-top w3-bar w3-padding w3-theme-l1 w3-show-inline-block">
     <i class="w3-bar-item fa fa-bars w3-opennav w3-hide-large w3-xlarge w3-margin-right" onClick="w3_open()"></i>
-    {% if not form %}
-    <span class="w3-bar-item">Vue {% model_name model %}</span>
-    {% if not selected %}
-        <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onClick="form.submit()">
-                <i class="fa fa-trash" style="padding: 4px"></i>
-        </a>
-        <span class="w3-bar-item w3-right">3 éléments sélectionnés</span>
-    {% endif %}
-    {% else %}
-    <span class="w3-bar-item">Formulaire {% model_name model %}</span>
-    {% endif %}
-    {% if search_in %}
-    <input type="text" class="w3-bar-item w3-input" placeholder="Rechercher..">
-    <a href="#" class="w3-bar-item w3-button w3-theme-action">Go</a>
+    {% if ctx.view_name %}
+        <span class="w3-bar-item">Liste des {% model_name model %}</span>
+        {% if not selected %}
+            <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onClick="form.submit()">
+                    <i class="fa fa-trash" style="padding: 4px"></i>
+            </a>
+            <span class="w3-bar-item w3-right">3 éléments sélectionnés</span>
+        {% endif %}
     {% endif %}
     {% if form %}
-    <!-- boutons de validation -->
-    <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onClick="form.submit()">
-        <i class="fa fa-check" style="padding: 4px"></i>
-    </a>
+        <a href="{% url url_return %} " class="w3-bar-item">
+            <i class="fa fa-chevron-left" style="padding: 4px"></i>
+        </a>
+        <span class="w3-bar-item">{% model_name model %}</span>
+    {% endif %}
+    {% if search_in %}
+        <input type="text" class="w3-bar-item w3-input" placeholder="Rechercher..">
+        <a href="#" class="w3-bar-item w3-button w3-theme-action">Go</a>
+    {% endif %}
+    {% if form %}
+        <!-- boutons de validation -->
+        <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onClick="form.submit()">
+            <i class="fa fa-check" style="padding: 4px"></i>
+        </a>
     {% endif %}
 </nav>

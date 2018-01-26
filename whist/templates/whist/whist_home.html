@@ -7,7 +7,9 @@
 {% include "whist/whist_menu.html" %}
 {% endblock menu %}
 {% block config %}{% endblock config %}
-{% block header_title %}{{ctx.title}}{% endblock header_title %}
+{% block toolbar %}
+{% include "whist/whist_toolbar.html" %}
+{% endblock toolbar %}
 {% block application_list %}
 <div class="w3-container">
     <h2>HELLO !</h2>
