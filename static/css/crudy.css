@@ -1,0 +1,4 @@
+.w3-pale-red,.w3-hover-pale-red:hover{color:#000!important;background-color:#ffdddd!important}
+.w3-text-red,.w3-hover-text-red:hover{color:#f44336!important}
+.w3-border-red,.w3-hover-border-red:hover{border-color:#f44336!important}
+span.required:after { content: "*"; }

@@ -1,29 +1,40 @@
 {% load whist_tags %}
 <nav id="myTop" class="w3-top w3-bar w3-padding w3-theme-l1 w3-show-inline-block">
     <i class="w3-bar-item fa fa-bars w3-opennav w3-hide-large w3-xlarge w3-margin-right" onClick="w3_open()"></i>
-    {% if ctx.view_name %}
-        <span class="w3-bar-item">Liste des {% model_name model %}</span>
-        {% if not selected %}
-            <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onClick="form.submit()">
-                    <i class="fa fa-trash" style="padding: 4px"></i>
+    {% if ctx.view_name and not form %}
+        {% if not url_folder and ctx.folder_id %}
+        <span class="w3-bar-item w3-large w3-tag w3-round w3-theme-l4">{{ctx.folder_name}}</span>
+        <span class="w3-bar-item w3-large"><b>{{title}}</b></span>
+        {% else %}
+        <span class="w3-bar-item w3-large"><b>{{title}}</b></span>
+        {% endif %}
+        {% if ctx.selected and not url_folder %}
+            <a href="{% url url_delete %}" class="w3-bar-item w3-button w3-theme-action w3-right">
+                <i class="fa fa-trash" style="padding: 4px"></i>
             </a>
-            <span class="w3-bar-item w3-right">3 éléments sélectionnés</span>
+            <span class="w3-bar-item w3-right">
+                {{ ctx.selected|length }} élément{{ ctx.selected|length|pluralize }} sélectionné{{ ctx.selected|length|pluralize }}
+            </span>
         {% endif %}
     {% endif %}
     {% if form %}
         <a href="{% url url_return %} " class="w3-bar-item">
             <i class="fa fa-chevron-left" style="padding: 4px"></i>
         </a>
-        <span class="w3-bar-item">{% model_name model %}</span>
+        {% if not url_folder and ctx.folder_id %}
+            <span class="w3-bar-item w3-large"><b>{{ctx.folder_name}} / {{title}}</b></span>
+        {% else %}
+            <span class="w3-bar-item w3-large"><b>{{title}}</b></span>
+        {% endif %}
     {% endif %}
     {% if search_in %}
-        <input type="text" class="w3-bar-item w3-input" placeholder="Rechercher..">
+        <input type="text" class="w3-bar-item w3-input" placeholder="Rechercher.."/>
         <a href="#" class="w3-bar-item w3-button w3-theme-action">Go</a>
     {% endif %}
     {% if form %}
         <!-- boutons de validation -->
-        <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onClick="form.submit()">
-            <i class="fa fa-check" style="padding: 4px"></i>
+        <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onclick="document.getElementById('maForm').submit();">
+            Valider
         </a>
     {% endif %}
 </nav>

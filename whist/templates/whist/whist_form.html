@@ -1,5 +1,5 @@
 {% load whist_tags %}
-<form method="post">
+<form method="post" id="maForm">
     {% csrf_token %}
     {% if form.errors %}
     <div class="w3-margin w3-panel w3-pale-red w3-leftbar w3-border-red">
@@ -24,14 +24,16 @@
                 </label>
             </div>
             <div class="w3-col m9">
-                {{ field | addclass:"w3-input w3-border" }}
                 <!-- Message d'erreur -->
                 {% if field.errors %}
+                {{ field | addclass:"w3-input w3-border w3-border-red" }}
                 <div class="w3-label w3-text-red w3-small">
                     {% for error in field.errors %}
                         <span>{{ error|escape }}</span>
                     {% endfor %}
                 </div>
+                {% else %}
+                {{ field | addclass:"w3-input w3-border" }}
                 {% endif %}
                 {% if field.help_text %}
                 <div class="w3-label w3-small">

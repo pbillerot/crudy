@@ -1,5 +1,11 @@
-<a class="w3-bar-item w3-button" href="{% url 'partie_list' %}">Parties</a>
-<a class="w3-bar-item w3-button" href="{% url 'joueur_list' %}">Joueurs</a>
-<a class="w3-bar-item w3-button" href="{% url 'participant_list' %}">Participants</a>
-<a class="w3-bar-item w3-button" href="{% url 'jeu_list' %}">Jeux</a>
-
+{% comment %} <a class="w3-bar-item w3-button" href="{% url 'partie_list' %}">Gestion des Parties</a> {% endcomment %}
+<a class="w3-bar-item w3-button" href="{% url 'joueur_list' %}">Gestion des Joueurs</a>
+{% if ctx.folder_id %}
+<a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'partie_select' %}">
+    <span>Partie: </span><span class="w3-large" ><b>{{ctx.folder_name}}</b></span>
+</a>
+<a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'participant_list' %}">Participants</a>
+<a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'jeu_list' %}">Jeux</a>
+{% else %}
+<a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'partie_select' %}">Sélection d'une partie...</a>
+{% endif %}

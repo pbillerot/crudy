@@ -22,8 +22,15 @@ class WhistForm(forms.ModelForm):
             cleaned_data[field] = getattr(self.instance, field)
         return cleaned_data
 
-class WhistPartieForm(WhistForm):
+class WhistPartieFolderForm(WhistForm):
+    """ Création / mise à jour d'une partie """
+    class Meta:
+        model = WhistPartie
+        fields = ['name']
+        readonly_fields = ()
 
+class WhistPartieForm(WhistForm):
+    """ Création / mise à jour d'une partie """
     class Meta:
         model = WhistPartie
         fields = ['name', 'jeu']
@@ -51,7 +58,7 @@ class WhistPartieForm(WhistForm):
         return cleaned_data  # N'oublions pas de renvoyer les données si tout est OK
 
 class WhistJoueurForm(WhistForm):
-
+    """ Création / mise à jour d'un joueur """
     class Meta:
         model = WhistJoueur
         fields = ['pseudo', 'email']
@@ -64,14 +71,14 @@ class WhistJoueurForm(WhistForm):
         return pseudo  # Ne pas oublier de renvoyer le contenu du champ traité
 
 class WhistParticipantForm(WhistForm):
-
+    """ Création / mise à jour d'un participant d'une partie """
     class Meta:
         model = WhistParticipant
         fields = ['partie', 'joueur', 'score']
         readonly_fields = ('score',)
 
 class WhistJeuForm(WhistForm):
-    
+    """ Création / mise à jour d'un jeu d'une partie """
     class Meta:
         model = WhistJeu
         fields = ['partie', 'joueur', 'jeu', 'pari', 'real', 'score']

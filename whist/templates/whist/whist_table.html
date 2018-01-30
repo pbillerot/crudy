@@ -12,7 +12,7 @@
     <table class="w3-table-all w3-hoverable w3-medium w3-card-3">
         <thead>
             <tr class="w3-theme">
-                {% if with_selector %}
+                {% if url_delete  and not url_folder %}
                 <td>
                     {% if 0 in ctx.selected %}
                     <input class="w3-check" style="top: 0px" type="checkbox" checked="checked" onClick="window.location='{% url url_select 0 %}';"></td>
@@ -20,6 +20,9 @@
                     <input class="w3-check" style="top: 0px" type="checkbox" onClick="window.location='{% url url_select 0 %}';">
                     {% endif %}
                 </td>
+                {% endif %}
+                {% if url_folder %}
+                    <td>&nbsp;</td>
                 {% endif %}
                 {% for field in fields %}
                     {% if forloop.first %}
@@ -33,7 +36,7 @@
         <tbody>
         {% for obj in objs %}
             <tr class="">
-            {% if with_selector %}
+            {% if url_delete and not url_folder %}
             <td style="width: 30px;">
                 {% if obj.id in ctx.selected %}
                     <input class="w3-check" style="top: 0px" type="checkbox"
@@ -43,6 +46,20 @@
                 {% else %}
                     <input class="w3-check" style="top: 0px" type="checkbox"
                     onClick="window.location='{% url url_select obj.id %}';"
+                    >
+                {% endif %}
+            </td>
+            {% endif %}
+            {% if url_folder %}
+            <td style="width: 30px;">
+                {% if obj.id == ctx.folder_id %}
+                    <input class="w3-radio" style="top: 0px" type="radio"
+                    checked="checked"
+                    onClick="window.location='{% url url_folder obj.id %}';"
+                    >
+                {% else %}
+                    <input class="w3-radio" style="top: 0px" type="radio"
+                    onClick="window.location='{% url url_folder obj.id %}';"
                     >
                 {% endif %}
             </td>
