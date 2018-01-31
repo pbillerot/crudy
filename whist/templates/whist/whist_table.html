@@ -24,6 +24,9 @@
                 {% if url_folder %}
                     <td>&nbsp;</td>
                 {% endif %}
+                {% if url_join %}
+                    <td>&nbsp;</td>
+                {% endif %}
                 {% for field in fields %}
                     {% if forloop.first %}
                         <th>{{ field }}</th>
@@ -60,6 +63,20 @@
                 {% else %}
                     <input class="w3-radio" style="top: 0px" type="radio"
                     onClick="window.location='{% url url_folder obj.id %}';"
+                    >
+                {% endif %}
+            </td>
+            {% endif %}
+            {% if url_join %}
+            <td style="width: 30px;">
+                {% if obj.id in ctx.joined %}
+                    <input class="w3-check" style="top: 0px" type="checkbox"
+                    checked="checked"
+                    onClick="window.location='{% url url_join obj.id %}';"
+                    >
+                {% else %}
+                    <input class="w3-check" style="top: 0px" type="checkbox"
+                    onClick="window.location='{% url url_join obj.id %}';"
                     >
                 {% endif %}
             </td>

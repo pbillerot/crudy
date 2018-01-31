@@ -8,9 +8,13 @@ class WhistPartie(models.Model):
     name = models.CharField(max_length=50, blank=False
                             , verbose_name='Nom de la partie'
                             , help_text="Le nom de la partie devra être unique"
-                            )
+                           )
     date = models.DateField(auto_now_add=True, auto_now=False, verbose_name="Date de la partie")
-    jeu = models.IntegerField(default=0, verbose_name='Nombre de jeux (de tours) de la partie')
+    cartes = models.IntegerField(default=0,
+                                 verbose_name='Nombre de cartes max / joueur',
+                                 help_text="Nombre de cartes maximum par joueurs qui seront distribuées")
+    carte = models.IntegerField(default=0, verbose_name="Nombre de carte du jeu")
+    jeu = models.IntegerField(default=0, verbose_name="n° du jeu en cours")
 
     def __str__(self):
         return self.name
@@ -20,7 +24,7 @@ class WhistPartie(models.Model):
         verbose_name = "Partie"
         verbose_name_plural = "Parties"
 
-    def save(self, *args, **kwargs):
+    def saveX(self, *args, **kwargs):
         """ Création des lignes de jeu pour chaque joueur dans WhistJeu """
 
         jeux = WhistJeu.objects.filter(partie_id=self.id)

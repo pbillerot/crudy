@@ -9,14 +9,15 @@ class WhistJoueurAdmin(admin.ModelAdmin):
     search_fields = ('pseudo', 'email')
 
 class WhistPartieAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date', 'jeu')
+    list_display = ('name', 'date', 'cartes', 'carte', 'jeu')
+    fields = ('name', 'cartes')
     search_fields = ('name',)
-    list_editable = ['jeu']
+    # list_editable = ['jeu']
 
 class WhistJeuAdmin(admin.ModelAdmin):
     # liste
     list_display = ('partie', 'joueur', 'jeu', 'pari', 'real', 'Points', 'score')
-    search_fields = ['partie__name', 'joueur__pseudo',]
+    fields = ('partie__name', 'joueur__pseudo')
     ordering = ('partie', 'jeu', '-score', 'joueur')
     list_filter = ('partie', 'jeu')
     list_editable = ['pari', 'real']

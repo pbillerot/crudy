@@ -33,7 +33,7 @@ class WhistPartieForm(WhistForm):
     """ Création / mise à jour d'une partie """
     class Meta:
         model = WhistPartie
-        fields = ['name', 'jeu']
+        fields = ['name', 'cartes']
         readonly_fields = ()
 
     # CTR

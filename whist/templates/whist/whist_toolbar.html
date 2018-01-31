@@ -16,6 +16,11 @@
                 {{ ctx.selected|length }} élément{{ ctx.selected|length|pluralize }} sélectionné{{ ctx.selected|length|pluralize }}
             </span>
         {% endif %}
+        {% if url_join %}
+            <span class="w3-bar-item w3-right">
+                {{ ctx.joined|length }} élément{{ ctx.joined|length|pluralize }} sélectionné{{ ctx.joined|length|pluralize }}
+            </span>
+        {% endif %}
     {% endif %}
     {% if form %}
         <a href="{% url url_return %} " class="w3-bar-item">

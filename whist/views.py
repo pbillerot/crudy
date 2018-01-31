@@ -13,6 +13,7 @@ def get_ctx(request):
         ctx = {
             "title": "JEU DU WHIST",
             "selected": [],
+            "joined": [],
             "view_name": None,
             "folder_id": None,
             "folder_name": None,
@@ -34,23 +35,6 @@ def whist_home(request):
     set_ctx(request, ctx)
     model = WhistPartie
     return render(request, 'whist/whist_home.html', locals())
-
-def whist_folder(request, record_id):
-    """ Sélection d'un item dans une liste """
-    ctx = get_ctx(request)
-    iid = int(record_id)
-
-    # un seul item à la fois
-    if iid in ctx["selected"]:
-        ctx["selected"] = []
-        ctx["folder_id"] = None
-    else:
-        ctx["selected"] = []
-        ctx["selected"].append(iid)
-        ctx["folder_id"] = iid
-
-    set_ctx(request, ctx)
-    return redirect(ctx["view_name"])
 
 def whist_select(request, record_id):
     """ Sélection/désélection d'un élément dans une liste """
@@ -100,6 +84,7 @@ class WhistListView(ListView):
         url_select = "whist_select" # émis par url_delete
         url_folder = None
         url_sorter = None
+        url_join = None
         # query sur la base
         # liste des champs à afficher dans la vue
         fields = {
@@ -129,6 +114,7 @@ class WhistListView(ListView):
         self.context["url_select"] = self.meta.url_select
         self.context["url_folder"] = self.meta.url_folder
         self.context["url_sorter"] = self.meta.url_sorter
+        self.context["url_join"] = self.meta.url_join
         self.context["search_in"] = self.meta.search_in
         # Récupération des fields correspondants aux objs
         self.context["fields"] = [title for title in self.meta.fields.values()]
@@ -166,7 +152,7 @@ class WhistPartieListView(WhistListView):
         url_delete = "partie_delete"
         fields = {
             "name": "Partie",
-            "jeu": "Nombre de jeux"
+            "cartes": "Nombre de cartes max"
         }
         order_by = ('name',)
 
@@ -183,7 +169,7 @@ class WhistPartieSelectView(WhistListView):
         url_folder = "partie_folder"
         fields = {
             "name": "Nom de la partie",
-            "jeu": "Nombre de jeux"
+            "cartes": "Nombre de cartes max"
         }
         order_by = ('name',)
 
@@ -244,29 +230,65 @@ def partie_delete(request, record_id):
     return redirect(url_return)
 
 """
-    Gestion des joueurs
+    Gestion des participants
 """
-class WhistJoueurListView(WhistListView):
-    """ Gestion des joueurs """
+class WhistParticipantListView(WhistListView):
+    """ Liste des participants """
 
     class Meta(WhistListView.Options):
         model = WhistJoueur
-        title = "Gestion des Joueurs"
-        url_add = "joueur_create"
-        url_update = "joueur_update"
-        url_delete = "joueur_delete"
+        title = "Sélection des Participants"
         fields = {
-            "pseudo": "Joueur",
+            "pseudo": "Nom du joueur",
             "email": "Email"
         }
         order_by = ('pseudo',)
+        url_add = "joueur_create"
+        url_update = "joueur_update"
+        url_join = "participant_join"
+
+    def get_queryset(self):
+        """ queryset générique """
+        ctx = get_ctx(self.request)
+        if 'id' not in self.meta.fields:
+            self.meta.fields["id"] = "id"
+        self.objs = self.meta.model.objects.all()\
+        .filter(**self.meta.filters)\
+        .order_by(*self.meta.order_by)\
+        .values(*self.meta.fields.keys())
+        # Cochage des participants dans la liste des joueurs
+        participants = WhistParticipant.objects.all().filter(partie__id__exact=ctx["folder_id"])
+        ctx["joined"] = []
+        for obj in self.objs:
+            for participant in participants:
+                if participant.joueur_id == obj["id"]:
+                    ctx["joined"].append(obj["id"])
+
+        return self.objs
+
+def participant_join(request, record_id):
+    """ Sélection d'un participant dans la liste des joueurs """
+    ctx = get_ctx(request)
+    iid = int(record_id)
+
+    if iid in ctx["joined"]:
+        participant = WhistParticipant.objects.all().filter(partie_id__exact=ctx["folder_id"], joueur_id__exact=iid)
+        participant.delete()
+        ctx["joined"].remove(iid)
+    else:
+        participant = WhistParticipant(partie_id=ctx["folder_id"], joueur_id=iid)
+        participant.save()
+        ctx["joined"].append(iid)
+
+    set_ctx(request, ctx)
+    return redirect(ctx["view_name"])
 
 def joueur_create(request):
     """ création d'un joueur """
     title = "Nouveau Joueur"
     ctx = get_ctx(request)
     model = WhistJoueur
-    url_return = "joueur_list"
+    url_return = "participant_list"
     if request.POST:
         form = forms.WhistJoueurForm(request.POST)
         if form.is_valid():
@@ -282,91 +304,12 @@ def joueur_update(request, record_id):
     ctx = get_ctx(request)
     model = WhistJoueur
     obj = get_object_or_404(model, id=record_id)
-    url_return = "joueur_list"
+    url_return = "participant_list"
     form = forms.WhistJoueurForm(request.POST or None, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(url_return)
     return render(request, "whist/whist_create.html", locals())
-
-def joueur_delete(request):
-    """ suppression des joueurs sélectionnés """
-    ctx = get_ctx(request)
-    for id in ctx["selected"]:
-        obj = get_object_or_404(WhistJoueur, id=id)
-        obj.delete()
-    ctx["selected"] = []
-    set_ctx(request, ctx)
-    url_return = "joueur_list"
-    return redirect(url_return)
-
-"""
-    Gestion des participants
-"""
-class WhistParticipantListView(WhistListView):
-    """ Liste des participants """
-
-    class Meta(WhistListView.Options):
-        model = WhistParticipant
-        title = "Liste des Participants"
-        fields = {
-            "joueur__pseudo": "Pseudo",
-            "score": "Score",
-        }
-        order_by = ('partie', 'joueur')
-        url_add = "participant_create"
-        url_update = "participant_update"
-        url_delete = "participant_delete"
-
-    def get_queryset(self):
-        """ fournir les données à afficher dans la vue """
-        ctx = get_ctx(self.request)
-        if 'id' not in self.meta.fields:
-            self.meta.fields["id"] = "id"
-        self.objs = self.meta.model.objects.all()\
-        .filter(partie__id__exact=ctx["folder_id"])\
-        .order_by(*self.meta.order_by)\
-        .values(*self.meta.fields.keys())
-        return self.objs
-
-def participant_create(request):
-    """ création d'un participant """
-    title = "Nouveau Participant"
-    ctx = get_ctx(request)
-    model = WhistParticipant
-    url_return = "participant_list"
-    if request.POST:
-        form = forms.WhistParticipantForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect(url_return)
-    else:
-        form = forms.WhistParticipantForm()
-    return render(request, 'whist/whist_create.html', locals())
-
-def participant_update(request, record_id):
-    """ mise à jour d'un participant """
-    title = "Modification d'un Participant"
-    ctx = get_ctx(request)
-    model = WhistParticipant
-    obj = get_object_or_404(model, id=record_id)
-    url_return = "joueur_list"
-    form = forms.WhistParticipantForm(request.POST or None, instance=obj)
-    if form.is_valid():
-        form.save()
-        return redirect(url_return)
-    return render(request, "whist/whist_create.html", locals())
-
-def participant_delete(request, record_id):
-    """ suppression des participants sélectionnés """
-    ctx = get_ctx(request)
-    for record_id in ctx["selected"]:
-        obj = get_object_or_404(WhistParticipant, id=record_id)
-        obj.delete()
-    ctx["selected"] = []
-    set_ctx(request, ctx)
-    url_return = "participant_list"
-    return redirect(url_return)
 
 """
     Gestion des jeux
