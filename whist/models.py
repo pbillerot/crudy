@@ -2,9 +2,11 @@
     Modèles 
 """
 from django.db import models
+from django.db.models.signals import post_delete
 
 class WhistPartie(models.Model):
     """ Les parties """
+    objects = models.Manager()
     name = models.CharField(max_length=50, blank=False
                             , verbose_name='Nom de la partie'
                             , help_text="Le nom de la partie devra être unique"
@@ -24,32 +26,9 @@ class WhistPartie(models.Model):
         verbose_name = "Partie"
         verbose_name_plural = "Parties"
 
-    def saveX(self, *args, **kwargs):
-        """ Création des lignes de jeu pour chaque joueur dans WhistJeu """
-
-        jeux = WhistJeu.objects.filter(partie_id=self.id)
-        qjeu = 0
-        for jeu in jeux:
-            if jeu.jeu > qjeu:
-                qjeu = jeu.jeu
-
-        if qjeu < self.jeu:
-            # nouveau jeu
-            participants = WhistParticipant.objects.filter(partie_id=self.id)
-            for participant in participants.iterator():
-                for jj in range(qjeu+1, self.jeu + 1):
-                    jeu = WhistJeu(partie_id=participant.partie_id, joueur_id=participant.joueur_id, jeu=jj)
-                    super(WhistJeu, jeu).save()
-        # suppression des jeux créés en trop
-        jeux = WhistJeu.objects.filter(partie_id=self.id, jeu__gt=self.jeu)
-        if jeux.exists():
-            for jeu in jeux.iterator():
-                jeu.delete()
-
-        super(WhistPartie, self).save(*args, **kwargs)
-
 class WhistJoueur(models.Model):
     """ Les joueurs """
+    objects = models.Manager()
     pseudo = models.CharField(max_length=15)
     email = models.EmailField(blank=True, null=True)
     # participants = models.ManyToManyField(WhistPartie, through='WhistParticipant')
@@ -65,9 +44,11 @@ class WhistJoueur(models.Model):
 
 class WhistParticipant(models.Model):
     """ Les participants à une partie """
+    objects = models.Manager()
     partie = models.ForeignKey(WhistPartie, on_delete=models.CASCADE, verbose_name="Partie")
     joueur = models.ForeignKey(WhistJoueur, on_delete=models.CASCADE, verbose_name="Joueur")
     score = models.IntegerField(default=0)
+    order = models.IntegerField(default=99)
 
     def __str__(self):
         return "{0} participe à la partie {1}".format(self.joueur, self.partie)
@@ -77,8 +58,28 @@ class WhistParticipant(models.Model):
         verbose_name = "Participant"
         verbose_name_plural = "Participants"
 
+    def save(self, *args, **kwargs):
+        """ Calcul de l'ordre """
+        if self.pk is None:
+            count_participants = WhistParticipant.objects.all()\
+                .filter(partie__exact=self.partie).count()
+            self.order = (count_participants) * 2
+        super().save(*args, **kwargs)
+        self.compute_order()
+
+    def compute_order(self):
+        """ recalcule de l'ordre """
+        participants = WhistParticipant.objects.all()\
+        .filter(partie__exact=self.partie).order_by("order")
+        order = 0
+        for participant in participants:
+            participant.order = order
+            super(WhistParticipant, participant).save()
+            order += 2
+
 class WhistJeu(models.Model):
     """ Les jeux d'une partie """
+    objects = models.Manager()
     partie = models.ForeignKey(WhistPartie, on_delete=models.CASCADE)
     joueur = models.ForeignKey(WhistJoueur, on_delete=models.CASCADE)
     jeu = models.IntegerField(default=0, verbose_name='Jeu')
@@ -97,7 +98,7 @@ class WhistJeu(models.Model):
 
     def save(self, *args, **kwargs):
         """ Calcul des points en fonction du pari et du réalisé """
-        super(WhistJeu, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         jeux = WhistJeu.objects.filter(partie=self.partie, jeu=self.jeu)
         for jeu in jeux.iterator():
             # print("{} {} {}".format(jeu.joueur, jeu.pari, jeu.real))
@@ -130,3 +131,10 @@ class WhistJeu(models.Model):
                 super(WhistJeu, jeu).save()
 
             super(WhistJeu, jeu).save()
+
+def post_delete_whist(sender, instance, **kwargs):
+    """ traitements suite à la suppression d'un enregistrement """
+    if isinstance(instance, (WhistParticipant,)):
+        instance.compute_order()
+
+post_delete.connect(post_delete_whist)

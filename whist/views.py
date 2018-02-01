@@ -83,8 +83,9 @@ class WhistListView(ListView):
         url_delete = None
         url_select = "whist_select" # émis par url_delete
         url_folder = None
-        url_sorter = None
         url_join = None
+        url_ascend = None
+        url_descend = None
         # query sur la base
         # liste des champs à afficher dans la vue
         fields = {
@@ -113,7 +114,8 @@ class WhistListView(ListView):
         self.context["url_delete"] = self.meta.url_delete
         self.context["url_select"] = self.meta.url_select
         self.context["url_folder"] = self.meta.url_folder
-        self.context["url_sorter"] = self.meta.url_sorter
+        self.context["url_ascend"] = self.meta.url_ascend
+        self.context["url_descend"] = self.meta.url_descend
         self.context["url_join"] = self.meta.url_join
         self.context["search_in"] = self.meta.search_in
         # Récupération des fields correspondants aux objs
@@ -265,6 +267,55 @@ class WhistParticipantListView(WhistListView):
                     ctx["joined"].append(obj["id"])
 
         return self.objs
+
+class WhistParticipantOrderView(WhistListView):
+    """ Tri des participants """
+
+    class Meta(WhistListView.Options):
+        model = WhistParticipant
+        title = "Ordre des Participants autour de la table"
+        fields = {
+            "joueur__pseudo": "Nom du joueur",
+            "order": "Ordre",
+        }
+        order_by = ('order', 'joueur__pseudo')
+        url_ascend = "participant_ascend"
+        url_descend = "participant_descend"
+
+    def get_queryset(self):
+        """ queryset générique """
+        ctx = get_ctx(self.request)
+        if 'id' not in self.meta.fields:
+            self.meta.fields["id"] = "id"
+        self.objs = self.meta.model.objects.all()\
+        .filter(partie_id__exact=ctx["folder_id"])\
+        .order_by(*self.meta.order_by)\
+        .values(*self.meta.fields.keys())
+        return self.objs
+
+def participant_ascend(request, record_id):
+    """ On remonte le joueur dans la liste """
+    ctx = get_ctx(request)
+    iid = int(record_id)
+
+    participant = get_object_or_404(WhistParticipant, id=iid)
+    participant.order -= 3
+    participant.save()
+
+    set_ctx(request, ctx)
+    return redirect(ctx["view_name"])
+
+def participant_descend(request, record_id):
+    """ On descend le joueur dans la liste """
+    ctx = get_ctx(request)
+    iid = int(record_id)
+
+    participant = get_object_or_404(WhistParticipant, id=iid)
+    participant.order += 3
+    participant.save()
+
+    set_ctx(request, ctx)
+    return redirect(ctx["view_name"])
 
 def participant_join(request, record_id):
     """ Sélection d'un participant dans la liste des joueurs """

@@ -17,6 +17,9 @@ urlpatterns = [
 
     url(r'^participant/list/$', views.WhistParticipantListView.as_view(), name='participant_list'),
     url(r'^participant/join/(.+)/$', views.participant_join, name='participant_join'),
+    url(r'^participant/order/$', views.WhistParticipantOrderView.as_view(), name='participant_order'),
+    url(r'^participant/ascend/(.+)/$', views.participant_ascend, name='participant_ascend'),
+    url(r'^participant/descend/(.+)/$', views.participant_descend, name='participant_descend'),
     url(r'^joueur/create/$', views.joueur_create, name='joueur_create'),
     url(r'^joueur/update/(.+)/$', views.joueur_update, name='joueur_update'),
 

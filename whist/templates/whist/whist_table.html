@@ -27,6 +27,10 @@
                 {% if url_join %}
                     <td>&nbsp;</td>
                 {% endif %}
+                {% if url_ascend %}
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                {% endif %}
                 {% for field in fields %}
                     {% if forloop.first %}
                         <th>{{ field }}</th>
@@ -80,6 +84,10 @@
                     >
                 {% endif %}
             </td>
+            {% endif %}
+            {% if url_ascend %}
+            <td style="width: 30px;"><a href="{% url url_descend obj.id %}"><span class="fa fa-arrow-down"></span></a></td>
+            <td style="width: 30px;"><a href="{% url url_ascend obj.id %}"><span class="fa fa-arrow-up"></span></a></td>
             {% endif %}
             {% for key, value in obj.items %}
                 {% if forloop.first and url_update %}
