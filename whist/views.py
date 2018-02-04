@@ -1,11 +1,13 @@
 """
     Traitement des VUES
 """
+import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve
 from .models import WhistPartie, WhistJoueur, WhistParticipant, WhistJeu
 from . import forms
 from django.views.generic import ListView
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def get_ctx(request):
     """ Obtenir le ctx de la session """
@@ -17,6 +19,7 @@ def get_ctx(request):
             "view_name": None,
             "folder_id": None,
             "folder_name": None,
+            "item_id": None,
         }
         request.session["ctx"] = ctx
     return request.session["ctx"]
@@ -86,6 +89,8 @@ class WhistListView(ListView):
         url_join = None
         url_ascend = None
         url_descend = None
+        url_actions = []
+        url_return = None
         # query sur la base
         # liste des champs à afficher dans la vue
         fields = {
@@ -117,6 +122,8 @@ class WhistListView(ListView):
         self.context["url_ascend"] = self.meta.url_ascend
         self.context["url_descend"] = self.meta.url_descend
         self.context["url_join"] = self.meta.url_join
+        self.context["url_actions"] = self.meta.url_actions
+        self.context["url_return"] = self.meta.url_return
         self.context["search_in"] = self.meta.search_in
         # Récupération des fields correspondants aux objs
         self.context["fields"] = [title for title in self.meta.fields.values()]
@@ -248,6 +255,9 @@ class WhistParticipantListView(WhistListView):
         url_add = "joueur_create"
         url_update = "joueur_update"
         url_join = "participant_join"
+        url_actions = [
+            ("jeu_create", "Initialisations des jeux")
+        ]
 
     def get_queryset(self):
         """ queryset générique """
@@ -370,25 +380,45 @@ class WhistJeuListView(WhistListView):
 
     class Meta(WhistListView.Options):
         model = WhistJeu
-        title = "Liste des Jeux"
+        title = "Faites vos Jeux"
         fields = {
-            # "partie__name": "Partie",
-            "joueur__pseudo": "Nom du joueur",
-            "jeu": "N° du jeu",
+            "participant__joueur__pseudo": "Participant",
+            "jeu": "n° du tour",
+            "carte": "nbre de cartes",
             "pari": "Pari",
             "real": "Réalisé",
-            "points": "Points",
+            "points": "Point",
             "score": "Score"
         }
-        order_by = ('partie', 'jeu', '-points')
+        order_by = ('jeu', 'participant__order',)
+        url_return = "jeu_list"
 
     def get_queryset(self):
         """ fournir les données à afficher dans la vue """
         ctx = get_ctx(self.request)
+        # ajout de la colonne id
         if 'id' not in self.meta.fields:
             self.meta.fields["id"] = "id"
-        self.objs = self.meta.model.objects.all()\
-        .filter(partie__id__exact=ctx["folder_id"])\
+        # prise en compte de la colonne à trier en fonction de sort_column
+
+        jeux_list = self.meta.model.objects.all()\
+        .filter(participant__partie__id__exact=ctx["folder_id"])\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.fields.keys())
+
+        qparticipant = WhistParticipant.objects.all().filter(partie__id=ctx["folder_id"]).count()
+        paginator = Paginator(jeux_list, qparticipant)
+        # page = self.request.GET.get('page')
+        page = re.search('list/([0-9]+)/$', self.request.path).group(1)
+        
+        self.objs = paginator.get_page(page)
         return self.objs
+
+def jeu_create(request):
+    """ création des jeux (tours) de la partie """
+    ctx = get_ctx(request)
+    jeu = WhistJeu()
+    jeu.create_jeux(ctx)
+
+    url_return = "jeu_list"
+    return redirect(url_return)

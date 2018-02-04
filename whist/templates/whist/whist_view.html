@@ -15,3 +15,26 @@
 {% endblock view %}
 {% block application_list %}{% endblock application_list %}
 {% block form %}{% endblock form %}
+{% block footer %}
+{% if objs.has_other_pages %}
+  <div class="w3-bar w3-small">
+    {% if objs.has_previous %}
+      <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_return objs.previous_page_number %}">&laquo;</a>
+    {% else %}
+      <div class="w3-bar-item w3-button w3-border w3-padding-small">&laquo;</div>
+    {% endif %}
+    {% for i in objs.paginator.page_range %}
+      {% if objs.number == i %}
+        <div class="w3-bar-item w3-button w3-border w3-padding-small w3-theme-action">{{ i }}</div>
+      {% else %}
+        <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_return i %}">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if objs.has_next %}
+      <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_return objs.next_page_number %}">&raquo;</a>
+    {% else %}
+      <div class="w3-bar-item w3-button w3-border w3-padding-small">&raquo;</div>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock footer %}

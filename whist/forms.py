@@ -81,7 +81,8 @@ class WhistJeuForm(WhistForm):
     """ Création / mise à jour d'un jeu d'une partie """
     class Meta:
         model = WhistJeu
-        fields = ['partie', 'joueur', 'jeu', 'pari', 'real', 'score']
+        # fields = ['partie', 'joueur', 'jeu', 'pari', 'real', 'score']
+        fields = ['participant', 'jeu', 'pari', 'real', 'score']
         readonly_fields = ('score',)
 
     # CTRL pour les views et Admin

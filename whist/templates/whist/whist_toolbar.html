@@ -8,6 +8,17 @@
         {% else %}
         <span class="w3-bar-item w3-large"><b>{{title}}</b></span>
         {% endif %}
+        {% if url_join %}
+            <span class="w3-bar-item">
+                {{ ctx.joined|length }} élément{{ ctx.joined|length|pluralize }} sélectionné{{ ctx.joined|length|pluralize }}
+            </span>
+        {% endif %}
+        {% if url_actions %}
+        <!-- boutons d'actions -->
+        {% for action, title in url_actions %}
+            <a href="{% url action %}" class="w3-bar-item w3-button w3-theme-action w3-right">{{title}}</a>
+        {% endfor %}
+        {% endif %}
         {% if ctx.selected and not url_folder %}
             <a href="{% url url_delete %}" class="w3-bar-item w3-button w3-theme-action w3-right">
                 <i class="fa fa-trash" style="padding: 4px"></i>
@@ -16,10 +27,15 @@
                 {{ ctx.selected|length }} élément{{ ctx.selected|length|pluralize }} sélectionné{{ ctx.selected|length|pluralize }}
             </span>
         {% endif %}
-        {% if url_join %}
-            <span class="w3-bar-item w3-right">
-                {{ ctx.joined|length }} élément{{ ctx.joined|length|pluralize }} sélectionné{{ ctx.joined|length|pluralize }}
-            </span>
+        {% if url_item %}
+            <!-- boutons de navigation <- -> -->
+            <div class="w3-right">
+                <a href="{% url url_item ctx.item_id|add:-1 %}" class="w3-bar-item w3-button w3-theme-action"><i class="fa fa-caret-left" style="padding: 4px"></i></a>
+                <span class="w3-bar-item w3-tag w3-theme-l4">
+                    Jeu n° {{ctx.item_id}}
+                </span>
+                <a href="{% url url_item ctx.item_id|add:+1 %}" class="w3-bar-item w3-button w3-theme-action"><i class="fa fa-caret-right" style="padding: 4px"></i></a>
+            </div>
         {% endif %}
     {% endif %}
     {% if form %}
@@ -31,15 +47,13 @@
         {% else %}
             <span class="w3-bar-item w3-large"><b>{{title}}</b></span>
         {% endif %}
-    {% endif %}
-    {% if search_in %}
-        <input type="text" class="w3-bar-item w3-input" placeholder="Rechercher.."/>
-        <a href="#" class="w3-bar-item w3-button w3-theme-action">Go</a>
-    {% endif %}
-    {% if form %}
         <!-- boutons de validation -->
         <a href="#" class="w3-bar-item w3-button w3-theme-action w3-right" onclick="document.getElementById('maForm').submit();">
             Valider
         </a>
+    {% endif %}
+    {% if search_in %}
+        <input type="text" class="w3-bar-item w3-input" placeholder="Rechercher.."/>
+        <a href="#" class="w3-bar-item w3-button w3-theme-action">Go</a>
     {% endif %}
 </nav>

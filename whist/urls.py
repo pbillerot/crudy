@@ -23,7 +23,8 @@ urlpatterns = [
     url(r'^joueur/create/$', views.joueur_create, name='joueur_create'),
     url(r'^joueur/update/(.+)/$', views.joueur_update, name='joueur_update'),
 
-    url(r'^jeu/list/$', views.WhistJeuListView.as_view(), name='jeu_list'),
+    url(r'^jeu/list/(.+)/$', views.WhistJeuListView.as_view(), name='jeu_list'),
+    url(r'^jeu/create/$', views.jeu_create, name='jeu_create'),
 
     url(r'^proto/$', views.whist_proto, name='whist_proto')
 ]
