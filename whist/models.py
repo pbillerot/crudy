@@ -50,6 +50,7 @@ class WhistParticipant(models.Model):
     joueur = models.ForeignKey(WhistJoueur, on_delete=models.CASCADE, verbose_name="Joueur")
     score = models.IntegerField(default=0)
     order = models.IntegerField(default=99)
+    donneur = models.IntegerField(default=0)
 
     def __str__(self):
         return "{0} participe {1}".format(self.joueur, self.partie)
@@ -66,7 +67,6 @@ class WhistParticipant(models.Model):
                 .filter(partie__exact=self.partie).count()
             self.order = (count_participants) * 2
         super().save(*args, **kwargs)
-        self.compute_order()
 
     def compute_order(self):
         """ recalcule de l'ordre """
@@ -90,6 +90,7 @@ class WhistJeu(models.Model):
     real = models.IntegerField(default=0, verbose_name='Réalisé')
     points = models.IntegerField(default=0, verbose_name='Points')
     score = models.IntegerField(default=0, verbose_name='Score')
+    donneur = models.IntegerField(default=0)
 
     def __str__(self):
         # return "{0}_{1}_{2}".format(self.partie, self.joueur, self.jeu)
@@ -103,7 +104,7 @@ class WhistJeu(models.Model):
     def create_jeux(self, ctx):
         """ Création des jeux de la partie """
         # suppression des jeux 
-        WhistJeu.objects.all().delete()
+        WhistJeu.objects.all().filter(participant__partie__id=ctx["folder_id"]).delete()
 
         partie = get_object_or_404(WhistPartie, id=ctx["folder_id"])
         icarte = 0

@@ -19,7 +19,8 @@ def get_ctx(request):
             "view_name": None,
             "folder_id": None,
             "folder_name": None,
-            "item_id": None,
+            "carte": [],
+            "jeu": None,
         }
         request.session["ctx"] = ctx
     return request.session["ctx"]
@@ -87,8 +88,7 @@ class WhistListView(ListView):
         url_select = "whist_select" # émis par url_delete
         url_folder = None
         url_join = None
-        url_ascend = None
-        url_descend = None
+        url_order = None
         url_actions = []
         url_return = None
         # query sur la base
@@ -119,8 +119,7 @@ class WhistListView(ListView):
         self.context["url_delete"] = self.meta.url_delete
         self.context["url_select"] = self.meta.url_select
         self.context["url_folder"] = self.meta.url_folder
-        self.context["url_ascend"] = self.meta.url_ascend
-        self.context["url_descend"] = self.meta.url_descend
+        self.context["url_order"] = self.meta.url_order
         self.context["url_join"] = self.meta.url_join
         self.context["url_actions"] = self.meta.url_actions
         self.context["url_return"] = self.meta.url_return
@@ -138,7 +137,6 @@ class WhistListView(ListView):
 
     def get_queryset(self):
         """ queryset générique """
-        ctx = get_ctx(self.request)
         if 'id' not in self.meta.fields:
             self.meta.fields["id"] = "id"
         self.objs = self.meta.model.objects.all()\
@@ -164,6 +162,7 @@ class WhistPartieListView(WhistListView):
             "cartes": "Nombre de cartes max"
         }
         order_by = ('name',)
+        url_return = "partie_list"
 
 class WhistPartieSelectView(WhistListView):
     """ Sélection d'une partie """
@@ -181,6 +180,7 @@ class WhistPartieSelectView(WhistListView):
             "cartes": "Nombre de cartes max"
         }
         order_by = ('name',)
+        url_return = "partie_select"
 
 def partie_folder(request, record_id):
     """ Enregistrement d'une partie dans folder"""
@@ -241,7 +241,7 @@ def partie_delete(request, record_id):
 """
     Gestion des participants
 """
-class WhistParticipantListView(WhistListView):
+class WhistParticipantSelectView(WhistListView):
     """ Liste des participants """
 
     class Meta(WhistListView.Options):
@@ -255,9 +255,7 @@ class WhistParticipantListView(WhistListView):
         url_add = "joueur_create"
         url_update = "joueur_update"
         url_join = "participant_join"
-        url_actions = [
-            ("jeu_create", "Initialisations des jeux")
-        ]
+        url_return = "participant_select"
 
     def get_queryset(self):
         """ queryset générique """
@@ -276,56 +274,8 @@ class WhistParticipantListView(WhistListView):
                 if participant.joueur_id == obj["id"]:
                     ctx["joined"].append(obj["id"])
 
+        set_ctx(self.request, ctx)
         return self.objs
-
-class WhistParticipantOrderView(WhistListView):
-    """ Tri des participants """
-
-    class Meta(WhistListView.Options):
-        model = WhistParticipant
-        title = "Ordre des Participants autour de la table"
-        fields = {
-            "joueur__pseudo": "Nom du joueur",
-            "order": "Ordre",
-        }
-        order_by = ('order', 'joueur__pseudo')
-        url_ascend = "participant_ascend"
-        url_descend = "participant_descend"
-
-    def get_queryset(self):
-        """ queryset générique """
-        ctx = get_ctx(self.request)
-        if 'id' not in self.meta.fields:
-            self.meta.fields["id"] = "id"
-        self.objs = self.meta.model.objects.all()\
-        .filter(partie_id__exact=ctx["folder_id"])\
-        .order_by(*self.meta.order_by)\
-        .values(*self.meta.fields.keys())
-        return self.objs
-
-def participant_ascend(request, record_id):
-    """ On remonte le joueur dans la liste """
-    ctx = get_ctx(request)
-    iid = int(record_id)
-
-    participant = get_object_or_404(WhistParticipant, id=iid)
-    participant.order -= 3
-    participant.save()
-
-    set_ctx(request, ctx)
-    return redirect(ctx["view_name"])
-
-def participant_descend(request, record_id):
-    """ On descend le joueur dans la liste """
-    ctx = get_ctx(request)
-    iid = int(record_id)
-
-    participant = get_object_or_404(WhistParticipant, id=iid)
-    participant.order += 3
-    participant.save()
-
-    set_ctx(request, ctx)
-    return redirect(ctx["view_name"])
 
 def participant_join(request, record_id):
     """ Sélection d'un participant dans la liste des joueurs """
@@ -335,13 +285,90 @@ def participant_join(request, record_id):
     if iid in ctx["joined"]:
         participant = WhistParticipant.objects.all().filter(partie_id__exact=ctx["folder_id"], joueur_id__exact=iid)
         participant.delete()
+        # compute_ordre() dans post_delete_whist 
         ctx["joined"].remove(iid)
     else:
         participant = WhistParticipant(partie_id=ctx["folder_id"], joueur_id=iid)
         participant.save()
+        participant.compute_order()
         ctx["joined"].append(iid)
 
     set_ctx(request, ctx)
+    return redirect(ctx["view_name"])
+
+class WhistParticipantOrderView(WhistListView):
+    """ Tri des participants """
+
+    class Meta(WhistListView.Options):
+        model = WhistParticipant
+        title = "Ordre des Participants autour de la table"
+        fields = {
+            "joueur__pseudo": "Nom du joueur",
+            "donneur": "Donneur initial",
+        }
+        order_by = ('order', 'joueur__pseudo')
+        url_order = "participant_order"
+        url_actions = [
+            ("jeu_create", "Initialiser les jeux")
+        ]
+        url_return = "participant_list"
+
+    def get_queryset(self):
+        """ queryset générique """
+        ctx = get_ctx(self.request)
+        if 'id' not in self.meta.fields:
+            self.meta.fields["id"] = "id"
+        self.objs = self.meta.model.objects.all()\
+        .filter(partie_id=ctx["folder_id"])\
+        .order_by(*self.meta.order_by)\
+        .values(*self.meta.fields.keys())
+
+        ctx["url_participant_update"] = 'participant_update'
+        ctx["action_param"] = 0
+        set_ctx(self.request, ctx)
+        return self.objs
+
+def participant_update(request, record_id, checked):
+    """ Mise à jour du donneur """
+    ctx = get_ctx(request)
+    iid = int(record_id)
+
+    participants = WhistParticipant.objects.all().filter(partie__id=ctx["folder_id"])
+    joueur_id = 0
+    for participant in participants:
+        if participant.id == iid:
+            participant.donneur = int(checked)
+            if int(checked) == 1:
+                joueur_id = participant.joueur_id
+        else:
+            participant.donneur = 0
+        participant.save()
+
+    # Calcul du donneur sur tous les jeux
+    jeux = WhistJeu.objects.all().filter(participant__partie__id=ctx["folder_id"]).order_by('jeu', 'participant__order')
+    ijeu = 1
+    for jeu in jeux:
+        if joueur_id == 0:
+            joueur_id = jeu.participant.joueur_id
+        if jeu.jeu == ijeu and jeu.participant.joueur_id == joueur_id:
+            jeu.donneur = 1
+            joueur_id = 0
+            ijeu = jeu.jeu + 1
+        else:
+            jeu.donneur = 0
+        jeu.save()
+
+    return redirect(ctx["view_name"])
+
+def participant_order(request, record_id, orientation):
+    """ On remonte le joueur dans la liste """
+    ctx = get_ctx(request)
+    iid = int(record_id)
+
+    participant = get_object_or_404(WhistParticipant, id=iid)
+    participant.order += int(orientation) * 3
+    participant.save()
+
     return redirect(ctx["view_name"])
 
 def joueur_create(request):
@@ -349,7 +376,7 @@ def joueur_create(request):
     title = "Nouveau Joueur"
     ctx = get_ctx(request)
     model = WhistJoueur
-    url_return = "participant_list"
+    url_return = "participant_select"
     if request.POST:
         form = forms.WhistJoueurForm(request.POST)
         if form.is_valid():
@@ -365,7 +392,7 @@ def joueur_update(request, record_id):
     ctx = get_ctx(request)
     model = WhistJoueur
     obj = get_object_or_404(model, id=record_id)
-    url_return = "participant_list"
+    url_return = "participant_select"
     form = forms.WhistJoueurForm(request.POST or None, instance=obj)
     if form.is_valid():
         form.save()
@@ -383,15 +410,24 @@ class WhistJeuListView(WhistListView):
         title = "Faites vos Jeux"
         fields = {
             "participant__joueur__pseudo": "Participant",
-            "jeu": "n° du tour",
-            "carte": "nbre de cartes",
+            # "jeu": "n° du tour",
+            "donneur": "Donneur",
+            "carte": "Carte",
             "pari": "Pari",
             "real": "Réalisé",
             "points": "Point",
             "score": "Score"
         }
-        order_by = ('jeu', 'participant__order',)
         url_return = "jeu_list"
+        url_actions = [
+            ("jeu_compute", "Calculer les points")
+        ]
+
+    def dispatch(self, request, *args, **kwargs):
+        """ dispatch is called when the class instance loads """
+        self.sort = kwargs.get('sort', None)
+        self.page = kwargs.get('page')
+        return super().dispatch(request, args, kwargs)
 
     def get_queryset(self):
         """ fournir les données à afficher dans la vue """
@@ -399,26 +435,84 @@ class WhistJeuListView(WhistListView):
         # ajout de la colonne id
         if 'id' not in self.meta.fields:
             self.meta.fields["id"] = "id"
-        # prise en compte de la colonne à trier en fonction de sort_column
+        # prise en compte de la colonne à trier en fonction de sort
+        if self.sort == "score":
+            ctx["sort"] = "score"
+
+        if self.sort == "participant":
+            ctx["sort"] = "participant"
+
+        if ctx["sort"] == "score":
+            order_by = ('jeu', '-score',)
+        else:
+            order_by = ('jeu', 'participant__order',)
 
         jeux_list = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=ctx["folder_id"])\
-        .order_by(*self.meta.order_by)\
+        .order_by(*order_by)\
         .values(*self.meta.fields.keys())
 
-        qparticipant = WhistParticipant.objects.all().filter(partie__id=ctx["folder_id"]).count()
+        qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=ctx["folder_id"]).count()
         paginator = Paginator(jeux_list, qparticipant)
-        # page = self.request.GET.get('page')
-        page = re.search('list/([0-9]+)/$', self.request.path).group(1)
         
-        self.objs = paginator.get_page(page)
+        self.objs = paginator.get_page(self.page)
+        ctx["cartes"] = []
+        for pp in range(1, paginator.num_pages + 1):
+            if pp <= paginator.num_pages / 2:
+                ctx["cartes"].append((pp, pp))
+            else:
+                ctx["cartes"].append((pp, paginator.num_pages - pp + 1))
+        ctx["url_jeu_pari"] = "jeu_pari"
+        ctx["url_jeu_real"] = "jeu_real"
+        ctx["action_param"] = self.page
+        ctx["jeu"] = self.page
+        ctx["url_sort"] = 'jeu_sort'
+        set_ctx(self.request, ctx)
         return self.objs
 
-def jeu_create(request):
+def jeu_create(request, id):
     """ création des jeux (tours) de la partie """
     ctx = get_ctx(request)
     jeu = WhistJeu()
     jeu.create_jeux(ctx)
 
     url_return = "jeu_list"
-    return redirect(url_return)
+    return redirect(url_return, '1')
+
+def jeu_compute(request, jeu_id):
+    """ Calcul des points du jeux """
+    ctx = get_ctx(request)
+    jeux = WhistJeu.objects.all()\
+    .filter(participant__partie__id=ctx["folder_id"])\
+    .order_by("jeu")
+    score = {}
+    for jeu in jeux:
+        joueur_id = jeu.participant.joueur_id
+        if jeu.jeu <= int(jeu_id):
+            if jeu.pari == jeu.real:
+                jeu.points = 10 + 2 * jeu.pari
+            else:
+                jeu.points = -10
+            score[joueur_id] = score.get(joueur_id, 0) + jeu.points
+        jeu.score = score[joueur_id]
+        jeu.save()
+
+    return redirect("jeu_list", jeu_id)
+
+def jeu_pari(request, id, choice):
+    """ Saisie des paris """
+    jeu = get_object_or_404(WhistJeu, id=id)
+    jeu.pari = choice
+    jeu.save()
+
+    url_return = "jeu_list"
+    return redirect(url_return, jeu.jeu)
+
+def jeu_real(request, id, choice):
+    """ Saisie du réalisé 0 1 2 """
+    jeu = get_object_or_404(WhistJeu, id=id)
+    jeu.real = choice
+    jeu.save()
+
+    url_return = "jeu_list"
+    return redirect(url_return, jeu.jeu)

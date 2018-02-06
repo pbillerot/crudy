@@ -3,8 +3,8 @@
     <i class="w3-bar-item fa fa-bars w3-opennav w3-hide-large w3-xlarge w3-margin-right" onClick="w3_open()"></i>
     {% if ctx.view_name and not form %}
         {% if not url_folder and ctx.folder_id %}
-        <span class="w3-bar-item w3-large w3-tag w3-round w3-theme-l4">{{ctx.folder_name}}</span>
-        <span class="w3-bar-item w3-large"><b>{{title}}</b></span>
+        <span class="w3-bar-item w3-tag w3-round w3-theme-l4">{{ctx.folder_name}}</span>
+        <span class="w3-bar-item"><b>{{title}}</b></span>
         {% else %}
         <span class="w3-bar-item w3-large"><b>{{title}}</b></span>
         {% endif %}
@@ -16,7 +16,7 @@
         {% if url_actions %}
         <!-- boutons d'actions -->
         {% for action, title in url_actions %}
-            <a href="{% url action %}" class="w3-bar-item w3-button w3-theme-action w3-right">{{title}}</a>
+            <a href="{% url action ctx.action_param %}" class="w3-bar-item w3-button w3-theme-action w3-right">{{title}}</a>
         {% endfor %}
         {% endif %}
         {% if ctx.selected and not url_folder %}

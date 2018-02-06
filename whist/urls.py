@@ -15,16 +15,20 @@ urlpatterns = [
     url(r'^partie/delete/$', views.partie_delete, name='partie_delete'),
 
 
-    url(r'^participant/list/$', views.WhistParticipantListView.as_view(), name='participant_list'),
+    url(r'^participant/select/$', views.WhistParticipantSelectView.as_view(), name='participant_select'),
+    url(r'^participant/list/$', views.WhistParticipantOrderView.as_view(), name='participant_list'),
     url(r'^participant/join/(.+)/$', views.participant_join, name='participant_join'),
-    url(r'^participant/order/$', views.WhistParticipantOrderView.as_view(), name='participant_order'),
-    url(r'^participant/ascend/(.+)/$', views.participant_ascend, name='participant_ascend'),
-    url(r'^participant/descend/(.+)/$', views.participant_descend, name='participant_descend'),
+    url(r'^participant/update/(.+)/(.+)/$', views.participant_update, name='participant_update'),
+    url(r'^participant/order/(.+)/(.+)/$', views.participant_order, name='participant_order'),
     url(r'^joueur/create/$', views.joueur_create, name='joueur_create'),
     url(r'^joueur/update/(.+)/$', views.joueur_update, name='joueur_update'),
 
-    url(r'^jeu/list/(.+)/$', views.WhistJeuListView.as_view(), name='jeu_list'),
-    url(r'^jeu/create/$', views.jeu_create, name='jeu_create'),
+    url(r'^jeu/list/(?P<page>.+)/$', views.WhistJeuListView.as_view(), name='jeu_list'),
+    url(r'^jeu/sort/(?P<page>.+)/(?P<sort>.+)/$', views.WhistJeuListView.as_view(), name='jeu_sort'),
+    url(r'^jeu/create/(.+)/$', views.jeu_create, name='jeu_create'),
+    url(r'^jeu/compute/(.+)/$', views.jeu_compute, name='jeu_compute'),
+    url(r'^jeu/pari/(.+)/(.+)/$', views.jeu_pari, name='jeu_pari'),
+    url(r'^jeu/real/(.+)/(.+)/$', views.jeu_real, name='jeu_real'),
 
     url(r'^proto/$', views.whist_proto, name='whist_proto')
 ]
