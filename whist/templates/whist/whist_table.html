@@ -31,9 +31,6 @@
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                 {% endif %}
-                {% if url_return == "jeu_list" %}
-                    <td>&nbsp;</td>
-                {% endif %}
                 {% for field in fields %}
                     {% if forloop.first %}
                         <th>{{ field }}</th>
@@ -46,7 +43,7 @@
                                 </a>
                                 {% else %}
                                 <a class="w3-button w3-padding-small" href="{% url ctx.url_sort ctx.jeu 'score' %}">
-                                    <i class="fa fa-sort"></i>
+                                    <i class="fa fa-unsorted"></i>
                                     </a>
                                 {% endif %}
                             </th>
@@ -106,18 +103,11 @@
             <td style="width: 30px;"><a href="{% url url_order obj.id +1 %}"><span class="fa fa-arrow-down"></span></a></td>
             <td style="width: 30px;"><a href="{% url url_order obj.id -1 %}"><span class="fa fa-arrow-up"></span></a></td>
             {% endif %}
-            {% if url_return == "jeu_list" %}
-                {% if obj.donneur == 1 %}
-                    <td style="width: 10px;"><span class="fa fa-hand-o-right"></span></td>
-                {% else %}
-                    <td style="width: 10px;">&nbsp;</span></td>
-                {% endif %}
-            {% endif %}
             {% for key, value in obj.items %}
                 {% if forloop.first and url_update %}
                     <td><a href="{% url url_update obj.id %}">{{ value }}</a></td>
                 {% elif key != 'id' %}
-                    {% if url_return == "jeu_list" and key == "pari" %}
+                    {% if url_view == "jeu_list" and key == "pari" %}
                         <td>
                             <span>{{value}}</span>
                             <div class="w3-dropdown-hover">
@@ -135,7 +125,7 @@
                                 </div>
                             </div>
                         </td>
-                    {% elif url_return == "jeu_list" and key == "real" %}
+                    {% elif url_view == "jeu_list" and key == "real" %}
                         <td>
                             {% if value == obj.pari %}
                             <span class="w3-text-green">{{ value }}</span>
@@ -155,21 +145,27 @@
                                         {% endif %}
                                     {% endfor %}
                                 </div>
-                                </div>
+                            </div>
                         </td>
-                    {% elif url_return == "jeu_list" and key == "points" %}
+                    {% elif url_view == "jeu_list" and key == "donneur" %}
+                        {% if value == 1 %}
+                            <td style="width: 10px;"><span class="fa fa-hand-o-right" title="le donneur pour ce tour"></span></td>
+                        {% else %}
+                            <td style="width: 10px;">&nbsp;</span></td>
+                        {% endif %}
+                    {% elif url_view == "jeu_list" and key == "points" %}
                         {% if value > 0 %}
                         <td><span class="w3-text-green">{{ value }}</span></td>
                         {% else %}
                         <td><span class="w3-text-red">{{ value }}</span></td>
                         {% endif %}
-                        {% elif url_return == "jeu_list" and key == "score" %}
+                        {% elif url_view == "jeu_list" and key == "score" %}
                         {% if value > 0 %}
                         <td><span class="w3-text-green">{{ value }}</span></td>
                         {% else %}
                         <td><span class="w3-text-red">{{ value }}</span></td>
                         {% endif %}
-                    {% elif url_return == "participant_list" and key == "donneur" %}
+                    {% elif url_view == "participant_list" and key == "donneur" %}
                         {% if value > 0 %}
                         <td>
                             <input class="w3-check" style="top: 0px" type="checkbox"

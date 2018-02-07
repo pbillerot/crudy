@@ -6,7 +6,7 @@
 </a>
 <a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'participant_select' %}">Choix des Participants</a>
 <a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'participant_list' %}">Ordonner les Participants</a>
-<a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'jeu_list' '1' %}">Faites vos jeux</a>
+<a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'jeu_list' 1 %}">Faites vos jeux</a>
 {% else %}
 <a class="w3-bar-item w3-button w3-theme-l4" href="{% url 'partie_select' %}">Sélection d'une partie</a>
 {% endif %}

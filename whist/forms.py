@@ -1,6 +1,15 @@
 from django import forms
 from .models import WhistPartie, WhistJoueur, WhistParticipant, WhistJeu
 
+# Personnalisation des champs
+class MyForm(forms.Form):
+  def as_foobar(self):
+    return self._html_output(
+      normal_row = u'%(label)s %(field)s%(help_text)s',
+      error_row = u'%s',
+      row_ender = '',
+      help_text_html = u' %s',
+      errors_on_separate_row = False)
 
 class WhistForm(forms.ModelForm):
 

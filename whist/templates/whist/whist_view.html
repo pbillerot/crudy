@@ -20,7 +20,7 @@
 <div class="w3-center w3-large">
     <div class="w3-bar">
         {% if objs.has_previous %}
-        <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_return objs.previous_page_number %}">&laquo;</a>
+        <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_view objs.previous_page_number %}">&laquo;</a>
         {% else %}
         <div class="w3-bar-item w3-button w3-border w3-padding-small">&laquo;</div>
         {% endif %}
@@ -30,11 +30,11 @@
                 {{ carte }}
             </div>
         {% else %}
-            <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_return jeu %}">{{ carte }}</a>
+            <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_view jeu %}">{{ carte }}</a>
         {% endif %}
         {% endfor %}
         {% if objs.has_next %}
-        <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_return objs.next_page_number %}">&raquo;</a>
+        <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_view objs.next_page_number %}">&raquo;</a>
         {% else %}
         <div class="w3-bar-item w3-button w3-border w3-padding-small">&raquo;</div>
         {% endif %}

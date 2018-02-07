@@ -1,7 +1,7 @@
 {% load whist_tags %}
 <nav id="myTop" class="w3-top w3-bar w3-padding w3-theme-l1 w3-show-inline-block">
     <i class="w3-bar-item fa fa-bars w3-opennav w3-hide-large w3-xlarge w3-margin-right" onClick="w3_open()"></i>
-    {% if ctx.view_name and not form %}
+    {% if url_view and not form %}
         {% if not url_folder and ctx.folder_id %}
         <span class="w3-bar-item w3-tag w3-round w3-theme-l4">{{ctx.folder_name}}</span>
         <span class="w3-bar-item"><b>{{title}}</b></span>
@@ -39,7 +39,7 @@
         {% endif %}
     {% endif %}
     {% if form %}
-        <a href="{% url url_return %} " class="w3-bar-item">
+        <a href="{% url url_view %} " class="w3-bar-item">
             <i class="fa fa-chevron-left" style="padding: 4px"></i>
         </a>
         {% if not url_folder and ctx.folder_id %}

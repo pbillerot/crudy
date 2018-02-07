@@ -16,11 +16,12 @@ def get_ctx(request):
             "title": "JEU DU WHIST",
             "selected": [],
             "joined": [],
-            "view_name": None,
             "folder_id": None,
             "folder_name": None,
             "carte": [],
             "jeu": None,
+            "url_view": None,
+            "sort": None
         }
         request.session["ctx"] = ctx
     return request.session["ctx"]
@@ -35,7 +36,6 @@ def whist_proto(request):
 def whist_home(request):
     """ vue Home """
     ctx = get_ctx(request)
-    ctx["view_name"] = ""
     set_ctx(request, ctx)
     model = WhistPartie
     return render(request, 'whist/whist_home.html', locals())
@@ -58,7 +58,7 @@ def whist_select(request, record_id):
         ctx["selected"].append(iid)
 
     set_ctx(request, ctx)
-    return redirect(ctx["view_name"])
+    return redirect(ctx["url_view"])
 
 class WhistListView(ListView):
     """
@@ -90,7 +90,7 @@ class WhistListView(ListView):
         url_join = None
         url_order = None
         url_actions = []
-        url_return = None
+        url_view = None
         # query sur la base
         # liste des champs à afficher dans la vue
         fields = {
@@ -110,7 +110,7 @@ class WhistListView(ListView):
         url = resolve(self.request.path)
         ctx = get_ctx(self.request)
         # raz selected si nouvelle vue
-        if ctx["view_name"] != url.view_name:
+        if ctx["url_view"] != self.meta.url_view:
             ctx["selected"] = []
         self.context["model"] = self.model
         self.context["title"] = self.meta.title
@@ -122,7 +122,7 @@ class WhistListView(ListView):
         self.context["url_order"] = self.meta.url_order
         self.context["url_join"] = self.meta.url_join
         self.context["url_actions"] = self.meta.url_actions
-        self.context["url_return"] = self.meta.url_return
+        self.context["url_view"] = self.meta.url_view
         self.context["search_in"] = self.meta.search_in
         # Récupération des fields correspondants aux objs
         self.context["fields"] = [title for title in self.meta.fields.values()]
@@ -130,7 +130,7 @@ class WhistListView(ListView):
         if 0 in ctx["selected"]:
             for obj in self.objs:
                 ctx["selected"].append(obj["id"])
-        ctx["view_name"] = url.view_name
+        ctx["url_view"] = self.meta.url_view
         set_ctx(self.request, ctx)
         self.context["ctx"] = ctx
         return self.context
@@ -162,7 +162,7 @@ class WhistPartieListView(WhistListView):
             "cartes": "Nombre de cartes max"
         }
         order_by = ('name',)
-        url_return = "partie_list"
+        url_view = "partie_list"
 
 class WhistPartieSelectView(WhistListView):
     """ Sélection d'une partie """
@@ -180,7 +180,7 @@ class WhistPartieSelectView(WhistListView):
             "cartes": "Nombre de cartes max"
         }
         order_by = ('name',)
-        url_return = "partie_select"
+        url_view = "partie_select"
 
 def partie_folder(request, record_id):
     """ Enregistrement d'une partie dans folder"""
@@ -197,19 +197,19 @@ def partie_folder(request, record_id):
         ctx["folder_name"] = obj.name
 
     set_ctx(request, ctx)
-    return redirect(ctx["view_name"])
+    return redirect(ctx["url_view"])
 
 def partie_create(request):
     """ Nouvelle partie """
     title = "Nouvelle Partie"
     ctx = get_ctx(request)
     model = WhistPartie
-    url_return = "partie_select"
+    url_view = "partie_select"
     if request.POST:
         form = forms.WhistPartieForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect(url_return)
+            return redirect(url_view)
     else:
         form = forms.WhistPartieForm()
     return render(request, 'whist/whist_create.html', locals())
@@ -220,11 +220,11 @@ def partie_update(request, record_id):
     ctx = get_ctx(request)
     obj = get_object_or_404(WhistPartie, id=record_id)
     model = WhistPartie
-    url_return = "partie_select"
+    url_view = "partie_select"
     form = forms.WhistPartieForm(request.POST or None, instance=obj)
     if form.is_valid():
         form.save()
-        return redirect(url_return)
+        return redirect(url_view)
     return render(request, "whist/whist_create.html", locals())
 
 def partie_delete(request, record_id):
@@ -235,8 +235,8 @@ def partie_delete(request, record_id):
         obj.delete()
     ctx["selected"] = []
     set_ctx(request, ctx)
-    url_return = "partie_select"
-    return redirect(url_return)
+    url_view = "partie_select"
+    return redirect(url_view)
 
 """
     Gestion des participants
@@ -255,7 +255,7 @@ class WhistParticipantSelectView(WhistListView):
         url_add = "joueur_create"
         url_update = "joueur_update"
         url_join = "participant_join"
-        url_return = "participant_select"
+        url_view = "participant_select"
 
     def get_queryset(self):
         """ queryset générique """
@@ -294,9 +294,9 @@ def participant_join(request, record_id):
         ctx["joined"].append(iid)
 
     set_ctx(request, ctx)
-    return redirect(ctx["view_name"])
+    return redirect(ctx["url_view"])
 
-class WhistParticipantOrderView(WhistListView):
+class WhistParticipantListView(WhistListView):
     """ Tri des participants """
 
     class Meta(WhistListView.Options):
@@ -311,7 +311,7 @@ class WhistParticipantOrderView(WhistListView):
         url_actions = [
             ("jeu_create", "Initialiser les jeux")
         ]
-        url_return = "participant_list"
+        url_view = "participant_list"
 
     def get_queryset(self):
         """ queryset générique """
@@ -358,7 +358,7 @@ def participant_update(request, record_id, checked):
             jeu.donneur = 0
         jeu.save()
 
-    return redirect(ctx["view_name"])
+    return redirect(ctx["url_view"])
 
 def participant_order(request, record_id, orientation):
     """ On remonte le joueur dans la liste """
@@ -369,19 +369,19 @@ def participant_order(request, record_id, orientation):
     participant.order += int(orientation) * 3
     participant.save()
 
-    return redirect(ctx["view_name"])
+    return redirect(ctx["url_view"])
 
 def joueur_create(request):
     """ création d'un joueur """
     title = "Nouveau Joueur"
     ctx = get_ctx(request)
     model = WhistJoueur
-    url_return = "participant_select"
+    url_view = "participant_select"
     if request.POST:
         form = forms.WhistJoueurForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect(url_return)
+            return redirect(url_view)
     else:
         form = forms.WhistJoueurForm()
     return render(request, 'whist/whist_create.html', locals())
@@ -392,11 +392,11 @@ def joueur_update(request, record_id):
     ctx = get_ctx(request)
     model = WhistJoueur
     obj = get_object_or_404(model, id=record_id)
-    url_return = "participant_select"
+    url_view = "participant_select"
     form = forms.WhistJoueurForm(request.POST or None, instance=obj)
     if form.is_valid():
         form.save()
-        return redirect(url_return)
+        return redirect(url_view)
     return render(request, "whist/whist_create.html", locals())
 
 """
@@ -409,16 +409,16 @@ class WhistJeuListView(WhistListView):
         model = WhistJeu
         title = "Faites vos Jeux"
         fields = {
+            "donneur": "",
             "participant__joueur__pseudo": "Participant",
             # "jeu": "n° du tour",
-            "donneur": "Donneur",
             "carte": "Carte",
             "pari": "Pari",
             "real": "Réalisé",
             "points": "Point",
             "score": "Score"
         }
-        url_return = "jeu_list"
+        url_view = "jeu_list"
         url_actions = [
             ("jeu_compute", "Calculer les points")
         ]
@@ -476,8 +476,7 @@ def jeu_create(request, id):
     jeu = WhistJeu()
     jeu.create_jeux(ctx)
 
-    url_return = "jeu_list"
-    return redirect(url_return, '1')
+    return redirect("jeu_list", 1)
 
 def jeu_compute(request, jeu_id):
     """ Calcul des points du jeux """
@@ -505,8 +504,8 @@ def jeu_pari(request, id, choice):
     jeu.pari = choice
     jeu.save()
 
-    url_return = "jeu_list"
-    return redirect(url_return, jeu.jeu)
+    url_view = "jeu_list"
+    return redirect(url_view, jeu.jeu)
 
 def jeu_real(request, id, choice):
     """ Saisie du réalisé 0 1 2 """
@@ -514,5 +513,5 @@ def jeu_real(request, id, choice):
     jeu.real = choice
     jeu.save()
 
-    url_return = "jeu_list"
-    return redirect(url_return, jeu.jeu)
+    url_view = "jeu_list"
+    return redirect(url_view, jeu.jeu)

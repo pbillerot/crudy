@@ -16,7 +16,7 @@ urlpatterns = [
 
 
     url(r'^participant/select/$', views.WhistParticipantSelectView.as_view(), name='participant_select'),
-    url(r'^participant/list/$', views.WhistParticipantOrderView.as_view(), name='participant_list'),
+    url(r'^participant/list/$', views.WhistParticipantListView.as_view(), name='participant_list'),
     url(r'^participant/join/(.+)/$', views.participant_join, name='participant_join'),
     url(r'^participant/update/(.+)/(.+)/$', views.participant_update, name='participant_update'),
     url(r'^participant/order/(.+)/(.+)/$', views.participant_order, name='participant_order'),
