@@ -30,7 +30,7 @@ ALLOWED_HOSTS = ['pcbox', 'localhost', '127.0.0.1', 'pbillerot.duckdns.org']
 # Application definition
 
 INSTALLED_APPS = [
-    'import_export',
+    # 'import_export',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
