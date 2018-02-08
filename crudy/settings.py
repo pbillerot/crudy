@@ -25,8 +25,7 @@ SECRET_KEY = '*j80!5^0uarkw5$e2f!fd#lyl*q!6vhjaqffl9*$9c69348f!0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['pcbox', 'localhost', '127.0.0.1', 'pbillerot.duckdns.org']
 
 # Application definition
 

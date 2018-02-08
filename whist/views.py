@@ -456,6 +456,12 @@ class WhistJeuListView(WhistListView):
         paginator = Paginator(jeux_list, qparticipant)
         
         self.objs = paginator.get_page(self.page)
+        # comptage de nombre de plis demandés
+        qplis = 0
+        for obj in self.objs:
+            if obj["donneur"] == 0:
+                qplis += obj["pari"]
+        ctx["pli_refus"] = int(self.page) - qplis
         ctx["cartes"] = []
         for pp in range(1, paginator.num_pages + 1):
             if pp <= paginator.num_pages / 2:
@@ -467,6 +473,8 @@ class WhistJeuListView(WhistListView):
         ctx["action_param"] = self.page
         ctx["jeu"] = self.page
         ctx["url_sort"] = 'jeu_sort'
+        partie = get_object_or_404(WhistPartie, id=ctx["folder_id"])
+        ctx["jeu_current"] = partie.jeu
         set_ctx(self.request, ctx)
         return self.objs
 
@@ -478,7 +486,7 @@ def jeu_create(request, id):
 
     return redirect("jeu_list", 1)
 
-def jeu_compute(request, jeu_id):
+def jeu_compute(request, ijeu):
     """ Calcul des points du jeux """
     ctx = get_ctx(request)
     jeux = WhistJeu.objects.all()\
@@ -487,7 +495,7 @@ def jeu_compute(request, jeu_id):
     score = {}
     for jeu in jeux:
         joueur_id = jeu.participant.joueur_id
-        if jeu.jeu <= int(jeu_id):
+        if jeu.jeu <= int(ijeu):
             if jeu.pari == jeu.real:
                 jeu.points = 10 + 2 * jeu.pari
             else:
@@ -495,8 +503,12 @@ def jeu_compute(request, jeu_id):
             score[joueur_id] = score.get(joueur_id, 0) + jeu.points
         jeu.score = score[joueur_id]
         jeu.save()
+    # maj partie jeu en cours
+    partie = get_object_or_404(WhistPartie, id=ctx["folder_id"])
+    partie.jeu = int(ijeu)
+    partie.save()
 
-    return redirect("jeu_list", jeu_id)
+    return redirect("jeu_list", ijeu)
 
 def jeu_pari(request, id, choice):
     """ Saisie des paris """

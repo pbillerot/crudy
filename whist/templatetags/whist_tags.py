@@ -1,4 +1,6 @@
 from django.template import Library
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
 
 register = Library()
 
@@ -37,3 +39,15 @@ def field_name(value, field):
         value = value.model
 
     return value._meta.get_field(field).verbose_name.title()
+
+@register.filter(needs_autoescape=True)
+def tpl_donneur(value, autoescape=True):
+    '''
+    Exemple de retour de code html
+    '''
+    if value == 1:
+        result = '<td style="width: 10px;"><span class="fa fa-hand-o-right" title="le donneur pour ce tour"></span></td>'
+    else:
+        result = '<td style="width: 10px;">&nbsp;</span></td>'
+
+    return mark_safe(result)

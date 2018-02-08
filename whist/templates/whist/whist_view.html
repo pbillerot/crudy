@@ -25,13 +25,15 @@
         <div class="w3-bar-item w3-button w3-border w3-padding-small">&laquo;</div>
         {% endif %}
         {% for jeu, carte in ctx.cartes %}
-        {% if objs.number == jeu %}
-            <div class="w3-bar-item w3-button w3-border w3-padding-small w3-theme-action">
-                {{ carte }}
-            </div>
-        {% else %}
-            <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_view jeu %}">{{ carte }}</a>
-        {% endif %}
+            {% if objs.number == jeu %}
+                <div class="w3-bar-item w3-button w3-border w3-padding-small w3-theme-action">
+                    {{ carte }}
+                </div>
+            {% elif jeu <= ctx.jeu_current %}
+                <a class="w3-bar-item w3-button w3-border w3-padding-small w3-theme-l3" href="{% url url_view jeu %}">{{ carte }}</a>
+            {% else %}
+                <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_view jeu %}">{{ carte }}</a>
+            {% endif %}
         {% endfor %}
         {% if objs.has_next %}
         <a class="w3-bar-item w3-button w3-border w3-padding-small" href="{% url url_view objs.next_page_number %}">&raquo;</a>

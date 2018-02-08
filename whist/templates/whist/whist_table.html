@@ -1,3 +1,4 @@
+{% load whist_tags %}
 <div class="w3-container">
     <!-- bouton ajout -->
     {% if url_add %}
@@ -115,11 +116,20 @@
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <div class="w3-dropdown-content w3-bar-block w3-border">
-                                    <a href="{% url ctx.url_jeu_pari obj.id 0 %}" class="w3-bar-item w3-button">0 pli</a>
+                                    {% if obj.donneur == 1 and ctx.pli_refus != 0 %}
+                                        <a href="{% url ctx.url_jeu_pari obj.id 0 %}" class="w3-bar-item w3-button">0 pli</a>
+                                    {% elif obj.donneur == 0 %}
+                                        <a href="{% url ctx.url_jeu_pari obj.id 0 %}" class="w3-bar-item w3-button">0 pli</a>
+                                    {% endif %}
                                     {% for ijeu, icarte in ctx.cartes %}
                                         {% if ijeu <= obj.carte %}
-                                        <a href="{% url ctx.url_jeu_pari obj.id icarte %}" class="w3-bar-item w3-button">
-                                            {{ icarte }} pli{{icarte|pluralize}}</a>
+                                            {% if obj.donneur == 1 and ctx.pli_refus != icarte %}
+                                                <a href="{% url ctx.url_jeu_pari obj.id icarte %}" class="w3-bar-item w3-button">
+                                                    {{ icarte }} pli{{icarte|pluralize}}</a>
+                                            {% elif obj.donneur == 0 %}
+                                                <a href="{% url ctx.url_jeu_pari obj.id icarte %}" class="w3-bar-item w3-button">
+                                                    {{ icarte }} pli{{icarte|pluralize}}</a>
+                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -140,7 +150,7 @@
                                     <a href="{% url ctx.url_jeu_real obj.id 0 %}" class="w3-bar-item w3-button">0 pli</a>
                                     {% for ijeu, icarte in ctx.cartes %}
                                         {% if ijeu <= obj.carte %}
-                                        <a href="{% url ctx.url_jeu_real obj.id icarte %}" class="w3-bar-item w3-button">
+                                            <a href="{% url ctx.url_jeu_real obj.id icarte %}" class="w3-bar-item w3-button">
                                             {{ icarte }} pli{{icarte|pluralize}}</a>
                                         {% endif %}
                                     {% endfor %}

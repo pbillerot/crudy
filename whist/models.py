@@ -16,8 +16,7 @@ class WhistPartie(models.Model):
     cartes = models.IntegerField(default=0,
                                  verbose_name='Nombre de cartes max / joueur',
                                  help_text="Nombre de cartes maximum par joueurs qui seront distribuées")
-    # carte = models.IntegerField(default=0, verbose_name="Nombre de carte du jeu")
-    # jeu = models.IntegerField(default=0, verbose_name="n° du jeu en cours")
+    jeu = models.IntegerField(default=0, verbose_name="n° du jeu en cours")
 
     def __str__(self):
         return self.name
