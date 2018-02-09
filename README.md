@@ -15,7 +15,6 @@ Framework de développement d'applications Web
 ### TOOLS
 - https://github.com/jazzband/django-widget-tweaks
 
-
 ## VERSION
 
 ### Version 18.2.8 
