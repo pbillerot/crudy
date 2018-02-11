@@ -94,7 +94,7 @@ class WhistListView(ListView):
         url_view = None
         # query sur la base
         # liste des champs à afficher dans la vue
-        fields = collections.OrderedDict()
+        fields = {}
         filters = {} # filtres du query_set
         order_by = () # liste des colonnes à trier
         # Rendu
@@ -156,11 +156,10 @@ class WhistPartieListView(WhistListView):
         url_add = "partie_create"
         url_update = "partie_update"
         url_delete = "partie_delete"
-        fields = collections.OrderedDict(
-        {
+        fields = {
             "name": "Partie",
             "cartes": "Nombre de cartes max"
-        })
+        }
         order_by = ('name',)
         url_view = "partie_list"
 
@@ -175,10 +174,10 @@ class WhistPartieSelectView(WhistListView):
         url_update = "partie_update"
         # url_delete = "partie_delete"
         url_folder = "partie_folder"
-        fields = collections.OrderedDict(
+        fields = {
             "name": "Nom de la partie",
             "cartes": "Nombre de cartes max"
-        })
+        }
         order_by = ('name',)
         url_view = "partie_select"
 
@@ -302,10 +301,10 @@ class WhistParticipantListView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistParticipant
         title = "Ordre des Participants autour de la table"
-        fields = collections.OrderedDict(
+        fields = {
             "joueur__pseudo": "Nom du joueur",
             "donneur": "Donneur initial",
-        })
+        }
         order_by = ('order', 'joueur__pseudo')
         url_order = "participant_order"
         url_actions = [
@@ -408,7 +407,7 @@ class WhistJeuListView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistJeu
         title = "Faites vos Jeux"
-        fields = collections.OrderedDict(
+        fields = {
             "donneur": "",
             "participant__joueur__pseudo": "Participant",
             # "jeu": "n° du tour",
@@ -417,7 +416,7 @@ class WhistJeuListView(WhistListView):
             "real": "Réalisé",
             "points": "Point",
             "score": "Score"
-        })
+        }
         url_view = "jeu_list"
         url_actions = [
             ("jeu_compute", "Calculer les points")
