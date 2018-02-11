@@ -102,5 +102,4 @@ ENV/
 
 # crudy
 tmp/
-venv/
 

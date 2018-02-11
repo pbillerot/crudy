@@ -2,6 +2,7 @@
     Traitement des VUES
 """
 import re
+import collections
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve
 from .models import WhistPartie, WhistJoueur, WhistParticipant, WhistJeu
@@ -93,9 +94,7 @@ class WhistListView(ListView):
         url_view = None
         # query sur la base
         # liste des champs à afficher dans la vue
-        fields = {
-            "name": "title"
-        }
+        fields = collections.OrderedDict()
         filters = {} # filtres du query_set
         order_by = () # liste des colonnes à trier
         # Rendu
@@ -157,10 +156,11 @@ class WhistPartieListView(WhistListView):
         url_add = "partie_create"
         url_update = "partie_update"
         url_delete = "partie_delete"
-        fields = {
+        fields = collections.OrderedDict(
+        {
             "name": "Partie",
             "cartes": "Nombre de cartes max"
-        }
+        })
         order_by = ('name',)
         url_view = "partie_list"
 
@@ -175,10 +175,10 @@ class WhistPartieSelectView(WhistListView):
         url_update = "partie_update"
         # url_delete = "partie_delete"
         url_folder = "partie_folder"
-        fields = {
+        fields = collections.OrderedDict(
             "name": "Nom de la partie",
             "cartes": "Nombre de cartes max"
-        }
+        })
         order_by = ('name',)
         url_view = "partie_select"
 
@@ -302,10 +302,10 @@ class WhistParticipantListView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistParticipant
         title = "Ordre des Participants autour de la table"
-        fields = {
+        fields = collections.OrderedDict(
             "joueur__pseudo": "Nom du joueur",
             "donneur": "Donneur initial",
-        }
+        })
         order_by = ('order', 'joueur__pseudo')
         url_order = "participant_order"
         url_actions = [
@@ -408,7 +408,7 @@ class WhistJeuListView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistJeu
         title = "Faites vos Jeux"
-        fields = {
+        fields = collections.OrderedDict(
             "donneur": "",
             "participant__joueur__pseudo": "Participant",
             # "jeu": "n° du tour",
@@ -417,7 +417,7 @@ class WhistJeuListView(WhistListView):
             "real": "Réalisé",
             "points": "Point",
             "score": "Score"
-        }
+        })
         url_view = "jeu_list"
         url_actions = [
             ("jeu_compute", "Calculer les points")

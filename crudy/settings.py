@@ -74,7 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'crudy.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-SESSION_FILE_PATH = './tmp'
+SESSION_FILE_PATH = '/tmp'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -124,7 +124,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
