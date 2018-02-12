@@ -94,7 +94,8 @@ class WhistListView(ListView):
         url_view = None
         # query sur la base
         # liste des champs à afficher dans la vue
-        fields = {}
+        cols = []
+        col_titles = []
         filters = {} # filtres du query_set
         order_by = () # liste des colonnes à trier
         # Rendu
@@ -123,8 +124,8 @@ class WhistListView(ListView):
         self.context["url_actions"] = self.meta.url_actions
         self.context["url_view"] = self.meta.url_view
         self.context["search_in"] = self.meta.search_in
-        # Récupération des fields correspondants aux objs
-        self.context["fields"] = [title for title in self.meta.fields.values()]
+        # Récupération des col_titles correspondants aux objs
+        self.context["col_titles"] = self.meta.col_titles
         # cochage des enregistrements sélectionnés
         if 0 in ctx["selected"]:
             for obj in self.objs:
@@ -136,12 +137,12 @@ class WhistListView(ListView):
 
     def get_queryset(self):
         """ queryset générique """
-        if 'id' not in self.meta.fields:
-            self.meta.fields["id"] = "id"
+        if 'id' not in self.meta.cols:
+            self.meta.cols.append("id")
         self.objs = self.meta.model.objects.all()\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
-        .values(*self.meta.fields.keys())
+        .values(*self.meta.cols)
         return self.objs
 
 """
@@ -156,10 +157,8 @@ class WhistPartieListView(WhistListView):
         url_add = "partie_create"
         url_update = "partie_update"
         url_delete = "partie_delete"
-        fields = {
-            "name": "Partie",
-            "cartes": "Nombre de cartes max"
-        }
+        cols = ["name", "cartes"]
+        col_titles = ["Partie", "Nombre de cartes max"]
         order_by = ('name',)
         url_view = "partie_list"
 
@@ -174,10 +173,8 @@ class WhistPartieSelectView(WhistListView):
         url_update = "partie_update"
         # url_delete = "partie_delete"
         url_folder = "partie_folder"
-        fields = {
-            "name": "Nom de la partie",
-            "cartes": "Nombre de cartes max"
-        }
+        cols = ["name", "cartes"]
+        col_titles = ["Partie", "Nombre de cartes max"]
         order_by = ('name',)
         url_view = "partie_select"
 
@@ -246,10 +243,8 @@ class WhistParticipantSelectView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistJoueur
         title = "Sélection des Participants"
-        fields = {
-            "pseudo": "Nom du joueur",
-            "email": "Email"
-        }
+        cols = ["pseudo", "email"]
+        col_titles = ["Nom du joueur", "Email"]
         order_by = ('pseudo',)
         url_add = "joueur_create"
         url_update = "joueur_update"
@@ -259,12 +254,12 @@ class WhistParticipantSelectView(WhistListView):
     def get_queryset(self):
         """ queryset générique """
         ctx = get_ctx(self.request)
-        if 'id' not in self.meta.fields:
-            self.meta.fields["id"] = "id"
+        if 'id' not in self.meta.cols:
+            self.meta.cols.append("id")
         self.objs = self.meta.model.objects.all()\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
-        .values(*self.meta.fields.keys())
+        .values(*self.meta.cols)
         # Cochage des participants dans la liste des joueurs
         participants = WhistParticipant.objects.all().filter(partie__id__exact=ctx["folder_id"])
         ctx["joined"] = []
@@ -301,10 +296,8 @@ class WhistParticipantListView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistParticipant
         title = "Ordre des Participants autour de la table"
-        fields = {
-            "joueur__pseudo": "Nom du joueur",
-            "donneur": "Donneur initial",
-        }
+        cols = ["joueur__pseudo", "donneur"]
+        col_titles = ["Nom du joueur", "Donneur initial"]
         order_by = ('order', 'joueur__pseudo')
         url_order = "participant_order"
         url_actions = [
@@ -315,12 +308,12 @@ class WhistParticipantListView(WhistListView):
     def get_queryset(self):
         """ queryset générique """
         ctx = get_ctx(self.request)
-        if 'id' not in self.meta.fields:
-            self.meta.fields["id"] = "id"
+        if 'id' not in self.meta.cols:
+            self.meta.cols.append("id")
         self.objs = self.meta.model.objects.all()\
         .filter(partie_id=ctx["folder_id"])\
         .order_by(*self.meta.order_by)\
-        .values(*self.meta.fields.keys())
+        .values(*self.meta.cols)
 
         ctx["url_participant_update"] = 'participant_update'
         ctx["action_param"] = 0
@@ -407,16 +400,8 @@ class WhistJeuListView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistJeu
         title = "Faites vos Jeux"
-        fields = {
-            "donneur": "",
-            "participant__joueur__pseudo": "Participant",
-            # "jeu": "n° du tour",
-            "carte": "Carte",
-            "pari": "Pari",
-            "real": "Réalisé",
-            "points": "Point",
-            "score": "Score"
-        }
+        cols = ["donneur", "participant__joueur__pseudo", "carte", "pari", "real", "points", "score"]
+        col_titles = ["", "Participant", "Carte", "Pari", "Réalisé", "Point", "Score"]
         url_view = "jeu_list"
         url_actions = [
             ("jeu_compute", "Calculer les points")
@@ -432,8 +417,8 @@ class WhistJeuListView(WhistListView):
         """ fournir les données à afficher dans la vue """
         ctx = get_ctx(self.request)
         # ajout de la colonne id
-        if 'id' not in self.meta.fields:
-            self.meta.fields["id"] = "id"
+        if 'id' not in self.meta.cols:
+            self.meta.cols.append("id")
         # prise en compte de la colonne à trier en fonction de sort
         if self.sort == "score":
             ctx["sort"] = "score"
@@ -449,7 +434,7 @@ class WhistJeuListView(WhistListView):
         jeux_list = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=ctx["folder_id"])\
         .order_by(*order_by)\
-        .values(*self.meta.fields.keys())
+        .values(*self.meta.cols)
 
         qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=ctx["folder_id"]).count()
         paginator = Paginator(jeux_list, qparticipant)

@@ -32,12 +32,12 @@
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                 {% endif %}
-                {% for field in fields %}
+                {% for title in col_titles %}
                     {% if forloop.first %}
-                        <th>{{ field }}</th>
-                    {% elif field != 'id' %}
-                        {% if field == 'Score' %}
-                            <th>{{ field }} 
+                        <th>{{ title }}</th>
+                    {% elif title != 'id' %}
+                        {% if title == 'Score' %}
+                            <th>{{ title }} 
                                 {% if ctx.sort == "score" %}
                                 <a class="w3-button w3-padding-small" href="{% url ctx.url_sort ctx.jeu 'participant' %}">
                                     <i class="fa fa-sort-amount-desc"></i>
@@ -49,7 +49,7 @@
                                 {% endif %}
                             </th>
                         {% else %}
-                            <th>{{ field }}</th>
+                            <th>{{ title }}</th>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
