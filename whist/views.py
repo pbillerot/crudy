@@ -269,18 +269,24 @@ class WhistParticipantSelectView(WhistListView):
         ctx = get_ctx(self.request)
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
-        self.objs = self.meta.model.objects.all()\
+        objs = self.meta.model.objects.all()\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols)
         # Cochage des participants dans la liste des joueurs
         participants = WhistParticipant.objects.all().filter(partie__id__exact=ctx["folder_id"])
         ctx["joined"] = []
-        self.objs = []
-        for obj in self.objs:
+        for obj in objs:
             for participant in participants:
                 if participant.joueur_id == obj["id"]:
                     ctx["joined"].append(obj["id"])
+        self.objs = []
+        # tri des colonnes
+        for row in objs:
+            ordered_dict = collections.OrderedDict()
+            for col in self.meta.cols:
+                ordered_dict[col] = row[col]  
+            self.objs.append(ordered_dict) 
 
         set_ctx(self.request, ctx)
         return self.objs
@@ -451,14 +457,14 @@ class WhistJeuListView(WhistListView):
         else:
             order_by = ('jeu', 'participant__order',)
 
-        jeux_list = self.meta.model.objects.all()\
+        objs = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=ctx["folder_id"])\
         .order_by(*order_by)\
         .values(*self.meta.cols)
 
         # Tri des colonnes dans l'ordre de cols
         objects_list = []
-        for row in jeux_list:
+        for row in objs:
             ordered_dict = collections.OrderedDict()
             for col in self.meta.cols:
                 ordered_dict[col] = row[col]  
