@@ -17,5 +17,9 @@ Framework de développement d'applications Web
 
 ## VERSION
 
-### Version 18.2.8 
+
+### Version 18.2.13 beta
+- Version opérationnelle sur Raspberry PI - Apache2 - Sqlite3
+
+### Version 18.2.8 beta
 - Application WHIST opérationelle pour déploiement sur production
