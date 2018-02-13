@@ -51,3 +51,10 @@ def tpl_donneur(value, autoescape=True):
         result = '<td style="width: 10px;">&nbsp;</span></td>'
 
     return mark_safe(result)
+
+@register.filter(name="get_col")
+def get_col(row, col_id):
+    '''
+    Retourne la valeur de la colonne de la row
+    '''
+    return row[col_id]

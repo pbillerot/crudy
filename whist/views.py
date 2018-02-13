@@ -68,7 +68,7 @@ class WhistListView(ListView):
     context_object_name = "objs"
     template_name = "whist/whist_view.html"
     context = None
-    objs = None
+    objs = []
     # ctx
     ctx = None
 
@@ -134,6 +134,7 @@ class WhistListView(ListView):
         if 0 in ctx["selected"]:
             for obj in self.objs:
                 ctx["selected"].append(obj["id"])
+        # tri des objs dans l'ordre des cols
         ctx["url_view"] = self.meta.url_view
         set_ctx(self.request, ctx)
         self.context["ctx"] = ctx
@@ -143,10 +144,18 @@ class WhistListView(ListView):
         """ queryset générique """
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
-        self.objs = self.meta.model.objects.all()\
+        objs = self.meta.model.objects.all()\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols)
+        # Tri des colonnes dans l'ordre de cols
+        self.objs = []
+        for row in objs:
+            ordered_dict = collections.OrderedDict()
+            for col in self.meta.cols:
+                ordered_dict[col] = row[col]  
+            self.objs.append(ordered_dict) 
+
         return self.objs
 
 """
@@ -267,6 +276,7 @@ class WhistParticipantSelectView(WhistListView):
         # Cochage des participants dans la liste des joueurs
         participants = WhistParticipant.objects.all().filter(partie__id__exact=ctx["folder_id"])
         ctx["joined"] = []
+        self.objs = []
         for obj in self.objs:
             for participant in participants:
                 if participant.joueur_id == obj["id"]:
@@ -314,10 +324,16 @@ class WhistParticipantListView(WhistListView):
         ctx = get_ctx(self.request)
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
-        self.objs = self.meta.model.objects.all()\
+        objs = self.meta.model.objects.all()\
         .filter(partie_id=ctx["folder_id"])\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols)
+        self.objs = []
+        for row in objs:
+            ordered_dict = collections.OrderedDict()
+            for col in self.meta.cols:
+                ordered_dict[col] = row[col]  
+            self.objs.append(ordered_dict) 
 
         ctx["url_participant_update"] = 'participant_update'
         ctx["action_param"] = 0
@@ -440,8 +456,16 @@ class WhistJeuListView(WhistListView):
         .order_by(*order_by)\
         .values(*self.meta.cols)
 
+        # Tri des colonnes dans l'ordre de cols
+        objects_list = []
+        for row in jeux_list:
+            ordered_dict = collections.OrderedDict()
+            for col in self.meta.cols:
+                ordered_dict[col] = row[col]  
+            objects_list.append(ordered_dict) 
+
         qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=ctx["folder_id"]).count()
-        paginator = Paginator(jeux_list, qparticipant)
+        paginator = Paginator(objects_list, qparticipant)
         
         self.objs = paginator.get_page(self.page)
         # comptage de nombre de plis demandés
