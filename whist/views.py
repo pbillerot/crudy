@@ -125,7 +125,11 @@ class WhistListView(ListView):
         self.context["url_view"] = self.meta.url_view
         self.context["search_in"] = self.meta.search_in
         # Récupération des col_titles correspondants aux objs
-        self.context["col_titles"] = self.meta.col_titles
+        # self.context["col_titles"] = self.meta.col_titles
+        self.context["col_titles"] = []
+        for index, title in enumerate(self.meta.col_titles):
+            # print(index, title)
+            self.context["col_titles"].append((index, title))
         # cochage des enregistrements sélectionnés
         if 0 in ctx["selected"]:
             for obj in self.objs:
