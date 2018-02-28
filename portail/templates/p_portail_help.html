@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load markup_tags %}
+{% block menu %}
+{% include "i_portail_menu.html" %}
+{% endblock menu %}
+{% block toolbar %}
+{% include "i_portail_toolbar.html" %}
+{% endblock toolbar %}
+{% block application_list %}
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--12-col">
+        <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+            <div class="mdl-card mdl-cell mdl-cell--12-col">
+                <div class="mdl-card__supporting-text">
+{{ readme|apply_markup:"markdown" }} 
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock application_list %}
+{% block view %}{% endblock view %}
+{% block form %}{% endblock form %}

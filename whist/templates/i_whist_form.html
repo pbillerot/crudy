@@ -1,0 +1,72 @@
+{% load whist_tags %}
+<div class="mdl-grid">
+        <form method="post" id="maForm">
+            {% csrf_token %} 
+            {% if form.errors %} 
+                {% for error in form.non_field_errors %}
+                <div class="mdl-card__supporting-text">
+                    <i class="material-icons">warning</i> {{ error|escape }}
+                </div>
+                {% empty%}
+                <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+                    <div class="mdl-card__actions mdl-card--border">
+                        <span class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                            <i class="materials-icons">warning</i> Corrigez les erreurs suivantes.
+                        </span>
+                    </div>
+                </div>
+                {% endfor %} 
+            {% endif %} 
+            {% for field in form %}
+            <div class="mdl-cell mdl-cell--12-col">
+                {% if field|field_attr:'type' == 'radio' %}
+                    <div class="">
+                        <div class="mdl-card__title">
+                                {{ field.label }}
+                        </div>
+                        <div class="mdl-card__actions mdl-card--border">
+                        {% for radio_id, radio_label in field.field.choices %}
+                        {% if not forloop.first %}<br/><br/>{% endif %}
+                            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" 
+                                for="{{field.name}}_{{radio_id}}">
+                                <input type="radio" id="{{field.name}}_{{radio_id}}" name="{{field.name}}" value="{{radio_id}}"
+                                {% if field.value == radio_id %}checked="checked"{%endif%}
+                                    class="mdl-radio__button" >
+                                <span class="mdl-radio__label">{{radio_label}}</span>
+                            </label>
+                        {% endfor%}
+                        </div>
+                        <div class="mdl-card__actions">
+                        {% if field.help_text %}
+                            <div class="crudy-field-helper-text">{{ field.help_text|safe }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="mdl-textfield__error">{{ error|escape }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="{{field|field_attr:'type'}}" id="{{field.html_name}}"
+                        name="{{field.html_name}}" value="{{ field.value|default_if_none:'' }}"
+                        {% for name, attr in field|field_attrs %} 
+                            {{name}}="{{attr}}"
+                        {% endfor %}
+                        />
+                        <label class="mdl-textfield__label" for="{{field.html_name}}">{{ field.label }}</label>
+                        {% if field.help_text %}
+                            <span class="crudy-field-helper-text">{{ field.help_text|safe }}</span>
+                        {% endif %}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="mdl-textfield__error">{{ error|escape }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </form>
+</div>

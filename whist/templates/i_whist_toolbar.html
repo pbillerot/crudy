@@ -1,0 +1,54 @@
+{% load whist_tags %}
+<div class="mdl-layout__header-row">
+{% if crudy.url_view and not form %} 
+    <span class="mdl-layout-title">{{title}}</span>
+    {% if crudy.url_join %}
+    <span class="mdl-layout-title">
+        &nbsp;> 
+        <span class="crudy-text--selected">
+            {{ crudy.joined|length }} élément{{ crudy.joined|length|pluralize }} sélectionné{{ crudy.joined|length|pluralize}}
+        </span>
+    </span>
+{% endif %}
+    <div class="mdl-layout-spacer"></div>
+    <!-- boutons d'actions -->
+    <nav class="mdl-navigation">
+        {% if crudy.url_actions %} 
+            {% for action, title in crudy.url_actions %}
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" 
+                onClick="window.location='{% url action crudy.action_param %}';">{{title}}
+                </button>
+            {% endfor %} 
+        {% endif %} 
+        {% if crudy.selected and not url_folder %}
+            <a class="mdl-navigation__link" href="{% url url_delete %}">
+                <i class="material-icons">trash</i>
+            </a>
+            <span class="">
+                {{ crudy.selected|length }} élément{{ crudy.selected|length|pluralize }} sélectionné{{ crudy.selected|length|pluralize }}
+            </span>
+        {% endif %} 
+    </nav>
+{% endif %} 
+{% if form %}
+    <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" 
+        onClick="window.location='{{crudy.url_return}}';">
+        <i class="material-icons">arrow_back</i>
+    </button>
+    <span class="mdl-layout-title">{{title}}</span>
+    <div class="mdl-layout-spacer"></div>
+    <!-- boutons de validation -->
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" 
+        onclick="document.getElementById('maForm').submit();" title="Valider le formulaire">
+        <i class="material-icons">check</i> Valider
+    </button>
+    {% if crudy.url_delete %}
+        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="hdrbtn">
+            <i class="material-icons">more_vert</i>
+        </button>
+        <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
+            <li class="mdl-menu__item"><a href="{% url crudy.url_delete form.instance.pk %}">Supprimer l'enregistrement</li>
+        </ul>    
+    {% endif %}
+{% endif %}
+</div>

@@ -1,0 +1,236 @@
+{% load whist_tags %}
+{% load markup_tags %}
+<!-- bouton ajout -->
+{% if crudy.url_add %}
+<a href="{% url crudy.url_add %}">
+    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored crudy-btn-fixed-bottom">
+        <i class="material-icons">add</i>
+    </button>
+</a>
+{% endif %}
+<div class="mdl-grid">
+    <div class="mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet">
+        <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+            <thead>
+                <tr>
+                    {% if crudy.url_folder %}
+                    <th>&nbsp;</th>
+                    {% endif %} {% if crudy.url_join %}
+                    <th>&nbsp;</th>
+                    {% endif %} {% if crudy.url_order %}
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    {% endif %} 
+                    {% for key in cols %}
+                        {% if forloop.first %}
+                        <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}</th>
+                        {% elif key != 'id' %} 
+                            {% if dico|attr_title:key == 'Score' %}
+                            <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}
+                                {% if crudy.sort == "score" %}
+                                <a href="{% url crudy.url_sort crudy.jeu 'participant' %}"
+                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                                <i class="material-icons">sort</i>
+                                </a>
+                                {% else %}
+                                <a href="{% url crudy.url_sort crudy.jeu 'score' %}"
+                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                                <i class="material-icons">import_export</i>
+                                </a>
+                                {% endif %}
+                            </th>
+                            {% else %}
+                            <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}</th>
+                            {% endif %} 
+                        {% endif %} 
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in objs %}
+                <tr class="">
+                {% if crudy.url_folder %}
+                <td style="width: 30px;">
+                    <label class="mdl-radio mdl-js-radio" for="option_{{obj.id}}">
+                        <input type="radio" class="mdl-radio__button" id="option_{{obj.id}}"
+                        {% if obj.id == crudy.folder_id %}checked="checked"{% endif %}
+                        onClick="window.location='{% url crudy.url_folder obj.id %}';"
+                        >
+                    </label>
+                </td>
+                {% endif %}
+                {% if crudy.url_join %}
+                <td style="width: 30px;">
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_{{obj.id}}">
+                        <input type="checkbox" class="mdl-checkbox__input" id="checkbox_{{obj.id}}"
+                        {% if obj.id in crudy.joined %}checked="checked"{% endif %}
+                        onClick="window.location='{% url crudy.url_join obj.id %}';"
+                        >
+                    </label>
+                </td>
+                {% endif %}
+                {% if crudy.url_order %}
+                    {% if forloop.first %}
+                        <td style="width: 20px;">
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                            onClick="window.location='{% url crudy.url_order obj.id +1 %}';">
+                                <i class="material-icons">arrow_downward</i>
+                            </button>
+                        </td>
+                        <td style="width: 20px;">
+                                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                                disable="disabled">
+                                    <i class="material-icons mdl-color-text--grey-400">arrow_upward</i>
+                                </button>
+                        </td>
+                        {% elif forloop.last %}
+                        <td style="width: 20px;">
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                            disable="disabled">
+                                <i class="material-icons mdl-color-text--grey-400">arrow_downward</i>
+                            </button>
+                        </td>
+                        <td style="width: 20px;">
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                            onClick="window.location='{% url crudy.url_order obj.id -1 %}';">
+                                <i class="material-icons">arrow_upward</i>
+                            </button>
+                        </td>
+                    {% else %}
+                    <td style="width: 20px;">
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                        onClick="window.location='{% url crudy.url_order obj.id +1 %}';">
+                            <i class="material-icons">arrow_downward</i>
+                        </button>
+                    </td>
+                    <td style="width: 20px;">
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                        onClick="window.location='{% url crudy.url_order obj.id -1 %}';">
+                            <i class="material-icons">arrow_upward</i>
+                        </button>
+                    </td>
+                    {% endif %}
+                {% endif %}
+                {% for key, value in obj.items %}
+                    {% if forloop.first and crudy.url_update %}
+                        <td class="{{ dico|attr_td_class:key }}"><a href="{% url crudy.url_update obj.id %}">{{ value }}</a></td>
+                    {% elif key != 'id' %}
+                        {% if crudy.url_view == "v_jeu_list" and key == "pari" %}
+                            <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie des PARIS {% endcomment %}
+                                {% if value != 0 %}
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary" 
+                                        onClick="window.location='{% url crudy.url_jeu_pari obj.id %}';">
+                                    {{ value }}
+                                    </button>
+                                {% else %}
+                                <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab" 
+                                    onClick="window.location='{% url crudy.url_jeu_pari obj.id %}';">
+                                {{ value }}
+                                </button>
+                        {% endif %}
+                            </td>
+                        {% elif crudy.url_view == "v_jeu_list" and key == "real" %}
+                            <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie du REALISE {% endcomment %}
+                                {% if value == obj.pari %}
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary" 
+                                        onClick="window.location='{% url crudy.url_jeu_real obj.id %}';">
+                                    {{ value }}
+                                    </button>
+                                {% else %}
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab" 
+                                        onClick="window.location='{% url crudy.url_jeu_real obj.id %}';">
+                                    {{ value }}
+                                    </button>
+                                {% endif %}
+                            </td>
+                        {% elif crudy.url_view == "v_jeu_list" and key == "donneur" %}
+                            {% if value == 1 %}
+                                <td class="{{ dico|attr_td_class:key }}" style="width: 10px;"><i class="material-icons" title="le donneur pour ce tour">room</i></td>
+                            {% else %}
+                                <td class="{{ dico|attr_td_class:key }}" style="width: 10px;">&nbsp;</span></td>
+                            {% endif %}
+                        {% elif crudy.url_view == "v_jeu_list" and key == "points" %}
+                            {% if value > 0 %}
+                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--green">{{ value }}</span></td>
+                            {% else %}
+                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--red">{{ value }}</span></td>
+                            {% endif %}
+                            {% elif crudy.url_view == "v_jeu_list" and key == "score" %}
+                            {% if value > 0 %}
+                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--green">{{ value }}</span></td>
+                            {% else %}
+                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--red">{{ value }}</span></td>
+                            {% endif %}
+                        {% elif crudy.url_view == "v_participant_list" and key == "donneur" %}
+                            {% if value > 0 %}
+                            <td class="{{ dico|attr_td_class:key }}">
+                                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
+                                    style="width: unset" for="checkbox_{{obj.id}}">
+                                <input type="checkbox" class="mdl-checkbox__input" id="checkbox_{{obj.id}}"
+                                    checked="checked"
+                                    onClick="window.location='{% url crudy.url_participant_update obj.id 0 %}';">
+                                </label>
+                            </td>
+                            {% else %}
+                            <td class="{{ dico|attr_td_class:key }}">
+                                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
+                                    style="width: unset" for="checkbox_{{obj.id}}">
+                                <input type="checkbox" class="mdl-checkbox__input" id="checkbox_{{obj.id}}"
+                                    onClick="window.location='{% url crudy.url_participant_update obj.id 1 %}';">
+                                </label>
+                            </td>
+                            {% endif %}
+                        {% else %}
+                            <td class="{{ dico|attr_td_class:key }}">{{ value|default_if_none:'' }}</td>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            {% if paginator %}
+            <tr>
+                <td colspan="{{crudy.qcols}}" class="mdl-data-table__cell--non-numeric" style="text-align: center">
+                {% for jeu, carte in crudy.cartes %}
+                    {% if objs.number == jeu %}
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary" 
+                                >{{ carte }}
+                        </button>
+                    {% elif jeu <= crudy.jeu_current %}
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab" 
+                        onClick="window.location='{% url crudy.url_view jeu %}';"
+                            >{{ carte }}
+                        </button>
+                    {% elif jeu == crudy.jeu_current|add:1 %}
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--purple" 
+                        onClick="window.location='{% url crudy.url_view jeu %}';"
+                            >{{ carte }}
+                        </button>
+                    {% else %}
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--colored" 
+                        onClick="window.location='{% url crudy.url_view jeu %}';"
+                        >{{ carte }}
+                    </button>
+                    {% endif %}
+                {% endfor %}
+                </td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% if crudy.url_view == "v_participant_list" %}
+    <div class="mdl-card__supporting-text">
+{% filter apply_markup:"markdown" %} 
+{% include "i_whist_v_participant_list.md" %}
+{% endfilter %}
+    </div>
+</div>
+{% endif %}
+{% if crudy.url_view == "v_participant_select" %}
+    <div class="mdl-card__supporting-text">
+{% filter apply_markup:"markdown" %} 
+{% include "i_whist_v_participant_select.md" %}
+{% endfilter %}
+    </div>
+</div>
+{% endif %}
