@@ -15,6 +15,14 @@ Sources disponible sur [Github](https://github.com/pbillerot/crudy)
 - Templates : <https://docs.djangoproject.com/fr/2.0/ref/templates/builtins/>
 - django-markup: <http://django-markup.readthedocs.io/en/latest/index.html> 
 
+### A VENIR
+- Inscription d'un compte sur le site
+- Seuls les utilisateurs connectés peuvent accéder aux applications
+- Une base de données par utilisateur
+
+### Version 1.0 du 18.2.28
+- Version opérationnelle sur Raspberry PI en HTTPS Apache2.4 Sqlite3 Django 2.0.2 Python 3.5
+
 #### Version 18.2.28 alpha
 - Material Design Lite
 - Suppression des warnings

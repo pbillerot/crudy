@@ -1,3 +1,4 @@
+# coding: utf-8
 """ Gestion du contexte de CRUDY """
 
 class Crudy():

@@ -1,4 +1,4 @@
-# from import_export.admin import ImportExportModelAdmin
+# coding: utf-8
 from django.contrib import admin
 from .models import WhistJoueur, WhistPartie, WhistParticipant, WhistJeu
 from django.utils.safestring import mark_safe

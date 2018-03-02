@@ -1,3 +1,4 @@
+# coding: utf-8
 import os
 from django.shortcuts import render
 from crudy.crudy import Crudy
