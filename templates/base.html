@@ -19,7 +19,6 @@
 <html lang="fr">
 
 <head>
-  <meta name="referrer" content="origin">
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="description" content="{% block description %}CRUDY le framework pour DJANGO{% endblock description %}">
@@ -82,7 +81,7 @@
             </i>
             </a>
             <div class="demo-avatar-dropdown">
-                <span>non identifié</span>
+                <span>{% if crudy.request.user.is_authenticated %} {{crudy.request.user.first_name|upper}} {% else %} non identifié {% endif %}</span>
                 <div class="mdl-layout-spacer"></div>
                 <!-- User -->
                 <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
@@ -90,9 +89,11 @@
                     <span class="visuallyhidden">Accounts</span>
                 </button>
                 <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-                    <li class="mdl-menu__item">Se connecter...</li>
-                    <li class="mdl-menu__item">
-                        <i class="material-icons">add</i>Créer un compte...</li>
+                    {% if crudy.request.user.is_authenticated %}
+                    <li class="mdl-menu__item"><a href="{% url 'p_portail_logout' %}">Se déconnecter</a></li>
+                    {% else %}
+                    <li class="mdl-menu__item"><a href="{% url 'p_portail_login' %}">Se connecter...</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </header>

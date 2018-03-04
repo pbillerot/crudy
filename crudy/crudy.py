@@ -75,7 +75,6 @@ class Crudy():
     def application(self, app_id):
         self.app = self.apps.get(app_id)
 
-
     @property
     def selected(self):
         return self.ctx["selected"]

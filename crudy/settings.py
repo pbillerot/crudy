@@ -73,6 +73,7 @@ TEMPLATES = [
         },
     },
 ]
+LOGIN_URL = "/portail/login"
 
 WSGI_APPLICATION = 'crudy.wsgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'

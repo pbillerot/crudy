@@ -18,6 +18,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.conf import settings
 from django.views.generic.base import RedirectView
+#from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url='/portail/', permanent=False), name='index'),

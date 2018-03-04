@@ -1,3 +1,12 @@
+var dialog = document.querySelector('dialog');
+if (dialog) {
+    if (!dialog.showModal) {
+        dialogPolyfill.registerDialog(dialog);
+    }
+    dialog.showModal();
+}
+
+
 function crudy_real(id, icarte, add_sub) {
     console.log(id, icarte, add_sub)
 }
@@ -7,11 +16,11 @@ function crudy_add(event) {
     var dest = document.getElementById(obj.dataset.for)
     var bret = true
     if (obj.dataset.action == '1') {
-        if ( parseInt(dest.textContent, 10) + 1 == parseInt(obj.dataset.max, 10) ) {
+        if (parseInt(dest.textContent, 10) + 1 == parseInt(obj.dataset.max, 10)) {
             bret = false
         }
     } else {
-        if ( parseInt(dest.textContent, 10) - 1 == 0 ) {
+        if (parseInt(dest.textContent, 10) - 1 == 0) {
             bret = false
         }
     }

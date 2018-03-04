@@ -4,6 +4,7 @@
 """
 import re
 import collections
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve
 # from django.views.decorators.csrf import csrf_protect
@@ -517,6 +518,7 @@ def f_jeu_real(request, record_id):
         form.save()
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_whist_form.html", locals())
+
 
 def f_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
