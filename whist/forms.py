@@ -10,6 +10,7 @@ class WhistForm(forms.ModelForm):
         fields = []
         readonly_fields = ()
         url_delete = ""
+        is_form_autovalid = False
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -20,6 +21,7 @@ class WhistForm(forms.ModelForm):
                 field.required = False
         crudy = Crudy(self.request, "whist")
         crudy.url_delete = self.Meta.url_delete
+        crudy.is_form_autovalid = self.Meta.is_form_autovalid
         crudy.update_session()
 
     def clean(self):
@@ -32,6 +34,7 @@ class WhistPartieForm(WhistForm):
     """ Création / mise à jour d'une partie """
     class Meta:
         model = WhistPartie
+        is_form_autovalid = False
         fields = ['name', 'cartes']
         readonly_fields = ()
         widgets = {
@@ -71,6 +74,7 @@ class WhistJoueurForm(WhistForm):
     """ Création / mise à jour d'un joueur """
     class Meta:
         model = WhistJoueur
+        is_form_autovalid = False
         fields = ['pseudo', 'email']
         widgets = {
             'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required"}),
@@ -90,6 +94,7 @@ class WhistJeuPariForm(WhistForm):
 
     class Meta:
         model = WhistJeu
+        is_form_autovalid = True
         fields = ['pari']
         widgets = {
             'pari': forms.RadioSelect(attrs={'type': 'radio'})
@@ -112,13 +117,14 @@ class WhistJeuPariForm(WhistForm):
                 continue
             choices.append((i, "%s pli" % (i,)))
         self.fields['pari'].choices = choices
-        self.fields['pari'].label = "Choisir le pari de " + whistJeu.participant.joueur.pseudo + ""
+        self.fields['pari'].label = "Choisir le pari de **" + whistJeu.participant.joueur.pseudo + "**"
 
 class WhistJeuRealForm(WhistForm):
     """ Saisie du réalisé dun joueur """
 
     class Meta:
         model = WhistJeu
+        is_form_autovalid = True
         fields = ['real']
         widgets = {
             'real': forms.RadioSelect(attrs={'type': 'radio'})
@@ -134,4 +140,4 @@ class WhistJeuRealForm(WhistForm):
         for i in range(0, whistJeu.carte + 1):
             choices.append((i, "%s pli" % (i,)))
         self.fields['real'].choices = choices
-        self.fields['real'].label = "Choisir le nombre de plis réalisés par " + whistJeu.participant.joueur.pseudo + ""
+        self.fields['real'].label = "Choisir le nombre de plis réalisés par **" + whistJeu.participant.joueur.pseudo + "**"

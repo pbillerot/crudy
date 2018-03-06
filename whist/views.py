@@ -41,7 +41,6 @@ class WhistListView(ListView):
     qcols = 0
     paginator = False
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.meta = self.Meta()
@@ -511,7 +510,7 @@ def f_jeu_compute(request, ijeu):
 def f_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, "whist")
-    title = "Saisie du réalisé"
+    title = "REALISE"
     obj = get_object_or_404(WhistJeu, id=record_id)
     form = forms.WhistJeuRealForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
@@ -523,7 +522,7 @@ def f_jeu_real(request, record_id):
 def f_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
     crudy = Crudy(request, "whist")
-    title = "Saisie du pari"
+    title = "PARI"
     obj = get_object_or_404(WhistJeu, id=record_id)
     form = forms.WhistJeuPariForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():

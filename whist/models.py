@@ -11,12 +11,12 @@ class WhistPartie(models.Model):
     objects = models.Manager()
     name = models.CharField(max_length=50, blank=False
                             , verbose_name='Nom de la partie'
-                            , help_text="Le nom de la partie devra être unique"
+                            , help_text="Le nom de la partie sera unique"
                            )
     date = models.DateField(auto_now_add=True, auto_now=False, verbose_name="Date de la partie")
     cartes = models.IntegerField(default=0,
                                  verbose_name='Nombre de cartes max / joueur',
-                                 help_text="Nombre de cartes maximum par joueurs qui seront distribuées")
+                                 help_text="Le nombre de cartes maximum par joueur qui seront distribuées")
     jeu = models.IntegerField(default=0, verbose_name="n° du jeu en cours")
 
     def __str__(self):
@@ -86,7 +86,7 @@ class WhistJeu(models.Model):
     # joueur = models.ForeignKey(WhistJoueur, on_delete=models.CASCADE)
     jeu = models.IntegerField(default=0, verbose_name='N° du tour')
     carte = models.IntegerField(default=0, verbose_name='Nbre de cartes')
-    pari = models.IntegerField(default=0, verbose_name='Pari', help_text="Le nombre de plis ne peut pas dépasser le nombre de cartes")
+    pari = models.IntegerField(default=0, verbose_name='Pari')
     real = models.IntegerField(default=0, verbose_name='Réalisé')
     points = models.IntegerField(default=0, verbose_name='Points')
     score = models.IntegerField(default=0, verbose_name='Score')

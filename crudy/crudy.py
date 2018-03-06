@@ -6,13 +6,29 @@ class Crudy():
     apps = {
         "portail": {
             "title": "Crudy",
+            "resume": """Le framework tant attendu""",
             "logo": "filter_none",
             "menu_title": "Choix des applications",
             "url_name": "p_portail_home",
         },
         "whist": {
-            "title": "Whist - Compter les points",
+            "title": "Whist",
+            "resume": """Compter les points du Whist""",
             "logo": "filter_1",
+            "menu_title": "Whist",
+            "url_name": "p_whist_home",
+        },
+        "whist1": {
+            "title": "Whist",
+            "resume": """Compter les points du Whist""",
+            "logo": "filter_2",
+            "menu_title": "Whist",
+            "url_name": "p_whist_home",
+        },
+        "whist2": {
+            "title": "Whist",
+            "resume": """Compter les points du Whist""",
+            "logo": "filter_3",
             "menu_title": "Whist",
             "url_name": "p_whist_home",
         },
@@ -20,6 +36,10 @@ class Crudy():
 
     # Application en cours
     app = None # alimentée par le constructeur
+
+    attrs = {
+        "form_autovalid": False
+    }
 
     # Contexte de la session
     ctx = {
@@ -228,3 +248,11 @@ class Crudy():
     @qcols.setter
     def qcols(self, value):
         self.ctx["qcols"] = value
+
+    # Attributs
+    @property
+    def is_form_autovalid(self):
+        return self.attrs["is_form_autovalid"]
+    @is_form_autovalid.setter
+    def is_form_autovalid(self, value):
+        self.attrs["is_form_autovalid"] = value

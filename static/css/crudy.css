@@ -194,9 +194,9 @@
   font-size: 14px;
 }
 .crudy-mdl-button--mini-fab {
-  height: 24px;
-  min-width: 24px;
-  width: 24px;
+  height: 32px;
+  min-width: 32px;
+  width: 32px;
   font-size: 14px;
 }
 .crudy-fieldset {
@@ -206,4 +206,14 @@
 .crudy-data-table__cell--text-center.crudy-data-table__cell--text-center {
   text-align: center;
   vertical-align: middle;
+}
+.crudy-card-square.mdl-card {
+  width: 320px;
+  height: 320px;
+  float: left;
+  margin: 1rem;
+  position: relative;
+}
+.crudy-card-square.mdl-card:hover {
+  box-shadow: 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12), 0 5px 5px -3px rgba(0, 0, 0, .2);
 }

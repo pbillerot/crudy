@@ -11,6 +11,11 @@
     {% endfor %}
 {% endif %}
     <div class="mdl-layout-spacer"></div>
+{% if crudy.request.user.is_superuser %}
+<a class="mdl-navigation__link" href="/admin">
+    <i class="material-icons" role="presentation">system_update_alt</i>Administrer...
+    <span class="visuallyhidden">Admin</span>
+{% endif %}
     <a class="mdl-navigation__link" href="{% url 'p_portail_help' %}">
         <i class="material-icons" role="presentation">help_outline</i>
     <span class="visuallyhidden">Help</span>
