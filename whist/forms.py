@@ -22,7 +22,7 @@ class WhistForm(forms.ModelForm):
         crudy = Crudy(self.request, "whist")
         crudy.url_delete = self.Meta.url_delete
         crudy.is_form_autovalid = self.Meta.is_form_autovalid
-        crudy.update_session()
+        crudy.save()
 
     def clean(self):
         cleaned_data = super(WhistForm, self).clean()
@@ -117,7 +117,7 @@ class WhistJeuPariForm(WhistForm):
                 continue
             choices.append((i, "%s pli" % (i,)))
         self.fields['pari'].choices = choices
-        self.fields['pari'].label = "Choisir le pari de **" + whistJeu.participant.joueur.pseudo + "**"
+        self.fields['pari'].label = ""
 
 class WhistJeuRealForm(WhistForm):
     """ Saisie du réalisé dun joueur """
@@ -140,4 +140,4 @@ class WhistJeuRealForm(WhistForm):
         for i in range(0, whistJeu.carte + 1):
             choices.append((i, "%s pli" % (i,)))
         self.fields['real'].choices = choices
-        self.fields['real'].label = "Choisir le nombre de plis réalisés par **" + whistJeu.participant.joueur.pseudo + "**"
+        self.fields['real'].label = ""

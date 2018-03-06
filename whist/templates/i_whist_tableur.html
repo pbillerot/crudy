@@ -118,7 +118,7 @@
                         {% if crudy.url_view == "v_jeu_list" and key == "pari" %}
                             <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie des PARIS {% endcomment %}
                                 {% if value != 0 %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary" 
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500" 
                                         onClick="window.location='{% url crudy.url_jeu_pari obj.id %}';">
                                     {{ value }}
                                     </button>
@@ -131,8 +131,8 @@
                             </td>
                         {% elif crudy.url_view == "v_jeu_list" and key == "real" %}
                             <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie du REALISE {% endcomment %}
-                                {% if value == obj.pari %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary" 
+                                {% if value != 0 %}
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500" 
                                         onClick="window.location='{% url crudy.url_jeu_real obj.id %}';">
                                     {{ value }}
                                     </button>
@@ -151,7 +151,16 @@
                             {% endif %}
                         {% elif crudy.url_view == "v_jeu_list" and key == "points" %}
                             {% if value > 0 %}
-                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--green">{{ value }}</span></td>
+                            <td class="{{ dico|attr_td_class:key }}"><span class="@register.filter(name='attr_type')
+                                def attr_type(dico, key):
+                                    return dico[key].get("type", "")
+                                    @register.filter(name='attr_type')
+                                    def attr_type(dico, key):
+                                        return dico[key].get("type", "")
+                                        @register.filter(name='attr_type')
+                                        def attr_type(dico, key):
+                                            return dico[key].get("type", "")
+                                        mdl-color-text--green">{{ value }}</span></td>
                             {% else %}
                             <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--red">{{ value }}</span></td>
                             {% endif %}

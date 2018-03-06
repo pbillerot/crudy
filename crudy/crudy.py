@@ -37,10 +37,6 @@ class Crudy():
     # Application en cours
     app = None # alimentée par le constructeur
 
-    attrs = {
-        "form_autovalid": False
-    }
-
     # Contexte de la session
     ctx = {
         "selected": [],
@@ -64,6 +60,8 @@ class Crudy():
         "url_join": None,
         "url_folder": None,
         "qcols": None,
+        "form_autovalid": False,
+        "message": None
     }
     request = None
 
@@ -76,7 +74,7 @@ class Crudy():
             request.session["ctx"] = self.ctx
         self.app = self.apps.get(app_id)
 
-    def update_session(self):
+    def save(self):
         """ Enregistrement du contexte dans la session """
         self.request.session["ctx"] = self.ctx
 
@@ -249,10 +247,16 @@ class Crudy():
     def qcols(self, value):
         self.ctx["qcols"] = value
 
-    # Attributs
     @property
     def is_form_autovalid(self):
-        return self.attrs["is_form_autovalid"]
+        return self.ctx["is_form_autovalid"]
     @is_form_autovalid.setter
     def is_form_autovalid(self, value):
-        self.attrs["is_form_autovalid"] = value
+        self.ctx["is_form_autovalid"] = value
+
+    @property
+    def message(self):
+        return self.ctx["message"]
+    @message.setter
+    def message(self, value):
+        self.ctx["message"] = value

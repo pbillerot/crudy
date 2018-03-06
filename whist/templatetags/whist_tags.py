@@ -90,3 +90,6 @@ def attr_style(dico, key):
 @register.filter(name='attr_type')
 def attr_type(dico, key):
     return dico[key].get("type", "")
+@register.filter(name='pluriel')
+def pluriel(num):
+    return "s" if int(num) > 1 else ""

@@ -27,6 +27,11 @@
                             <p>
                         {% endfor %} 
                     {% endif %} 
+                    {% if crudy.message %} 
+                        <label class="mdl-color-text--purple" style="display: inline">
+                            {{ crudy.message|apply_markup:"markdown" }}
+                        </label>
+                    {% endif %} 
                     {% for field in form %}
                         {% if field|field_attr:'type' == 'radio' %}
                             <label class="" for="{{field.html_name}}">
@@ -41,7 +46,7 @@
                                         {% if field.value == radio_id %}checked="checked"{%endif%}
                                         {% if crudy.is_form_autovalid%}onclick="document.getElementById('maForm').submit();"{% endif %}
                                         class="mdl-radio__button" >
-                                    <span class="mdl-radio__label">{{radio_label}}</span>
+                                    <span class="mdl-radio__label">{{radio_label}}{{radio_id|pluriel}}</span>
                                 </label>
                             {% endfor%}
                             </div>

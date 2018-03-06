@@ -119,7 +119,7 @@ class WhistListView(ListView):
         crudy.url_delete = self.meta.url_delete
         crudy.url_select = self.meta.url_select
         crudy.qcols = self.qcols
-        crudy.update_session()
+        crudy.save()
         return self.context
 
     def get_queryset(self):
@@ -177,7 +177,7 @@ def f_partie_folder(request, record_id):
         crudy.folder_id = obj.id
         crudy.folder_name = obj.name
 
-    crudy.update_session()
+    crudy.save()
     return redirect("v_participant_select")
 
 def f_partie_create(request):
@@ -258,7 +258,7 @@ class WhistParticipantSelectView(WhistListView):
                 ordered_dict[col] = row[col]  
             self.objs.append(ordered_dict) 
 
-        crudy.update_session()
+        crudy.save()
         return self.objs
 
 def v_participant_join(request, record_id):
@@ -277,7 +277,7 @@ def v_participant_join(request, record_id):
         participant.compute_order()
         crudy.joined.append(iid)
 
-    crudy.update_session()
+    crudy.save()
     return redirect(crudy.url_view)
 
 def f_joueur_delete(request, record_id):
@@ -326,7 +326,7 @@ class WhistParticipantListView(WhistListView):
 
         crudy.url_participant_update = 'f_participant_update'
         crudy.action_param = 0
-        crudy.update_session()
+        crudy.save()
         return self.objs
 
 def f_participant_update(request, record_id, checked):
@@ -452,11 +452,15 @@ class WhistJeuListView(WhistListView):
         
         self.objs = paginator.get_page(self.page)
         self.paginator = True # pour le template
-        # comptage de nombre de plis demandés
+        # comptage de nombre de plis demandés et réalisés
         qplis = 0
+        qreal = 0
+        qcarte = 0
         for obj in self.objs:
             if obj["donneur"] == 0:
                 qplis += obj["pari"]
+            qreal += obj["real"]
+            qcarte = obj["carte"]
         crudy.cartes = []
         for pp in range(1, paginator.num_pages + 1):
             if pp <= paginator.num_pages / 2:
@@ -470,8 +474,10 @@ class WhistJeuListView(WhistListView):
         crudy.url_sort = 'v_jeu_sort'
         partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
         crudy.jeu_current = partie.jeu
-        crudy.update_session()
+        crudy.save()
         if int(crudy.jeu) > partie.jeu + 1:
+            self.meta.url_actions = []
+        if qreal != qcarte:
             self.meta.url_actions = []
         return self.objs
 
@@ -512,6 +518,8 @@ def f_jeu_real(request, record_id):
     crudy = Crudy(request, "whist")
     title = "REALISE"
     obj = get_object_or_404(WhistJeu, id=record_id)
+    crudy.message = "**%s**, combien as-tu réalisé de plis sur les **%d** demandé(s) ?" % (obj.participant.joueur.pseudo, obj.pari)
+    crudy.save()
     form = forms.WhistJeuRealForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
@@ -524,6 +532,8 @@ def f_jeu_pari(request, record_id):
     crudy = Crudy(request, "whist")
     title = "PARI"
     obj = get_object_or_404(WhistJeu, id=record_id)
+    crudy.message = "**%s**, Nombre de plis demandés ?" % (obj.participant.joueur.pseudo)
+    crudy.save()
     form = forms.WhistJeuPariForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
