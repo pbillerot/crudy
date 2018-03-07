@@ -1,5 +1,6 @@
 # coding: utf-8
 """ Gestion du contexte de CRUDY """
+from django.template import RequestContext
 
 class Crudy():
     ## Dictionnaire des applications
@@ -37,7 +38,10 @@ class Crudy():
     # Application en cours
     app = None # alimentée par le constructeur
 
-    # Contexte de la session
+    # Contexte de la request
+    ses = {
+        "url_view": None,
+    }
     ctx = {
         "selected": [],
         "joined": [],
@@ -48,7 +52,6 @@ class Crudy():
         "sort": None,
         "action_param": None,
         "jeu_current": None,
-        "url_view": None,
         "url_return": None,
         "url_actions": None,
         "url_delete": None,
@@ -64,19 +67,28 @@ class Crudy():
         "message": None
     }
     request = None
+    request_context = None
 
     def __init__(self, request, app_id="portail"):
         """ Récupération du contexte de la session """
         self.request = request
-        if request.session.get("ctx", None):
-            self.ctx = request.session["ctx"]
-        else:
-            request.session["ctx"] = self.ctx
         self.app = self.apps.get(app_id)
+        # Contexte de la request
+        self.request_context = RequestContext(request)
+        if self.request_context.get("crudy_ctx", None):
+            self.ctx = self.request_context.get("crudy_ctx")
+        else:
+            self.request_context["crudy_ctx"] = self.ctx
+        # contexte de la session
+        if self.request.session.get("crudy_ses", None):
+            self.ses = self.request.session.get("crudy_ses")
+        else:
+            self.request.session["crudy_ses"] = self.ses
 
     def save(self):
         """ Enregistrement du contexte dans la session """
-        self.request.session["ctx"] = self.ctx
+        self.request.session["crudy_ses"] = self.ses
+        self.request_context["crudy_ctx"] = self.ctx
 
     @property
     def applications(self):
@@ -92,6 +104,7 @@ class Crudy():
     @application.setter
     def application(self, app_id):
         self.app = self.apps.get(app_id)
+        self.save()
 
     @property
     def selected(self):
@@ -99,6 +112,7 @@ class Crudy():
     @selected.setter
     def selected(self, value):
         self.ctx["selected"] = value
+        self.save()
 
     @property
     def joined(self):
@@ -106,6 +120,7 @@ class Crudy():
     @joined.setter
     def joined(self, value):
         self.ctx["joined"] = value
+        self.save()
 
     @property
     def folder_id(self):
@@ -113,6 +128,7 @@ class Crudy():
     @folder_id.setter
     def folder_id(self, value):
         self.ctx["folder_id"] = value
+        self.save()
 
     @property
     def folder_name(self):
@@ -120,6 +136,7 @@ class Crudy():
     @folder_name.setter
     def folder_name(self, value):
         self.ctx["folder_name"] = value
+        self.save()
 
     @property
     def carte(self):
@@ -127,6 +144,7 @@ class Crudy():
     @carte.setter
     def carte(self, value):
         self.ctx["carte"] = value
+        self.save()
 
     @property
     def cartes(self):
@@ -134,6 +152,7 @@ class Crudy():
     @cartes.setter
     def cartes(self, value):
         self.ctx["cartes"] = value
+        self.save()
 
     @property
     def jeu(self):
@@ -141,13 +160,15 @@ class Crudy():
     @jeu.setter
     def jeu(self, value):
         self.ctx["jeu"] = value
+        self.save()
 
     @property
     def url_view(self):
-        return self.ctx["url_view"]
+        return self.ses["url_view"]
     @url_view.setter
     def url_view(self, value):
-        self.ctx["url_view"] = value
+        self.ses["url_view"] = value
+        self.save()
 
     @property
     def url_actions(self):
@@ -155,6 +176,7 @@ class Crudy():
     @url_actions.setter
     def url_actions(self, value):
         self.ctx["url_actions"] = value
+        self.save()
 
     @property
     def url_delete(self):
@@ -162,6 +184,7 @@ class Crudy():
     @url_delete.setter
     def url_delete(self, value):
         self.ctx["url_delete"] = value
+        self.save()
 
     @property
     def url_return(self):
@@ -169,6 +192,7 @@ class Crudy():
     @url_return.setter
     def url_return(self, value):
         self.ctx["url_return"] = value
+        self.save()
 
     @property
     def url_join(self):
@@ -176,6 +200,7 @@ class Crudy():
     @url_join.setter
     def url_join(self, value):
         self.ctx["url_join"] = value
+        self.save()
 
     @property
     def url_folder(self):
@@ -183,6 +208,7 @@ class Crudy():
     @url_folder.setter
     def url_folder(self, value):
         self.ctx["url_folder"] = value
+        self.save()
 
     @property
     def sort(self):
@@ -190,6 +216,7 @@ class Crudy():
     @sort.setter
     def sort(self, value):
         self.ctx["sort"] = value
+        self.save()
 
     @property
     def url_jeu_pari(self):
@@ -197,6 +224,7 @@ class Crudy():
     @url_jeu_pari.setter
     def url_jeu_pari(self, value):
         self.ctx["url_jeu_pari"] = value
+        self.save()
 
     @property
     def url_jeu_real(self):
@@ -204,6 +232,7 @@ class Crudy():
     @url_jeu_real.setter
     def url_jeu_real(self, value):
         self.ctx["url_jeu_real"] = value
+        self.save()
 
     @property
     def url_participant(self):
@@ -211,6 +240,7 @@ class Crudy():
     @url_participant.setter
     def url_participant(self, value):
         self.ctx["url_participant"] = value
+        self.save()
 
     @property
     def url_participant_update(self):
@@ -218,6 +248,7 @@ class Crudy():
     @url_participant_update.setter
     def url_participant_update(self, value):
         self.ctx["url_participant_update"] = value
+        self.save()
 
     @property
     def action_param(self):
@@ -225,6 +256,7 @@ class Crudy():
     @action_param.setter
     def action_param(self, value):
         self.ctx["action_param"] = value
+        self.save()
 
     @property
     def url_sort(self):
@@ -232,6 +264,7 @@ class Crudy():
     @url_sort.setter
     def url_sort(self, value):
         self.ctx["url_sort"] = value
+        self.save()
 
     @property
     def jeu_current(self):
@@ -239,6 +272,7 @@ class Crudy():
     @jeu_current.setter
     def jeu_current(self, value):
         self.ctx["jeu_current"] = value
+        self.save()
 
     @property
     def qcols(self):
@@ -246,13 +280,15 @@ class Crudy():
     @qcols.setter
     def qcols(self, value):
         self.ctx["qcols"] = value
+        self.save()
 
     @property
     def is_form_autovalid(self):
-        return self.ctx["is_form_autovalid"]
+        return self.ctx["form_autovalid"]
     @is_form_autovalid.setter
     def is_form_autovalid(self, value):
-        self.ctx["is_form_autovalid"] = value
+        self.ctx["form_autovalid"] = value
+        self.save()
 
     @property
     def message(self):
@@ -260,3 +296,4 @@ class Crudy():
     @message.setter
     def message(self, value):
         self.ctx["message"] = value
+        self.save()

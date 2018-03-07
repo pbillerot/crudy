@@ -51,7 +51,7 @@ class WhistListView(ListView):
         title = "Titre de la vue"
         model = None
         template_name = "v_whist_view.html"
-        application = "portail"
+        application = "whist"
         # urls définis dans ursl.py
         url_add = None
         url_update = None
@@ -119,7 +119,6 @@ class WhistListView(ListView):
         crudy.url_delete = self.meta.url_delete
         crudy.url_select = self.meta.url_select
         crudy.qcols = self.qcols
-        crudy.save()
         return self.context
 
     def get_queryset(self):
@@ -177,7 +176,6 @@ def f_partie_folder(request, record_id):
         crudy.folder_id = obj.id
         crudy.folder_name = obj.name
 
-    crudy.save()
     return redirect("v_participant_select")
 
 def f_partie_create(request):
@@ -198,6 +196,7 @@ def f_partie_update(request, record_id):
     """ Modification d'une partie """
     crudy = Crudy(request, "whist")
     title = "Modification d'une Partie"
+    crudy.url_delete = "f_partie_delete"
     obj = get_object_or_404(WhistPartie, id=record_id)
     model = WhistPartie
     form = forms.WhistPartieForm(request.POST or None, request=request, instance=obj)
@@ -258,7 +257,6 @@ class WhistParticipantSelectView(WhistListView):
                 ordered_dict[col] = row[col]  
             self.objs.append(ordered_dict) 
 
-        crudy.save()
         return self.objs
 
 def v_participant_join(request, record_id):
@@ -277,7 +275,6 @@ def v_participant_join(request, record_id):
         participant.compute_order()
         crudy.joined.append(iid)
 
-    crudy.save()
     return redirect(crudy.url_view)
 
 def f_joueur_delete(request, record_id):
@@ -326,7 +323,6 @@ class WhistParticipantListView(WhistListView):
 
         crudy.url_participant_update = 'f_participant_update'
         crudy.action_param = 0
-        crudy.save()
         return self.objs
 
 def f_participant_update(request, record_id, checked):
@@ -376,6 +372,7 @@ def f_joueur_create(request):
 def f_joueur_update(request, record_id):
     """ mise à jour d'un joueur """
     crudy = Crudy(request, "whist")
+    crudy.url_delete = "f_joueur_delete"
     title = "Modification d'un Joueur"
     obj = get_object_or_404(WhistJoueur, id=record_id)
     form = forms.WhistJoueurForm(request.POST or None, instance=obj, request=request)
@@ -474,7 +471,6 @@ class WhistJeuListView(WhistListView):
         crudy.url_sort = 'v_jeu_sort'
         partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
         crudy.jeu_current = partie.jeu
-        crudy.save()
         if int(crudy.jeu) > partie.jeu + 1:
             self.meta.url_actions = []
         if qreal != qcarte:
@@ -516,10 +512,10 @@ def f_jeu_compute(request, ijeu):
 def f_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, "whist")
+    crudy.is_form_autovalid = True
     title = "REALISE"
     obj = get_object_or_404(WhistJeu, id=record_id)
     crudy.message = "**%s**, combien as-tu réalisé de plis sur les **%d** demandé(s) ?" % (obj.participant.joueur.pseudo, obj.pari)
-    crudy.save()
     form = forms.WhistJeuRealForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
@@ -530,10 +526,10 @@ def f_jeu_real(request, record_id):
 def f_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
     crudy = Crudy(request, "whist")
+    crudy.is_form_autovalid = True
     title = "PARI"
     obj = get_object_or_404(WhistJeu, id=record_id)
     crudy.message = "**%s**, Nombre de plis demandés ?" % (obj.participant.joueur.pseudo)
-    crudy.save()
     form = forms.WhistJeuPariForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()

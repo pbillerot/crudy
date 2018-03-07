@@ -9,8 +9,6 @@ class WhistForm(forms.ModelForm):
         model = None
         fields = []
         readonly_fields = ()
-        url_delete = ""
-        is_form_autovalid = False
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -19,10 +17,6 @@ class WhistForm(forms.ModelForm):
             if name in self.Meta.readonly_fields:
                 field.widget.attrs['disabled'] = 'true'
                 field.required = False
-        crudy = Crudy(self.request, "whist")
-        crudy.url_delete = self.Meta.url_delete
-        crudy.is_form_autovalid = self.Meta.is_form_autovalid
-        crudy.save()
 
     def clean(self):
         cleaned_data = super(WhistForm, self).clean()
@@ -34,7 +28,6 @@ class WhistPartieForm(WhistForm):
     """ Création / mise à jour d'une partie """
     class Meta:
         model = WhistPartie
-        is_form_autovalid = False
         fields = ['name', 'cartes']
         readonly_fields = ()
         widgets = {
@@ -48,7 +41,6 @@ class WhistPartieForm(WhistForm):
                 'maxlength': 15,
             }),
         }
-        url_delete = "f_partie_delete"
     # CTR
     # def clean_jeu(self):
     #     jeu = self.cleaned_data['cartes']
@@ -74,14 +66,12 @@ class WhistJoueurForm(WhistForm):
     """ Création / mise à jour d'un joueur """
     class Meta:
         model = WhistJoueur
-        is_form_autovalid = False
         fields = ['pseudo', 'email']
         widgets = {
             'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required"}),
             'email': forms.TextInput(attrs={'type': 'email'}),
         }
         readonly_fields = ()
-        url_delete = "f_joueur_delete"
 
     # def clean_pseudo(self):
     #     pseudo = self.cleaned_data['pseudo']
@@ -94,13 +84,11 @@ class WhistJeuPariForm(WhistForm):
 
     class Meta:
         model = WhistJeu
-        is_form_autovalid = True
         fields = ['pari']
         widgets = {
             'pari': forms.RadioSelect(attrs={'type': 'radio'})
         }
         readonly_fields = ()
-        url_delete = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,13 +112,11 @@ class WhistJeuRealForm(WhistForm):
 
     class Meta:
         model = WhistJeu
-        is_form_autovalid = True
         fields = ['real']
         widgets = {
             'real': forms.RadioSelect(attrs={'type': 'radio'})
         }
         readonly_fields = ()
-        url_delete = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
