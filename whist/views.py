@@ -390,10 +390,11 @@ class WhistJeuListView(WhistListView):
     class Meta(WhistListView.Options):
         model = WhistJeu
         title = "Faites vos Jeux"
-        cols = ["donneur", "participant__joueur__pseudo", "score", "carte", "pari", "real", "points"]
+        cols = ["donneur", "participant__joueur__pseudo", "medal", "score", "carte", "pari", "real", "points"]
         cols_attrs = {
             "donneur": {"title":""},
             "participant__joueur__pseudo": {"title":"Participant"},
+            "medal": {"title":"M", "td_class": "crudy-data-table__cell--text-center"},
             "score": {"title":"Score", "td_class": "crudy-data-table__cell--text-center"},
             "carte": {"title":"Carte", "td_class": "crudy-data-table__cell--text-center"},
             "pari": {"title":"Pari", "td_class": "crudy-data-table__cell--text-center"},
@@ -467,7 +468,7 @@ class WhistJeuListView(WhistListView):
         crudy.url_jeu_pari = "f_jeu_pari"
         crudy.url_jeu_real = "f_jeu_real"
         crudy.action_param = self.page
-        crudy.jeu = self.page
+        crudy.jeu = int(self.page)
         crudy.url_sort = 'v_jeu_sort'
         partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
         crudy.jeu_current = partie.jeu
@@ -475,18 +476,21 @@ class WhistJeuListView(WhistListView):
             self.meta.url_actions = []
         if qreal != qcarte:
             self.meta.url_actions = []
+        
+        if qreal == 0 and crudy.jeu == crudy.jeu_current:
+            self.meta.title = "Faites vos jeux %s / %s" % (qplis, qcarte)
         return self.objs
 
 def f_jeu_create(request, id):
     """ création des jeux (tours) de la partie """
     crudy = Crudy(request, "whist")
     jeu = WhistJeu()
-    jeu.create_jeux(crudy.ctx)
+    jeu.create_jeux(crudy)
 
     return redirect("v_jeu_list", 1)
 
 def f_jeu_compute(request, ijeu):
-    """ Calcul des points du jeux """
+    """ Calcul des points du jeux, du score et du rang du joueur """
     crudy = Crudy(request, "whist")
     jeux = WhistJeu.objects.all()\
     .filter(participant__partie__id=crudy.folder_id)\
@@ -502,10 +506,55 @@ def f_jeu_compute(request, ijeu):
             score[joueur_id] = score.get(joueur_id, 0) + jeu.points
         jeu.score = score[joueur_id]
         jeu.save()
+    # Attribution des médailles
+    jeux = WhistJeu.objects.all()\
+    .filter(participant__partie__id=crudy.folder_id)\
+    .order_by("jeu", "-score")
+    gold = 1000
+    silver = 1000
+    bronze = 1000
+    rupt_jeu = 0
+    last_pk = 0
+    for jeu in jeux:
+        if rupt_jeu != jeu.jeu:
+            # changement de jeu
+            rupt_jeu = jeu.jeu
+            gold = 1000
+            silver = 1000
+            bronze = 1000
+            # Médaille de chocolat
+            if last_pk != 0:
+                last_jeu = get_object_or_404(WhistJeu, pk=last_pk)
+                last_jeu.medal = 9
+                last_jeu.save()
+        last_pk = jeu.pk
+        jeu.medal = 0
+        if gold == 1000:
+            gold = jeu.score
+            jeu.medal = 1
+        elif gold == jeu.score:
+            jeu.medal = 1
+        elif silver == 1000:
+            silver = jeu.score
+            jeu.medal = 2
+        elif silver == jeu.score:
+            jeu.medal = 2
+        elif bronze == 1000:
+            bronze = jeu.score
+            jeu.medal = 3
+        elif bronze == jeu.score:
+            jeu.medal = 3
+        jeu.save()
+    # Médaille de chocolat
+    if last_pk != 0:
+        last_jeu = get_object_or_404(WhistJeu, pk=last_pk)
+        last_jeu.medal = 9
+        last_jeu.save()
     # maj partie jeu en cours
     partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
-    partie.jeu = int(ijeu)
-    partie.save()
+    if partie.jeu == int(ijeu):
+        partie.jeu = int(ijeu) + 1
+        partie.save()
 
     return redirect("v_jeu_list", ijeu)
 

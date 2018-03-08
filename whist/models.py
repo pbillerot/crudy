@@ -90,6 +90,7 @@ class WhistJeu(models.Model):
     real = models.IntegerField(default=0, verbose_name='Réalisé')
     points = models.IntegerField(default=0, verbose_name='Points')
     score = models.IntegerField(default=0, verbose_name='Score')
+    medal = models.IntegerField(default=0, verbose_name='Médaille') # Gold Silver Bronze Chocolate
     donneur = models.IntegerField(default=0)
 
     def __str__(self):
@@ -101,12 +102,15 @@ class WhistJeu(models.Model):
         verbose_name = "Jeu"
         verbose_name_plural = "Jeux"
 
-    def create_jeux(self, ctx):
+    def create_jeux(self, crudy):
         """ Création des jeux de la partie """
         # suppression des jeux 
-        WhistJeu.objects.all().filter(participant__partie__id=ctx["folder_id"]).delete()
+        WhistJeu.objects.all().filter(participant__partie__id=crudy.folder_id).delete()
 
-        partie = get_object_or_404(WhistPartie, id=ctx["folder_id"])
+        partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
+        partie.jeu = 1
+        partie.save()
+
         icarte = 0
         donneur_id = 0
         for ijeu in range(0, partie.cartes * 2):
@@ -124,7 +128,7 @@ class WhistJeu(models.Model):
             ijeu += 1
 
             # Création d'une ligne par participant
-            participants = WhistParticipant.objects.all().filter(partie__id=ctx["folder_id"])
+            participants = WhistParticipant.objects.all().filter(partie__id=crudy.folder_id)
             for participant in participants:
                 if participant.donneur == 1:
                     donneur_id = participant.joueur_id

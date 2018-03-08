@@ -38,20 +38,21 @@ class Crudy():
     # Application en cours
     app = None # alimentée par le constructeur
 
-    # Contexte de la request
+    # Contexte de la session
     ses = {
+        "folder_id": None,
+        "folder_name": None,
+        "jeu": 0,
+        "jeu_current": 0,
         "url_view": None,
+        "sort": None,
     }
+    # Contexte de la request
     ctx = {
         "selected": [],
         "joined": [],
-        "folder_id": None,
-        "folder_name": None,
         "carte": [],
-        "jeu": None,
-        "sort": None,
         "action_param": None,
-        "jeu_current": None,
         "url_return": None,
         "url_actions": None,
         "url_delete": None,
@@ -124,18 +125,18 @@ class Crudy():
 
     @property
     def folder_id(self):
-        return self.ctx["folder_id"]
+        return self.ses["folder_id"]
     @folder_id.setter
     def folder_id(self, value):
-        self.ctx["folder_id"] = value
+        self.ses["folder_id"] = value
         self.save()
 
     @property
     def folder_name(self):
-        return self.ctx["folder_name"]
+        return self.ses["folder_name"]
     @folder_name.setter
     def folder_name(self, value):
-        self.ctx["folder_name"] = value
+        self.ses["folder_name"] = value
         self.save()
 
     @property
@@ -156,10 +157,10 @@ class Crudy():
 
     @property
     def jeu(self):
-        return self.ctx["jeu"]
+        return self.ses["jeu"]
     @jeu.setter
     def jeu(self, value):
-        self.ctx["jeu"] = value
+        self.ses["jeu"] = value
         self.save()
 
     @property
@@ -212,10 +213,10 @@ class Crudy():
 
     @property
     def sort(self):
-        return self.ctx["sort"]
+        return self.ses["sort"]
     @sort.setter
     def sort(self, value):
-        self.ctx["sort"] = value
+        self.ses["sort"] = value
         self.save()
 
     @property
@@ -268,10 +269,10 @@ class Crudy():
 
     @property
     def jeu_current(self):
-        return self.ctx["jeu_current"]
+        return self.ses["jeu_current"]
     @jeu_current.setter
     def jeu_current(self, value):
-        self.ctx["jeu_current"] = value
+        self.ses["jeu_current"] = value
         self.save()
 
     @property
