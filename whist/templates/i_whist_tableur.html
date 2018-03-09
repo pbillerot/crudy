@@ -72,39 +72,39 @@
                 {% if crudy.url_order %}
                     {% if forloop.first %}
                         <td style="width: 20px;">
-                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
                             onClick="window.location='{% url crudy.url_order obj.id +1 %}';">
                                 <i class="material-icons">arrow_downward</i>
                             </button>
                         </td>
                         <td style="width: 20px;">
-                                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                                <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
                                 disable="disabled">
                                     <i class="material-icons mdl-color-text--grey-400">arrow_upward</i>
                                 </button>
                         </td>
                         {% elif forloop.last %}
                         <td style="width: 20px;">
-                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
                             disable="disabled">
                                 <i class="material-icons mdl-color-text--grey-400">arrow_downward</i>
                             </button>
                         </td>
                         <td style="width: 20px;">
-                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
                             onClick="window.location='{% url crudy.url_order obj.id -1 %}';">
                                 <i class="material-icons">arrow_upward</i>
                             </button>
                         </td>
                     {% else %}
                     <td style="width: 20px;">
-                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
                         onClick="window.location='{% url crudy.url_order obj.id +1 %}';">
                             <i class="material-icons">arrow_downward</i>
                         </button>
                     </td>
                     <td style="width: 20px;">
-                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
                         onClick="window.location='{% url crudy.url_order obj.id -1 %}';">
                             <i class="material-icons">arrow_upward</i>
                         </button>
@@ -113,10 +113,12 @@
                 {% endif %}
                 {% for key, value in obj.items %}
                     {% if forloop.first and crudy.url_update %}
-                        <td class="{{ dico|attr_td_class:key }}"><a href="{% url crudy.url_update obj.id %}">{{ value }}</a></td>
+                        <td class="{{ dico|attr_td_class:key }}"><a href="{% url crudy.url_update obj.id %}">
+                                <span class="mdl-chip mdl-chip__text">{{ value|default_if_none:'' }}</span>
+                        </a></td>
                     {% elif key != 'id' and key != 'medal' %}
-                        {% if crudy.url_view == "v_jeu_list" and key == "participant__joueur__pseudo" %}
-                            <td class="{{ dico|attr_td_class:key }}">
+                    {% if crudy.url_view == "v_jeu_list" and key == "participant__joueur__pseudo" %}
+                        <td class="{{ dico|attr_td_class:key }}">
                                 <span class="mdl-chip mdl-chip--contact">
                                     {% if obj.medal == 1 %}
                                     <span class="mdl-chip__contact mdl-color--amber mdl-color-text--black">1</span>
