@@ -28,15 +28,15 @@
                             {% if dico|attr_title:key == 'Score' %}
                             <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}
                                 {% if crudy.sort == "score" %}
-                                <a href="{% url crudy.url_sort crudy.jeu 'participant' %}"
-                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                                <button data-url="{% url crudy.url_sort crudy.jeu 'participant' %}"
+                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon crudy-button-action">
                                 <i class="material-icons">sort</i>
-                                </a>
+                                </button>
                                 {% else %}
-                                <a href="{% url crudy.url_sort crudy.jeu 'score' %}"
-                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+                                <button data-url="{% url crudy.url_sort crudy.jeu 'score' %}"
+                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon crudy-button-action">
                                 <i class="material-icons">import_export</i>
-                                </a>
+                                </button>
                                 {% endif %}
                             </th>
                             {% else %}
