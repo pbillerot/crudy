@@ -476,9 +476,9 @@ class WhistJeuListView(WhistListView):
             self.meta.url_actions = []
         if qreal != qcarte:
             self.meta.url_actions = []
-        
-        if qreal == 0 and crudy.jeu == crudy.jeu_current:
-            self.meta.title = "Faites vos jeux %s / %s" % (qplis, qcarte)
+
+        self.meta.cols_attrs["pari"]["subtitle"] = "%s / %s" % (qplis, qcarte)
+        self.meta.cols_attrs["real"]["subtitle"] = "%s / %s" % (qreal, qcarte)
         return self.objs
 
 def f_jeu_create(request, id):
@@ -556,7 +556,7 @@ def f_jeu_compute(request, ijeu):
         partie.jeu = int(ijeu) + 1
         partie.save()
 
-    return redirect("v_jeu_list", ijeu)
+    return redirect("v_jeu_list", partie.jeu)
 
 def f_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """

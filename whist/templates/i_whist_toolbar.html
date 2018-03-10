@@ -15,8 +15,8 @@
     <nav class="mdl-navigation">
         {% if crudy.url_actions %} 
             {% for action, title in crudy.url_actions %}
-                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" 
-                onClick="window.location='{% url action crudy.action_param %}';">{{title}}
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent crudy-button-action" 
+                data-url="{% url action crudy.action_param %}">{{title}}
                 </button>
             {% endfor %} 
         {% endif %} 
@@ -30,4 +30,8 @@
         {% endif %} 
     </nav>
 {% endif %} 
+</div>
+<div class="mdl-snackbar mdl-js-snackbar" style="bottom: 10px">
+    <div class="mdl-snackbar__text"></div>
+    <button type="button" class="mdl-snackbar__action"></button>
 </div>

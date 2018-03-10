@@ -40,7 +40,7 @@
                                 {% endif %}
                             </th>
                             {% else %}
-                            <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}</th>
+                            <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}{% if dico|attr_subtitle:key %}<br>{{dico|attr_subtitle:key}}{% endif%}</th>
                             {% endif %} 
                         {% endif %} 
                     {% endfor %}
@@ -72,8 +72,8 @@
                 {% if crudy.url_order %}
                     {% if forloop.first %}
                         <td style="width: 20px;">
-                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
-                            onClick="window.location='{% url crudy.url_order obj.id +1 %}';">
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text crudy-button-action"
+                            data-url="{% url crudy.url_order obj.id +1 %}">
                                 <i class="material-icons">arrow_downward</i>
                             </button>
                         </td>
@@ -91,21 +91,21 @@
                             </button>
                         </td>
                         <td style="width: 20px;">
-                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
-                            onClick="window.location='{% url crudy.url_order obj.id -1 %}';">
+                            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text crudy-button-action"
+                            data-url="{% url crudy.url_order obj.id -1 %}">
                                 <i class="material-icons">arrow_upward</i>
                             </button>
                         </td>
                     {% else %}
                     <td style="width: 20px;">
-                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
-                        onClick="window.location='{% url crudy.url_order obj.id +1 %}';">
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text crudy-button-action"
+                        data-url="{% url crudy.url_order obj.id +1 %}">
                             <i class="material-icons">arrow_downward</i>
                         </button>
                     </td>
                     <td style="width: 20px;">
-                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text"
-                        onClick="window.location='{% url crudy.url_order obj.id -1 %}';">
+                        <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon mdl-chip mdl-chip__text crudy-button-action"
+                        data-url="{% url crudy.url_order obj.id -1 %}">
                             <i class="material-icons">arrow_upward</i>
                         </button>
                     </td>
@@ -138,17 +138,17 @@
                             <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie des PARIS {% endcomment %}
                                 {% if crudy.jeu > crudy.jeu_current %}
                                 <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
-                                    disabled="disabled" onClick="window.location='{% url crudy.url_jeu_pari obj.id %}';">
+                                    disabled="disabled">
                                 {{ value }}
                                 </button>
                                 {% elif value != 0 %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500"
-                                        onClick="window.location='{% url crudy.url_jeu_pari obj.id %}';">
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
+                                    data-url="{% url crudy.url_jeu_pari obj.id %}">
                                     {{ value }}
                                     </button>
                                 {% else %}
-                                <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
-                                    onClick="window.location='{% url crudy.url_jeu_pari obj.id %}';">
+                                <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
+                                data-url="{% url crudy.url_jeu_pari obj.id %}">
                                 {{ value }}
                                 </button>
                                 {% endif %}
@@ -161,13 +161,13 @@
                                     {{ value }}
                                     </button>
                                 {% elif value != 0 %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500"
-                                        onClick="window.location='{% url crudy.url_jeu_real obj.id %}';">
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
+                                        data-url="{% url crudy.url_jeu_real obj.id %}">
                                     {{ value }}
                                     </button>
                                 {% else %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
-                                        onClick="window.location='{% url crudy.url_jeu_real obj.id %}';">
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
+                                    data-url="{% url crudy.url_jeu_real obj.id %}">
                                     {{ value }}
                                     </button>
                                 {% endif %}
@@ -231,21 +231,21 @@
                 {% for jeu, carte in crudy.cartes %}
                     {% if objs.number == jeu %}
                         <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary" 
-                                >{{ carte }}
+                            >{{ carte }}
                         </button>
                     {% elif jeu < crudy.jeu_current %}
-                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab" 
-                        onClick="window.location='{% url crudy.url_view jeu %}';"
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
+                        data-url="{% url crudy.url_view jeu %}"
                             >{{ carte }}
                         </button>
                     {% elif jeu == crudy.jeu_current %}
-                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--purple" 
-                        onClick="window.location='{% url crudy.url_view jeu %}';"
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--purple crudy-button-action" 
+                        data-url="{% url crudy.url_view jeu %}"
                             >{{ carte }}
                         </button>
                     {% else %}
-                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--colored" 
-                        onClick="window.location='{% url crudy.url_view jeu %}';"
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--colored crudy-button-action" 
+                        data-url="{% url crudy.url_view jeu %}"
                         >{{ carte }}
                     </button>
                     {% endif %}

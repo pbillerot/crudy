@@ -78,6 +78,9 @@ def field_attrs(field):
 @register.filter(name='attr_title')
 def attr_title(dico, key):
     return dico[key].get("title", "")
+@register.filter(name='attr_subtitle')
+def attr_subtitle(dico, key):
+    return dico[key].get("subtitle", "")
 @register.filter(name='attr_td_class')
 def attr_td_class(dico, key):
     return dico[key].get("td_class", "")

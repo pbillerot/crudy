@@ -1,53 +1,27 @@
-var dialog = document.querySelector('dialog');
-if (dialog) {
-    if (!dialog.showModal) {
-        dialogPolyfill.registerDialog(dialog);
+
+function crudy_button_action(event) {
+    var target = event.target
+    var obj = target
+    if (target.tagName != "BUTTON") {
+        obj = target.parentElement
     }
-    dialog.showModal();
-}
-
-
-function crudy_real(id, icarte, add_sub) {
-    console.log(id, icarte, add_sub)
-}
-
-function crudy_add(event) {
-    var obj = event.target
-    var dest = document.getElementById(obj.dataset.for)
-    var bret = true
-    if (obj.dataset.action == '1') {
-        if (parseInt(dest.textContent, 10) + 1 == parseInt(obj.dataset.max, 10)) {
-            bret = false
+    // obj.textContent
+    var url = obj.dataset.url
+    // obj.set_attribute("disabled", "disabled");
+    obj.disabled = true;
+    var notification = document.querySelector('.mdl-js-snackbar');
+    notification.MaterialSnackbar.showSnackbar(
+        {
+            message: 'Veuillez patienter...'
         }
-    } else {
-        if (parseInt(dest.textContent, 10) - 1 == 0) {
-            bret = false
-        }
-    }
-    if (bret) {
-        fetch(obj.dataset.url)
-            .then(response => {
-                if (response.status === 200) {
-                    console.debug(response);
-                    return response.json();
-                } else {
-                    throw new Error('Something went wrong on api server!');
-                }
-            })
-            .then(response => {
-                console.debug(response);
-                // Traitement des données de retour
-                dest.textContent = response.value
-            }).catch(error => {
-                console.error(error);
-            });
-    }
-};
+    );
+    window.location = url;
+}
 
 window.addEventListener('DOMContentLoaded', function () {
-    elements = document.querySelectorAll('.crudy-add');
+    var elements = document.querySelectorAll('.crudy-button-action');
     Array.from(elements).forEach(link => {
-        link.addEventListener('click', crudy_add, false);
+        link.addEventListener('click', crudy_button_action, false);
     });
 });
 
