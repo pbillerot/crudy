@@ -1,6 +1,5 @@
 # coding: utf-8
 """ Gestion du contexte de CRUDY """
-from django.template import RequestContext
 
 class Crudy():
     ## Dictionnaire des applications
@@ -74,12 +73,17 @@ class Crudy():
         """ Récupération du contexte de la session """
         self.request = request
         self.app = self.apps.get(app_id)
+
         # Contexte de la request
-        self.request_context = RequestContext(request)
-        if self.request_context.get("crudy_ctx", None):
-            self.ctx = self.request_context.get("crudy_ctx")
+        # self.request_context = RequestContext(request)
+        # if self.request_context.get("crudy_ctx", None):
+        #     self.ctx = self.request_context.get("crudy_ctx")
+        # else:
+        #     self.request_context["crudy_ctx"] = self.ctx
+        if self.request.session.get("crudy_ctx", None):
+            self.ses = self.request.session.get("crudy_ctx")
         else:
-            self.request_context["crudy_ctx"] = self.ctx
+            self.request.session["crudy_ctx"] = self.ctx
         # contexte de la session
         if self.request.session.get("crudy_ses", None):
             self.ses = self.request.session.get("crudy_ses")
@@ -89,7 +93,8 @@ class Crudy():
     def save(self):
         """ Enregistrement du contexte dans la session """
         self.request.session["crudy_ses"] = self.ses
-        self.request_context["crudy_ctx"] = self.ctx
+        self.request.session["crudy_ctx"] = self.ctx
+        # self.request_context["crudy_ctx"] = self.ctx
 
     @property
     def applications(self):

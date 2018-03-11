@@ -183,6 +183,7 @@ def f_partie_create(request):
     crudy = Crudy(request, "whist")
     title = "Nouvelle Partie"
     model = WhistPartie
+    crudy.message = ""
     if request.POST:
         form = forms.WhistPartieForm(request.POST, request=request)
         if form.is_valid():
@@ -196,6 +197,7 @@ def f_partie_update(request, record_id):
     """ Modification d'une partie """
     crudy = Crudy(request, "whist")
     title = "Modification d'une Partie"
+    crudy.message = ""
     crudy.url_delete = "f_partie_delete"
     obj = get_object_or_404(WhistPartie, id=record_id)
     model = WhistPartie
@@ -359,6 +361,7 @@ def f_joueur_create(request):
     """ création d'un joueur """
     crudy = Crudy(request, "whist")
     title = "Nouveau Joueur"
+    crudy.message = ""
     model = WhistJoueur
     if request.POST:
         form = forms.WhistJoueurForm(request.POST, request=request)
@@ -374,6 +377,7 @@ def f_joueur_update(request, record_id):
     crudy = Crudy(request, "whist")
     crudy.url_delete = "f_joueur_delete"
     title = "Modification d'un Joueur"
+    crudy.message = ""
     obj = get_object_or_404(WhistJoueur, id=record_id)
     form = forms.WhistJoueurForm(request.POST or None, instance=obj, request=request)
     if form.is_valid():
@@ -558,28 +562,32 @@ def f_jeu_compute(request, ijeu):
 
     return redirect("v_jeu_list", partie.jeu)
 
-def f_jeu_real(request, record_id):
-    """ Saisie du réalisé 0 1 2 """
+def f_jeu_pari(request, record_id):
+    """ Saisie pari d'un joueur """
     crudy = Crudy(request, "whist")
     crudy.is_form_autovalid = True
-    title = "REALISE"
     obj = get_object_or_404(WhistJeu, id=record_id)
-    crudy.message = "**%s**, combien as-tu réalisé de plis sur les **%d** demandé(s) ?" % (obj.participant.joueur.pseudo, obj.pari)
-    form = forms.WhistJeuRealForm(request.POST or None, request=request, instance=obj)
+    title = "Pari de %s" % (obj.participant.joueur.pseudo.upper())
+    crudy.message = "**%s**, Combien penses-tu faire de plis ?" % (obj.participant.joueur.pseudo.upper())
+    form = forms.WhistJeuPariForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_whist_form.html", locals())
 
-
-def f_jeu_pari(request, record_id):
-    """ Saisie pari d'un joueur """
+def f_jeu_real(request, record_id):
+    """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, "whist")
     crudy.is_form_autovalid = True
-    title = "PARI"
     obj = get_object_or_404(WhistJeu, id=record_id)
-    crudy.message = "**%s**, Nombre de plis demandés ?" % (obj.participant.joueur.pseudo)
-    form = forms.WhistJeuPariForm(request.POST or None, request=request, instance=obj)
+    title = "Réalisé de %s" % (obj.participant.joueur.pseudo.upper())
+    if obj.pari > 1:
+        crudy.message = "**%s**, combien de plis as-tu réalisé ? (**%d** plis avaient été demandés) ?"\
+        % (obj.participant.joueur.pseudo.upper(), obj.pari)
+    else:
+        crudy.message = "**%s**, combien de plis as-tu réalisé ? (**%d** pli avait été demandé) ?"\
+        % (obj.participant.joueur.pseudo.upper(), obj.pari)
+    form = forms.WhistJeuRealForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view, obj.jeu)
