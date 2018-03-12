@@ -12,7 +12,8 @@ function crudy_button_action(event) {
     var notification = document.querySelector('.mdl-js-snackbar');
     notification.MaterialSnackbar.showSnackbar(
         {
-            message: 'Veuillez patienter...'
+            message: 'Veuillez patienter...',
+            timeout: 10000
         }
     );
     window.location = url;

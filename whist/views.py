@@ -459,8 +459,7 @@ class WhistJeuListView(WhistListView):
         qreal = 0
         qcarte = 0
         for obj in self.objs:
-            if obj["donneur"] == 0:
-                qplis += obj["pari"]
+            qplis += obj["pari"]
             qreal += obj["real"]
             qcarte = obj["carte"]
         crudy.cartes = []
@@ -556,7 +555,7 @@ def f_jeu_compute(request, ijeu):
         last_jeu.save()
     # maj partie jeu en cours
     partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
-    if partie.jeu == int(ijeu):
+    if partie.jeu == int(ijeu) and int(ijeu) <= last_jeu.jeu:
         partie.jeu = int(ijeu) + 1
         partie.save()
 
