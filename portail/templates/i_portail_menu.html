@@ -6,7 +6,7 @@
     {% for app_id, application in crudy.applications %}
         {% if app_id != "portail" %}
     <a class="mdl-navigation__link" href="{% url application.url_name %}">
-        <i class="material-icons" role="presentation">{{application.logo}}</i>{{application.title}}</a>
+        <i class="material-icons" role="presentation">{{application.logo}}</i>{{application.resume}}</a>
         {% endif%}
     {% endfor %}
 {% endif %}

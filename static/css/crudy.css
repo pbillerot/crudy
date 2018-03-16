@@ -28,35 +28,36 @@
   .mdl-layout__drawer .avatar {
     margin-bottom: 16px;
   }
-  .demo-drawer {
+  .crudy-drawer {
     border: none;
   }
   /* iOS Safari specific workaround */
-  .demo-drawer .mdl-menu__container {
+  .crudy-drawer .mdl-menu__container {
     z-index: -1;
   }
-  .demo-drawer .demo-navigation {
+  .crudy-drawer .demo-navigation {
     z-index: -2;
   }
   /* END iOS Safari specific workaround */
-  .demo-drawer .mdl-menu .mdl-menu__item {
+  .crudy-drawer .mdl-menu .mdl-menu__item {
     display: flex;
     align-items: center;
   }
-  .demo-drawer-header {
+  .crudy-drawer-header {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 16px;
+    padding: 16px 16px 0px 16px;
     height: 151px;
   }
-  .demo-avatar-dropdown {
+  .crudy-avatar-dropdown {
     display: flex;
     position: relative;
     flex-direction: row;
     align-items: center;
-    width: 100%;
+    width: 80%;
+    padding: 4px 16px 4px 16px;
   }
   
   .demo-navigation {

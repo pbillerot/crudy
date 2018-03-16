@@ -10,6 +10,7 @@ class Crudy():
             "logo": "filter_none",
             "menu_title": "Choix des applications",
             "url_name": "p_portail_home",
+            "image": "images/whist/carte.png",
         },
         "whist": {
             "title": "Whist",
@@ -17,6 +18,7 @@ class Crudy():
             "logo": "filter_1",
             "menu_title": "Whist",
             "url_name": "p_whist_home",
+            "image": "images/whist/Brewtnall_The-Whist-Party.jpg",
         },
         "whist1": {
             "title": "Whist",
@@ -24,13 +26,15 @@ class Crudy():
             "logo": "filter_2",
             "menu_title": "Whist",
             "url_name": "p_whist_home",
+            "image": "images/whist/p0.jpg",
         },
         "whist2": {
-            "title": "Whist",
-            "resume": """Compter les points du Whist""",
+            "title": "Tarot",
+            "resume": """Compter les points du Tarot""",
             "logo": "filter_3",
-            "menu_title": "Whist",
+            "menu_title": "Tarot",
             "url_name": "p_whist_home",
+            "image": "images/whist/tarot.jpg",
         },
     }
 

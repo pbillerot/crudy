@@ -72,31 +72,29 @@
       {% endblock toolbar %}
     </header>
     <!-- sidebar -->
-    <div class="demo-drawer mdl-layout__drawer mdl-color--primary-dark mdl-color-text--grey-50">
-        <header class="demo-drawer-header">
+    <div class="crudy-drawer mdl-layout__drawer mdl-color--primary-dark mdl-color-text--grey-50">
+        <header class="crudy-drawer-header" style="background-image: url('{% static crudy.application.image %}'); background-repeat: no-repeat;">
             <!-- Icon -->
-            <a href="{% url 'p_portail_home' %}" title="Retour au portail"
-            <i class="mdl-color-text--grey-50 material-icons" style="text-decoration: none; font-size: 96px" role="presentation">
-                {% if crudy.application.logo %} {{crudy.application.logo}} {% else %} filter_none {% endif%}
-            </i>
+            <a href="{% url 'p_portail_home' %}" title="Retour au portail">
+                <i class="material-icons">home</i>
             </a>
-            <div class="demo-avatar-dropdown">
-                <span>{% if crudy.request.user.is_authenticated %} {{crudy.request.user.first_name|upper}} {% else %} non identifié {% endif %}</span>
-                <div class="mdl-layout-spacer"></div>
-                <!-- User -->
-                <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-                    <i class="material-icons" role="presentation">arrow_drop_down</i>
-                    <span class="visuallyhidden">Accounts</span>
-                </button>
-                <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-                    {% if crudy.request.user.is_authenticated %}
-                    <li class="mdl-menu__item"><a href="{% url 'p_portail_logout' %}">Se déconnecter</a></li>
-                    {% else %}
-                    <li class="mdl-menu__item"><a href="{% url 'p_portail_login' %}">Se connecter...</a></li>
-                    {% endif %}
-                </ul>
-            </div>
+            <div class="mdl-layout-spacer"></div>
         </header>
+        <div class="crudy-avatar-dropdown">
+          <span style="width: 70%">{% if crudy.request.user.is_authenticated %} {{crudy.request.user.first_name|upper}} {% else %} non identifié {% endif %}</span>
+          <!-- User -->
+          <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+              <i class="material-icons" role="presentation">arrow_drop_down</i>
+              <span class="visuallyhidden">Accounts</span>
+          </button>
+          <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
+              {% if crudy.request.user.is_authenticated %}
+              <li class="mdl-menu__item"><a href="{% url 'p_portail_logout' %}">Se déconnecter</a></li>
+              {% else %}
+              <li class="mdl-menu__item"><a href="{% url 'p_portail_login' %}">Se connecter...</a></li>
+              {% endif %}
+          </ul>
+      </div>
       <!-- Menu navigation -->
       {% block menu %}
       <nav class="demo-navigation mdl-navigation mdl-color--grey-200 mdl-color-text--grey-900">
