@@ -20,6 +20,7 @@ def p_whist_home(request):
     """ vue Home """
     crudy = Crudy(request, "whist")
     title = crudy.application.get("title")
+    crudy.url_actions = []
     form = None
     return render(request, 'p_whist_home.html', locals())
 
@@ -27,6 +28,7 @@ def p_whist_help(request):
     """ Guide """
     crudy = Crudy(request, "whist")
     title = crudy.application.get("title")
+    crudy.url_actions = []
     form = None
     return render(request, 'p_whist_help.html', locals())
 

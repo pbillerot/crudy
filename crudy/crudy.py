@@ -30,7 +30,7 @@ class Crudy():
         },
         "whist2": {
             "title": "Tarot",
-            "resume": """Compter les points du Tarot""",
+            "resume": """Compter les points du jeu de Tarot""",
             "logo": "filter_3",
             "menu_title": "Tarot",
             "url_name": "p_whist_home",
