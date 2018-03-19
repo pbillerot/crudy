@@ -164,6 +164,17 @@ class WhistPartieSelectView(WhistListView):
         url_view = "v_partie_select"
         template_name = "v_whist_view.html"
 
+    def get_queryset(self):
+        """ queryset générique """
+        # crudy = Crudy(self.request, "whist")
+        if 'id' not in self.meta.cols:
+            self.meta.cols.append("id")
+        self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
+        .filter(**self.meta.filters)\
+        .order_by(*self.meta.order_by)\
+        .values(*self.meta.cols)
+        return self.objs
+
 def f_partie_folder(request, record_id):
     """ Enregistrement d'une partie dans folder"""
     crudy = Crudy(request, "whist")
@@ -190,6 +201,9 @@ def f_partie_create(request):
         form = forms.WhistPartieForm(request.POST, request=request)
         if form.is_valid():
             form.save()
+            post = form.save(commit=False)
+            post.owner = request.user.username
+            post.save()
             return redirect(crudy.url_view)
     else:
         form = forms.WhistPartieForm(request=request)
@@ -241,7 +255,7 @@ class WhistParticipantSelectView(WhistListView):
         crudy = Crudy(self.request, "whist")
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
-        objs = self.meta.model.objects.all()\
+        objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols)
@@ -368,7 +382,9 @@ def f_joueur_create(request):
     if request.POST:
         form = forms.WhistJoueurForm(request.POST, request=request)
         if form.is_valid():
-            form.save()
+            post = form.save(commit=False)
+            post.owner = request.user.username
+            post.save()
             return redirect(crudy.url_view)
     else:
         form = forms.WhistJoueurForm(request=request)

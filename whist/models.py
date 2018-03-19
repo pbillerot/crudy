@@ -9,6 +9,10 @@ from django.shortcuts import get_object_or_404
 class WhistPartie(models.Model):
     """ Les parties """
     objects = models.Manager()
+    owner = models.CharField(max_length=50, default="inconnu"
+                            , verbose_name='Compte'
+                            , help_text="Le compte propriétaire"
+                           )
     name = models.CharField(max_length=50, blank=False
                             , verbose_name='Nom de la partie'
                             , help_text="Le nom de la partie sera unique"
@@ -30,6 +34,10 @@ class WhistPartie(models.Model):
 class WhistJoueur(models.Model):
     """ Les joueurs """
     objects = models.Manager()
+    owner = models.CharField(max_length=50, default="inconnu"
+                            , verbose_name='Compte'
+                            , help_text="Le compte propriétaire"
+                           )
     pseudo = models.CharField(max_length=15)
     email = models.EmailField(blank=True, null=True)
     # participants = models.ManyToManyField(WhistPartie, through='WhistParticipant')

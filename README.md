@@ -16,9 +16,10 @@ Sources disponible sur [Github](https://github.com/pbillerot/crudy)
 - django-markup: <http://django-markup.readthedocs.io/en/latest/index.html> 
 
 ### A VENIR
-- Inscription d'un compte sur le site
 - Seuls les utilisateurs connectés peuvent accéder aux applications
-- Une base de données par utilisateur
+
+### Version 1.01 du 19.3.28
+- Seuls les utilisateurs connectés peuvent utiliser l'outil.
 
 ### Version 1.0 du 18.2.28
 - Version opérationnelle sur Raspberry PI en HTTPS Apache2.4 Sqlite3 Django 2.0.2 Python 3.5

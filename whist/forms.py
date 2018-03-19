@@ -36,17 +36,17 @@ class WhistPartieForm(WhistForm):
                 'maxlength': 15,
                 "required": "required"
             }),
-            'carte': forms.TextInput(attrs={
-                'type': 'number',
-                'maxlength': 15,
+            'cartes': forms.TextInput(attrs={
+                'type': 'text',
+                'pattern': "[456789]",
             }),
         }
     # CTR
-    # def clean_jeu(self):
-    #     jeu = self.cleaned_data['cartes']
-    #     if jeu < 3:
-    #         raise forms.ValidationError("Le nombre de jeu de la partie doit être supérieur à 3")
-    #     return jeu  # Ne pas oublier de renvoyer le contenu du champ traité
+    def clean_cartes(self):
+        cartes = self.cleaned_data['cartes']
+        if cartes < 4:
+            raise forms.ValidationError("Le nombre de carte doit être supérieur à 3")
+        return cartes  # Ne pas oublier de renvoyer le contenu du champ traité
 
     # def clean_name(self):
     #     name = self.cleaned_data['name']
@@ -66,10 +66,10 @@ class WhistJoueurForm(WhistForm):
     """ Création / mise à jour d'un joueur """
     class Meta:
         model = WhistJoueur
-        fields = ['pseudo', 'email']
+        fields = ['pseudo']
         widgets = {
             'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required"}),
-            'email': forms.TextInput(attrs={'type': 'email'}),
+            # 'email': forms.TextInput(attrs={'type': 'email'}),
         }
         readonly_fields = ()
 
