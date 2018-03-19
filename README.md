@@ -15,10 +15,7 @@ Sources disponible sur [Github](https://github.com/pbillerot/crudy)
 - Templates : <https://docs.djangoproject.com/fr/2.0/ref/templates/builtins/>
 - django-markup: <http://django-markup.readthedocs.io/en/latest/index.html> 
 
-### A VENIR
-- Seuls les utilisateurs connectés peuvent accéder aux applications
-
-### Version 1.01 du 19.3.28
+### Version 1.0.1 du 19.3.28
 - Seuls les utilisateurs connectés peuvent utiliser l'outil.
 
 ### Version 1.0 du 18.2.28
