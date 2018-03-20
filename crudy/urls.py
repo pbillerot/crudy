@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url='/portail/', permanent=False), name='index'),
     url(r'^admin/', admin.site.urls),
     url(r'^portail/', include('portail.urls')),
+    url(r'^tarot/', include('tarot.urls')),
     url(r'^whist/', include('whist.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

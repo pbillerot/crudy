@@ -38,8 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_markup',
+    'portail',
     'whist',
-    'portail'
+    'tarot',
 ]
 
 MIDDLEWARE = [

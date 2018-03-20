@@ -1,4 +1,4 @@
-{% load whist_tags %}
+{% load tarot_tags %}
 {% load markup_tags %}
 <!-- bouton ajout -->
 {% if crudy.url_add %}
@@ -117,7 +117,7 @@
                                 <span class="mdl-chip mdl-chip__text">{{ value|default_if_none:'' }}</span>
                         </a></td>
                     {% elif key != 'id' and key != 'medal' %}
-                    {% if crudy.url_view == "v_whist_jeu_list" and key == "participant__joueur__pseudo" %}
+                    {% if crudy.url_view == "v_tarot_jeu_list" and key == "participant__joueur__pseudo" %}
                         <td class="{{ dico|attr_td_class:key }}">
                                 <span class="mdl-chip mdl-chip--contact">
                                     {% if obj.medal == 1 %}
@@ -134,7 +134,7 @@
                                     <span class="mdl-chip__text">{{ value|default_if_none:'' }}</span>
                                 </span>
                             </td>
-                        {% elif crudy.url_view == "v_whist_jeu_list" and key == "pari" %}
+                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "pari" %}
                             <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie des PARIS {% endcomment %}
                                 {% if crudy.jeu > crudy.jeu_current %}
                                 <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
@@ -153,7 +153,7 @@
                                 </button>
                                 {% endif %}
                             </td>
-                        {% elif crudy.url_view == "v_whist_jeu_list" and key == "real" %}
+                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "real" %}
                             <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie du REALISE {% endcomment %}
                                 {% if crudy.jeu > crudy.jeu_current %}
                                     <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
@@ -172,13 +172,13 @@
                                     </button>
                                 {% endif %}
                             </td>
-                        {% elif crudy.url_view == "v_whist_jeu_list" and key == "donneur" %}
+                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "donneur" %}
                             {% if value == 1 %}
                                 <td class="{{ dico|attr_td_class:key }}" style="width: 10px;"><i class="material-icons" title="le donneur pour ce tour">room</i></td>
                             {% else %}
                                 <td class="{{ dico|attr_td_class:key }}" style="width: 10px;">&nbsp;</span></td>
                             {% endif %}
-                        {% elif crudy.url_view == "v_whist_jeu_list" and key == "points" %}
+                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "points" %}
                             {% if value > 0 %}
                             <td class="{{ dico|attr_td_class:key }}"><span class="@register.filter(name='attr_type')
                                 def attr_type(dico, key):
@@ -193,13 +193,13 @@
                             {% else %}
                             <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--red">{{ value }}</span></td>
                             {% endif %}
-                        {% elif crudy.url_view == "v_whist_jeu_list" and key == "score" %}
+                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "score" %}
                             {% if value > 0 %}
                             <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--green"><b>{{ value }}</b></span></td>
                             {% else %}
                             <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--red"><b>{{ value }}</b></span></td>
                             {% endif %}
-                        {% elif crudy.url_view == "v_whist_participant_list" and key == "donneur" %}
+                        {% elif crudy.url_view == "v_tarot_participant_list" and key == "donneur" %}
                             {% if value > 0 %}
                             <td class="{{ dico|attr_td_class:key }}">
                                 <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
@@ -256,18 +256,18 @@
         </table>
     </div>
 </div>
-{% if crudy.url_view == "v_whist_participant_list" %}
+{% if crudy.url_view == "v_tarot_participant_list" %}
     <div class="mdl-card__supporting-text">
 {% filter apply_markup:"markdown" %} 
-{% include "i_whist_participant_list.md" %}
+{% include "i_tarot_participant_list.md" %}
 {% endfilter %}
     </div>
 </div>
 {% endif %}
-{% if crudy.url_view == "v_whist_participant_select" %}
+{% if crudy.url_view == "v_tarot_participant_select" %}
     <div class="mdl-card__supporting-text">
 {% filter apply_markup:"markdown" %} 
-{% include "i_whist_participant_select.md" %}
+{% include "i_tarot__participant_select.md" %}
 {% endfilter %}
     </div>
 </div>

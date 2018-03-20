@@ -7,37 +7,37 @@ import collections
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve
-# from django.views.decorators.csrf import csrf_protect
+# from django.views.decorators.csrf import csrf_tarot_protect
 from django.http import JsonResponse
 from django.views.generic import ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from crudy.crudy import Crudy
 from . import forms
-from .models import WhistPartie, WhistJoueur, WhistParticipant, WhistJeu
+from .models import TarotPartie, TarotJoueur, TarotParticipant, TarotJeu
 
-def p_whist_home(request):
+def p_tarot_home(request):
     """ vue Home """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     title = crudy.application.get("title")
     crudy.url_actions = []
     form = None
-    return render(request, 'p_whist_home.html', locals())
+    return render(request, 'p_tarot_home.html', locals())
 
-def p_whist_help(request):
+def p_tarot_help(request):
     """ Guide """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     title = crudy.application.get("title")
     crudy.url_actions = []
     form = None
-    return render(request, 'p_whist_help.html', locals())
+    return render(request, 'p_tarot_help.html', locals())
 
-class WhistListView(ListView):
+class TarotListView(ListView):
     """
         Gestion des vues
     """
     context_object_name = "objs"
-    template_name = "v_whist_view.html"
+    template_name = "v_tarot_view.html"
     context = None
     objs = []
     qcols = 0
@@ -52,8 +52,8 @@ class WhistListView(ListView):
 
         title = "Titre de la vue"
         model = None
-        template_name = "v_whist_view.html"
-        application = "whist"
+        template_name = "v_tarot_view.html"
+        application = "tarot"
         # urls définis dans ursl.py
         url_add = None
         url_update = None
@@ -145,16 +145,16 @@ class WhistListView(ListView):
 """
     Gestion des parties
 """
-class WhistPartieSelectView(WhistListView):
+class TarotPartieSelectView(TarotListView):
     """ Sélection d'une partie """
 
-    class Meta(WhistListView.Options):
-        model = WhistPartie
+    class Meta(TarotListView.Options):
+        model = TarotPartie
 
         title = "Sélection / ajout d'une partie"
-        url_add = "f_whist_partie_create"
-        url_update = "f_whist_partie_update"
-        url_folder = "f_whist_partie_folder"
+        url_add = "f_tarot_partie_create"
+        url_update = "f_tarot_partie_update"
+        url_folder = "f_tarot_partie_folder"
         cols = ["name", "cartes"]
         cols_attrs = {
             "name": {"title":"Partie"},
@@ -162,11 +162,11 @@ class WhistPartieSelectView(WhistListView):
         }
         order_by = ('name',)
         url_view = "v_whist_partie_select"
-        template_name = "v_whist_view.html"
+        template_name = "v_tarot_view.html"
 
     def get_queryset(self):
         """ queryset générique """
-        # crudy = Crudy(self.request, "whist")
+        # crudy = Crudy(self.request, "tarot")
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
         self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
@@ -175,9 +175,9 @@ class WhistPartieSelectView(WhistListView):
         .values(*self.meta.cols)
         return self.objs
 
-def f_whist_partie_folder(request, record_id):
+def f_tarot_partie_folder(request, record_id):
     """ Enregistrement d'une partie dans folder"""
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     iid = int(record_id)
 
     # un seul item à la fois
@@ -185,20 +185,20 @@ def f_whist_partie_folder(request, record_id):
         crudy.folder_id = None
         crudy.folder_name = None
     else:
-        obj = get_object_or_404(WhistPartie, id=iid)
+        obj = get_object_or_404(TarotPartie, id=iid)
         crudy.folder_id = obj.id
         crudy.folder_name = obj.name
 
-    return redirect("v_whist_participant_select")
+    return redirect("v_tarot_participant_select")
 
-def f_whist_partie_create(request):
+def f_tarot_partie_create(request):
     """ Nouvelle partie """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     title = "Nouvelle Partie"
-    model = WhistPartie
+    model = TarotPartie
     crudy.message = ""
     if request.POST:
-        form = forms.WhistPartieForm(request.POST, request=request)
+        form = forms.TarotPartieForm(request.POST, request=request)
         if form.is_valid():
             form.save()
             post = form.save(commit=False)
@@ -206,38 +206,38 @@ def f_whist_partie_create(request):
             post.save()
             return redirect(crudy.url_view)
     else:
-        form = forms.WhistPartieForm(request=request)
-    return render(request, 'f_whist_form.html', locals())
+        form = forms.TarotPartieForm(request=request)
+    return render(request, 'f_tarot_form.html', locals())
 
-def f_whist_partie_update(request, record_id):
+def f_tarot_partie_update(request, record_id):
     """ Modification d'une partie """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     title = "Modification d'une Partie"
     crudy.message = ""
-    crudy.url_delete = "f_whist_partie_delete"
-    obj = get_object_or_404(WhistPartie, id=record_id)
-    model = WhistPartie
-    form = forms.WhistPartieForm(request.POST or None, request=request, instance=obj)
+    crudy.url_delete = "f_tarot_partie_delete"
+    obj = get_object_or_404(TarotPartie, id=record_id)
+    model = TarotPartie
+    form = forms.TarotPartieForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view)
-    return render(request, "f_whist_form.html", locals())
+    return render(request, "f_tarot_form.html", locals())
 
-def f_whist_partie_delete(request, record_id):
+def f_tarot_partie_delete(request, record_id):
     """ suppression de l'enregistrement """
-    crudy = Crudy(request, "whist")
-    obj = get_object_or_404(WhistPartie, id=record_id)
+    crudy = Crudy(request, "tarot")
+    obj = get_object_or_404(TarotPartie, id=record_id)
     obj.delete()
     return redirect(crudy.url_view)
 
 """
     Gestion des participants
 """
-class WhistParticipantSelectView(WhistListView):
+class TarotParticipantSelectView(TarotListView):
     """ Liste des participants """
 
-    class Meta(WhistListView.Options):
-        model = WhistJoueur
+    class Meta(TarotListView.Options):
+        model = TarotJoueur
         title = "Sélection des Participants"
         cols = ["pseudo", "email"]
         cols_attrs = {
@@ -245,14 +245,14 @@ class WhistParticipantSelectView(WhistListView):
             "email": {"title":"Email"},
         }
         order_by = ('pseudo',)
-        url_add = "f_whist_joueur_create"
-        url_update = "f_whist_joueur_update"
-        url_join = "v_whist_participant_join"
-        url_view = "v_whist_participant_select"
+        url_add = "f_tarot_joueur_create"
+        url_update = "f_tarot_joueur_update"
+        url_join = "v_tarot_participant_join"
+        url_view = "v_tarot_participant_select"
 
     def get_queryset(self):
         """ queryset générique """
-        crudy = Crudy(self.request, "whist")
+        crudy = Crudy(self.request, "tarot")
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
         objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
@@ -260,7 +260,7 @@ class WhistParticipantSelectView(WhistListView):
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols)
         # Cochage des participants dans la liste des joueurs
-        participants = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id)
+        participants = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id)
         crudy.joined = []
         for obj in objs:
             for participant in participants:
@@ -277,54 +277,54 @@ class WhistParticipantSelectView(WhistListView):
 
         return self.objs
 
-def v_whist_participant_join(request, record_id):
+def v_tarot_participant_join(request, record_id):
     """ Sélection d'un participant dans la liste des joueurs """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     iid = int(record_id)
 
     if iid in crudy.joined:
-        participant = WhistParticipant.objects.all().filter(partie_id__exact=crudy.folder_id, joueur_id__exact=iid)
+        participant = TarotParticipant.objects.all().filter(partie_id__exact=crudy.folder_id, joueur_id__exact=iid)
         participant.delete()
-        # compute_ordre() dans post_delete_whist 
+        # compute_ordre() dans post_delete_tarot 
         crudy.joined.remove(iid)
     else:
-        participant = WhistParticipant(partie_id=crudy.folder_id, joueur_id=iid)
+        participant = TarotParticipant(partie_id=crudy.folder_id, joueur_id=iid)
         participant.save()
         participant.compute_order()
         crudy.joined.append(iid)
 
     return redirect(crudy.url_view)
 
-def f_whist_joueur_delete(request, record_id):
+def f_tarot_joueur_delete(request, record_id):
     """ suppression de l'enregistrement """
-    crudy = Crudy(request, "whist")
-    obj = get_object_or_404(WhistJoueur, id=record_id)
+    crudy = Crudy(request, "tarot")
+    obj = get_object_or_404(TarotJoueur, id=record_id)
     obj.delete()
     return redirect(crudy.url_view)
 
 
-class WhistParticipantListView(WhistListView):
+class TarotParticipantListView(TarotListView):
     """ Tri des participants """
 
-    class Meta(WhistListView.Options):
-        model = WhistParticipant
+    class Meta(TarotListView.Options):
+        model = TarotParticipant
         title = "Ordre des Participants autour de la table"
         cols = ["joueur__pseudo", "donneur"]
         order_by = ('order', 'joueur__pseudo')
-        url_order = "v_whist_participant_order"
+        url_order = "v_tarot_participant_order"
         cols_attrs = {
             "joueur__pseudo": {"title":"Nom du joueur"},
             "donneur": {"title":"Donneur initial", "td_class": "crudy-data-table__cell--text-center"},
         }
         url_actions = [
-            ("f_whist_jeu_create", "Initialiser les jeux")
+            ("f_tarot_jeu_create", "Initialiser les jeux")
         ]
-        url_delete = "v_whist_participant_list"
-        url_view = "v_whist_participant_list"
+        url_delete = "v_tarot_participant_list"
+        url_view = "v_tarot_participant_list"
 
     def get_queryset(self):
         """ queryset générique """
-        crudy = Crudy(self.request, "whist")
+        crudy = Crudy(self.request, "tarot")
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
         objs = self.meta.model.objects.all()\
@@ -339,16 +339,16 @@ class WhistParticipantListView(WhistListView):
                 ordered_dict[col] = row[col]  
             self.objs.append(ordered_dict) 
 
-        crudy.url_participant_update = 'f_whist_participant_update'
+        crudy.url_participant_update = 'f_tarot_participant_update'
         crudy.action_param = 0
         return self.objs
 
-def f_whist_participant_update(request, record_id, checked):
+def f_tarot_participant_update(request, record_id, checked):
     """ Mise à jour du donneur """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     iid = int(record_id)
 
-    participants = WhistParticipant.objects.all().filter(partie__id=crudy.folder_id)
+    participants = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id)
     joueur_id = 0
     for participant in participants:
         if participant.id == iid:
@@ -361,56 +361,56 @@ def f_whist_participant_update(request, record_id, checked):
 
     return redirect(crudy.url_view)
 
-def v_whist_participant_order(request, record_id, orientation):
+def v_tarot_participant_order(request, record_id, orientation):
     """ On remonte le joueur dans la liste """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     iid = int(record_id)
 
-    participant = get_object_or_404(WhistParticipant, id=iid)
+    participant = get_object_or_404(TarotParticipant, id=iid)
     participant.order += int(orientation) * 3
     participant.save()
     participant.compute_order()
 
     return redirect(crudy.url_view)
 
-def f_whist_joueur_create(request):
+def f_tarot_joueur_create(request):
     """ création d'un joueur """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     title = "Nouveau Joueur"
     crudy.message = ""
-    model = WhistJoueur
+    model = TarotJoueur
     if request.POST:
-        form = forms.WhistJoueurForm(request.POST, request=request)
+        form = forms.TarotJoueurForm(request.POST, request=request)
         if form.is_valid():
             post = form.save(commit=False)
             post.owner = request.user.username
             post.save()
             return redirect(crudy.url_view)
     else:
-        form = forms.WhistJoueurForm(request=request)
-    return render(request, 'f_whist_form.html', locals())
+        form = forms.TarotJoueurForm(request=request)
+    return render(request, 'f_tarot_form.html', locals())
 
-def f_whist_joueur_update(request, record_id):
+def f_tarot_joueur_update(request, record_id):
     """ mise à jour d'un joueur """
-    crudy = Crudy(request, "whist")
-    crudy.url_delete = "f_whist_joueur_delete"
+    crudy = Crudy(request, "tarot")
+    crudy.url_delete = "f_tarot_joueur_delete"
     title = "Modification d'un Joueur"
     crudy.message = ""
-    obj = get_object_or_404(WhistJoueur, id=record_id)
-    form = forms.WhistJoueurForm(request.POST or None, instance=obj, request=request)
+    obj = get_object_or_404(TarotJoueur, id=record_id)
+    form = forms.TarotJoueurForm(request.POST or None, instance=obj, request=request)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view)
-    return render(request, "f_whist_form.html", locals())
+    return render(request, "f_tarot_form.html", locals())
 
 """
     Gestion des jeux
 """
-class WhistJeuListView(WhistListView):
+class TarotJeuListView(TarotListView):
     """ Liste des jeux """
 
-    class Meta(WhistListView.Options):
-        model = WhistJeu
+    class Meta(TarotListView.Options):
+        model = TarotJeu
         title = "Faites vos Jeux"
         cols = ["donneur", "participant__joueur__pseudo", "medal", "score", "carte", "pari", "real", "points"]
         cols_attrs = {
@@ -424,9 +424,9 @@ class WhistJeuListView(WhistListView):
             "points": {"title":"Point", "td_class": "crudy-data-table__cell--text-center"},
         }
 
-        url_view = "v_whist_jeu_list"
+        url_view = "v_tarot_jeu_list"
         url_actions = [
-            ("f_whist_jeu_compute", "Calculer les points")
+            ("f_tarot_jeu_compute", "Calculer les points")
         ]
 
     def dispatch(self, request, *args, **kwargs):
@@ -437,7 +437,7 @@ class WhistJeuListView(WhistListView):
 
     def get_queryset(self):
         """ fournir les données à afficher dans la vue """
-        crudy = Crudy(self.request, "whist")
+        crudy = Crudy(self.request, "tarot")
         # ajout de la colonne id
         if 'id' not in self.meta.cols:
             self.meta.cols.append("id")
@@ -467,7 +467,7 @@ class WhistJeuListView(WhistListView):
                 ordered_dict[col] = row[col]  
             objects_list.append(ordered_dict) 
 
-        qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
+        qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
         paginator = Paginator(objects_list, qparticipant)
         
         self.objs = paginator.get_page(self.page)
@@ -486,12 +486,12 @@ class WhistJeuListView(WhistListView):
                 crudy.cartes.append((pp, pp))
             else:
                 crudy.cartes.append((pp, paginator.num_pages - pp + 1))
-        crudy.url_jeu_pari = "f_whist_jeu_pari"
-        crudy.url_jeu_real = "f_whist_jeu_real"
+        crudy.url_jeu_pari = "f_tarot_jeu_pari"
+        crudy.url_jeu_real = "f_tarot_jeu_real"
         crudy.action_param = self.page
         crudy.jeu = int(self.page)
-        crudy.url_sort = 'v_whist_jeu_sort'
-        partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
+        crudy.url_sort = 'v_tarot_jeu_sort'
+        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
         crudy.jeu_current = partie.jeu
         if int(crudy.jeu) > partie.jeu + 1:
             self.meta.url_actions = []
@@ -502,18 +502,18 @@ class WhistJeuListView(WhistListView):
         self.meta.cols_attrs["real"]["subtitle"] = "%s / %s" % (qreal, qcarte)
         return self.objs
 
-def f_whist_jeu_create(request, id):
+def f_tarot_jeu_create(request, id):
     """ création des jeux (tours) de la partie """
-    crudy = Crudy(request, "whist")
-    jeu = WhistJeu()
+    crudy = Crudy(request, "tarot")
+    jeu = TarotJeu()
     jeu.create_jeux(crudy)
 
-    return redirect("v_whist_jeu_list", 1)
+    return redirect("v_tarot_jeu_list", 1)
 
-def f_whist_jeu_compute(request, ijeu):
+def f_tarot_jeu_compute(request, ijeu):
     """ Calcul des points du jeux, du score et du rang du joueur """
-    crudy = Crudy(request, "whist")
-    jeux = WhistJeu.objects.all()\
+    crudy = Crudy(request, "tarot")
+    jeux = TarotJeu.objects.all()\
     .filter(participant__partie__id=crudy.folder_id)\
     .order_by("jeu")
     score = {}
@@ -528,7 +528,7 @@ def f_whist_jeu_compute(request, ijeu):
         jeu.score = score[joueur_id]
         jeu.save()
     # Attribution des médailles
-    jeux = WhistJeu.objects.all()\
+    jeux = TarotJeu.objects.all()\
     .filter(participant__partie__id=crudy.folder_id)\
     .order_by("jeu", "-score")
     gold = 1000
@@ -545,7 +545,7 @@ def f_whist_jeu_compute(request, ijeu):
             bronze = 1000
             # Médaille de chocolat
             if last_pk != 0:
-                last_jeu = get_object_or_404(WhistJeu, pk=last_pk)
+                last_jeu = get_object_or_404(TarotJeu, pk=last_pk)
                 last_jeu.medal = 9
                 last_jeu.save()
         last_pk = jeu.pk
@@ -568,35 +568,35 @@ def f_whist_jeu_compute(request, ijeu):
         jeu.save()
     # Médaille de chocolat
     if last_pk != 0:
-        last_jeu = get_object_or_404(WhistJeu, pk=last_pk)
+        last_jeu = get_object_or_404(TarotJeu, pk=last_pk)
         last_jeu.medal = 9
         last_jeu.save()
     # maj partie jeu en cours
-    partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
+    partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
     if partie.jeu == int(ijeu) and int(ijeu) <= last_jeu.jeu:
         partie.jeu = int(ijeu) + 1
         partie.save()
 
-    return redirect("v_whist_jeu_list", partie.jeu)
+    return redirect("v_tarot_jeu_list", partie.jeu)
 
-def f_whist_jeu_pari(request, record_id):
+def f_tarot_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     crudy.is_form_autovalid = True
-    obj = get_object_or_404(WhistJeu, id=record_id)
+    obj = get_object_or_404(TarotJeu, id=record_id)
     title = "Pari de %s" % (obj.participant.joueur.pseudo.upper())
     crudy.message = "**%s**, Combien penses-tu faire de plis ?" % (obj.participant.joueur.pseudo.upper())
-    form = forms.WhistJeuPariForm(request.POST or None, request=request, instance=obj)
+    form = forms.TarotJeuPariForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view, obj.jeu)
-    return render(request, "f_whist_form.html", locals())
+    return render(request, "f_tarot_form.html", locals())
 
-def f_whist_jeu_real(request, record_id):
+def f_tarot_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
-    crudy = Crudy(request, "whist")
+    crudy = Crudy(request, "tarot")
     crudy.is_form_autovalid = True
-    obj = get_object_or_404(WhistJeu, id=record_id)
+    obj = get_object_or_404(TarotJeu, id=record_id)
     title = "Réalisé de %s" % (obj.participant.joueur.pseudo.upper())
     if obj.pari > 1:
         crudy.message = "**%s**, combien de plis as-tu réalisé ? (**%d** plis avaient été demandés) ?"\
@@ -604,8 +604,8 @@ def f_whist_jeu_real(request, record_id):
     else:
         crudy.message = "**%s**, combien de plis as-tu réalisé ? (**%d** pli avait été demandé) ?"\
         % (obj.participant.joueur.pseudo.upper(), obj.pari)
-    form = forms.WhistJeuRealForm(request.POST or None, request=request, instance=obj)
+    form = forms.TarotJeuRealForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view, obj.jeu)
-    return render(request, "f_whist_form.html", locals())
+    return render(request, "f_tarot_form.html", locals())

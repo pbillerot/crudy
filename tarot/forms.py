@@ -1,9 +1,9 @@
 # coding: utf-8
 from django import forms
-from .models import WhistPartie, WhistJoueur, WhistParticipant, WhistJeu
+from .models import TarotPartie, TarotJoueur, TarotParticipant, TarotJeu
 from crudy.crudy import Crudy
 
-class WhistForm(forms.ModelForm):
+class TarotForm(forms.ModelForm):
 
     class Meta:
         model = None
@@ -12,23 +12,23 @@ class WhistForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
-        super(WhistForm, self).__init__(*args, **kwargs)
+        super(TarotForm, self).__init__(*args, **kwargs)
         for name, field in self.fields.items():
             if name in self.Meta.readonly_fields:
                 field.widget.attrs['disabled'] = 'true'
                 field.required = False
 
     def clean(self):
-        cleaned_data = super(WhistForm, self).clean()
+        cleaned_data = super(TarotForm, self).clean()
         for field in self.Meta.readonly_fields:
             cleaned_data[field] = getattr(self.instance, field)
         return cleaned_data
 
-class WhistPartieForm(WhistForm):
+class TarotPartieForm(TarotForm):
     """ Création / mise à jour d'une partie """
     class Meta:
-        model = WhistPartie
-        fields = ['name', 'cartes']
+        model = TarotPartie
+        fields = ['name']
         readonly_fields = ()
         widgets = {
             'name': forms.TextInput(attrs={
@@ -36,30 +36,12 @@ class WhistPartieForm(WhistForm):
                 'maxlength': 15,
                 "required": "required"
             }),
-            'cartes': forms.TextInput(attrs={
-                'type': 'text',
-                'pattern': "[456789]",
-            }),
         }
-    # CTR
-    def clean_cartes(self):
-        cartes = self.cleaned_data['cartes']
-        if cartes < 4:
-            raise forms.ValidationError("Le nombre de carte doit être supérieur à 3")
-        return cartes  # Ne pas oublier de renvoyer le contenu du champ traité
 
-    # def clean(self):
-    #     cleaned_data = super(WhistPartieForm, self).clean()
-    #     # if self.errors:
-    #     #     raise forms.ValidationError("Corrigez les erreurs suivantes.")
-    #     # name = cleaned_data.get('name')
-    #     # err = self.errors
-    #     return cleaned_data  # N'oublions pas de renvoyer les données si tout est OK
-
-class WhistJoueurForm(WhistForm):
+class TarotJoueurForm(TarotForm):
     """ Création / mise à jour d'un joueur """
     class Meta:
-        model = WhistJoueur
+        model = TarotJoueur
         fields = ['pseudo']
         widgets = {
             'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required"}),
@@ -73,11 +55,11 @@ class WhistJoueurForm(WhistForm):
     #         raise forms.ValidationError("Le pseudo est obligatoire")
     #     return pseudo  # Ne pas oublier de renvoyer le contenu du champ traité
 
-class WhistJeuPariForm(WhistForm):
+class TarotJeuPariForm(TarotForm):
     """ Saisie du pari dun joueur """
 
     class Meta:
-        model = WhistJeu
+        model = TarotJeu
         fields = ['pari']
         widgets = {
             'pari': forms.RadioSelect(attrs={'type': 'radio'})
@@ -86,26 +68,26 @@ class WhistJeuPariForm(WhistForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        crudy = Crudy(self.request, "whist")
-        whistJeu = kwargs["instance"]
+        crudy = Crudy(self.request, "tarot")
+        tarotJeu = kwargs["instance"]
         # nre de plis demandés
         plis = 0
-        for jeu in WhistJeu.objects.all().filter(participant__partie_id=crudy.folder_id, jeu=whistJeu.jeu):
+        for jeu in TarotJeu.objects.all().filter(participant__partie_id=crudy.folder_id, jeu=tarotJeu.jeu):
             if jeu.donneur != 1:
                 plis += jeu.pari
         choices = []
-        for i in range(0, whistJeu.carte + 1):
-            if whistJeu.carte - plis == i and whistJeu.donneur == 1:
+        for i in range(0, tarotJeu.carte + 1):
+            if tarotJeu.carte - plis == i and tarotJeu.donneur == 1:
                 continue
             choices.append((i, "%s pli" % (i,)))
         self.fields['pari'].choices = choices
         self.fields['pari'].label = ""
 
-class WhistJeuRealForm(WhistForm):
+class TarotJeuRealForm(TarotForm):
     """ Saisie du réalisé dun joueur """
 
     class Meta:
-        model = WhistJeu
+        model = TarotJeu
         fields = ['real']
         widgets = {
             'real': forms.RadioSelect(attrs={'type': 'radio'})
@@ -114,10 +96,10 @@ class WhistJeuRealForm(WhistForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        crudy = Crudy(self.request, "whist")
-        whistJeu = kwargs["instance"]
+        crudy = Crudy(self.request, "tarot")
+        tarotJeu = kwargs["instance"]
         choices = []
-        for i in range(0, whistJeu.carte + 1):
+        for i in range(0, tarotJeu.carte + 1):
             choices.append((i, "%s pli" % (i,)))
         self.fields['real'].choices = choices
         self.fields['real'].label = ""
