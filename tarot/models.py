@@ -89,17 +89,22 @@ class TarotJeu(models.Model):
     # partie = models.ForeignKey(TarotPartie, on_delete=models.CASCADE)
     # joueur = models.ForeignKey(TarotJoueur, on_delete=models.CASCADE)
     jeu = models.IntegerField(default=0, verbose_name='N° du tour')
-    pari = models.IntegerField(default=0, verbose_name='Pari')
+    pari = models.IntegerField(default=0, verbose_name='Contrat')
     real = models.IntegerField(default=0, verbose_name='Réalisé')
     points = models.IntegerField(default=0, verbose_name='Points')
     score = models.IntegerField(default=0, verbose_name='Score')
     medal = models.IntegerField(default=0, verbose_name='Médaille') # Gold Silver Bronze Chocolate
-    donneur = models.IntegerField(default=0, verbose_name='Donneur')
-    partenaire = models.IntegerField(default=0, verbose_name='Partenaire appelé')
-    misere1 = models.IntegerField(default=0, verbose_name="Misère d'atout")
-    misere2 = models.IntegerField(default=0, verbose_name="Misère de tête")
-    poignee1 = models.IntegerField(default=0, verbose_name='Poignée')
-    poignee1 = models.IntegerField(default=0, verbose_name='Double Poignée')
+    donneur = models.BooleanField(default=0, verbose_name='Donneur')
+    partenaire = models.BooleanField(default=0, verbose_name='Partenaire appelé')
+    bouts = models.IntegerField(default=0, verbose_name="Nombre de Bouts")
+    ptbout = models.BooleanField(default=False, verbose_name="Petit au bout")
+    misere1 = models.BooleanField(default=False, verbose_name="Misère d'atout")
+    misere2 = models.BooleanField(default=False, verbose_name="Misère de tête")
+    poignee1 = models.BooleanField(default=False, verbose_name='Poignée')
+    poignee2 = models.BooleanField(default=False, verbose_name='Double Poignée')
+    poignee3 = models.BooleanField(default=False, verbose_name='Triple Poignée')
+    grchelem = models.BooleanField(default=False, verbose_name='Grand Chelem')
+    ptchelem = models.BooleanField(default=False, verbose_name='Petit Chelem')
 
     def __str__(self):
         # return "{0}_{1}_{2}".format(self.partie, self.joueur, self.jeu)
@@ -111,7 +116,7 @@ class TarotJeu(models.Model):
         verbose_name_plural = "Jeux"
 
     def create_jeux(self, crudy):
-        """ Création des jeux de la partie """
+        """ Création du 1er jeu de la partie """
         # suppression des jeux 
         TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id).delete()
 
@@ -119,42 +124,10 @@ class TarotJeu(models.Model):
         partie.jeu = 1
         partie.save()
 
-        icarte = 0
-        donneur_id = 0
-        for ijeu in range(0, partie.cartes * 2):
-            # calcul du n° du tour et du nombre de carte du tour
-            if ijeu < partie.cartes:
-                # 1ère moitié de la partie, nbre croissant de cartes
-                icarte += 1
-            else:
-                # 2ème moitié, nbre décroissant de cartes
-                if icarte != ijeu:
-                    # 2 fois le m nbre de carte à la moitié de la partie
-                    icarte -= 1
-
-            # création des lignes de jeux
-            ijeu += 1
-
-            # Création d'une ligne par participant
-            participants = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id)
-            for participant in participants:
-                if participant.donneur == 1:
-                    donneur_id = participant.joueur_id
-                jeu = TarotJeu(participant=participant, jeu=ijeu, carte=icarte)
-                jeu.save()
-
-        # Calcul du donneur sur tous les jeux
-        jeux = TarotJeu.objects.all().filter(participant__partie__id=partie.id).order_by('jeu', 'participant__order')
-        ijeu = 1
-        for jeu in jeux:
-            if donneur_id == 0:
-                donneur_id = jeu.participant.joueur_id
-            if jeu.jeu == ijeu and jeu.participant.joueur_id == donneur_id:
-                jeu.donneur = 1
-                donneur_id = 0
-                ijeu = jeu.jeu + 1
-            else:
-                jeu.donneur = 0
+        # Création d'une ligne par participant
+        participants = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id)
+        for participant in participants:
+            jeu = TarotJeu(participant=participant, jeu=1, donneur=participant.donneur)
             jeu.save()
 
 def post_delete_tarot(sender, instance, **kwargs):

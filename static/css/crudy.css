@@ -204,7 +204,7 @@
   font-size: 16px;
   font-weight: bold;
 }
-.crudy-data-table__cell--text-center.crudy-data-table__cell--text-center {
+.mdl-data-table th {
   text-align: center;
   vertical-align: middle;
 }

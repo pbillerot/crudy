@@ -28,5 +28,7 @@ urlpatterns = [
     url(r'^jeu/compute/(.+)/$', login_required(views.f_tarot_jeu_compute), name='f_tarot_jeu_compute'),
     url(r'^jeu/pari/(.+)/$', login_required(views.f_tarot_jeu_pari), name='f_tarot_jeu_pari'),
     url(r'^jeu/real/(.+)/$', login_required(views.f_tarot_jeu_real), name='f_tarot_jeu_real'),
-
+    url(r'^jeu/bouts/(.+)/$', login_required(views.f_tarot_jeu_bouts), name='f_tarot_jeu_bouts'),
+    url(r'^jeu/partenaire/(.+)/(.+)/$', login_required(views.f_tarot_jeu_partenaire), name='f_tarot_jeu_partenaire'),
+    url(r'^jeu/prime/(.+)/$', login_required(views.f_tarot_jeu_prime), name='f_tarot_jeu_prime'),
 ]

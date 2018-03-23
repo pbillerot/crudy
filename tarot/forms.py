@@ -98,8 +98,62 @@ class TarotJeuRealForm(TarotForm):
         super().__init__(*args, **kwargs)
         crudy = Crudy(self.request, "tarot")
         tarotJeu = kwargs["instance"]
-        choices = []
+        choices = [("PT", "Petite"),("PC", "Pouce"),("GA", "Garde"),("GS", "Garde Sans"),("GC", "Garde Contre")]
         for i in range(0, tarotJeu.carte + 1):
             choices.append((i, "%s pli" % (i,)))
         self.fields['real'].choices = choices
         self.fields['real'].label = ""
+
+class TarotJeuBoutsForm(TarotForm):
+    """ Saisie du nombre de bouts """
+
+    class Meta:
+        model = TarotJeu
+        fields = ['bouts']
+        widgets = {
+            'bouts': forms.TextInput(attrs={'type': 'radio'}),
+        }
+        readonly_fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        crudy = Crudy(self.request, "tarot")
+        choices = []
+        for i in range(0, 3):
+            choices.append((i, "%s bout" % (i,)))
+        self.fields['bouts'].choices = choices
+        self.fields['bouts'].label = ""
+
+class TarotJeuPartenaireForm(TarotForm):
+    """ Saisie du partenaire """
+
+    class Meta:
+        model = TarotJeu
+        fields = ['partenaire']
+        widgets = {
+            'partenaire': forms.CheckboxInput(attrs={'type': 'check'}),
+        }
+        readonly_fields = ()
+
+class TarotJeuPrimeForm(TarotForm):
+    """ Saisie des primes """
+
+    class Meta:
+        model = TarotJeu
+        fields = ['ptbout', 'misere1', 'misere2', 'poignee1', 'poignee2', 'poignee3', 'ptchelem', 'grchelem']
+        widgets = {
+            'ptbout': forms.CheckboxInput(attrs={'type': 'check'}),
+            'misere1': forms.CheckboxInput(attrs={'type': 'check'}),
+            'misere2': forms.CheckboxInput(attrs={'type': 'check'}),
+            'poignee1': forms.CheckboxInput(attrs={'type': 'check'}),
+            'poignee2': forms.CheckboxInput(attrs={'type': 'check'}),
+            'poignee3': forms.CheckboxInput(attrs={'type': 'check'}),
+            'ptchelem': forms.CheckboxInput(attrs={'type': 'check'}),
+            'grchelem': forms.CheckboxInput(attrs={'type': 'check'}),
+        }
+        readonly_fields = ()
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     for name, field in self.fields.items():
+    #         field.required = False

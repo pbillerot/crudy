@@ -1,4 +1,3 @@
-N'oubliez pas d' **INITIALISER LES JEUX** après 
+Sélectionner les participants pour la partie.
 
-- la sélection/déselection d'un participant
-
+Vous pouvez aussi créer un nouveau participant en utilisant le bouton **+**

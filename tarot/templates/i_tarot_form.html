@@ -11,7 +11,7 @@
                             <i class="material-icons">more_vert</i>
                         </a>
                         <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="hdrbtn">
-                            <li class="mdl-menu__item"><a href="{% url crudy.url_delete form.instance.pk %}">Supprimer l'enregistrement</a></li>
+                            <li class="mdl-menu__item"><a href="{% url crudy.url_delete form.instance.pk %}">Supprimer</a></li>
                         </ul>
                     </div>
                 {% endif %}
@@ -58,6 +58,12 @@
                             {% if field.help_text %}
                                 <span class="crudy-field-helper-text">{{ field.help_text|safe }}</span>
                             {% endif %}
+                        {% elif field|field_attr:'type' == 'check' %}
+                            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="{{field.html_name}}">
+                                <input type="checkbox" class="mdl-checkbox__input" id="{{field.html_name}}" name="{{field.html_name}}"
+                                {% if field.value == True %}checked{% endif %}/>
+                                <span class="mdl-checkbox__label">{{ field.label }}</span>
+                            </label>
                         {% else %}
                             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label{% if field.errors %} is-invalid{% endif %}">
                                 <input class="mdl-textfield__input" type="{{field|field_attr:'type'}}" id="{{field.html_name}}"

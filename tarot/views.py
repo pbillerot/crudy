@@ -46,6 +46,9 @@ class TarotListView(ListView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.meta = self.Meta()
+        self.meta.cols_list = []
+        for key in self.meta.cols:
+            self.meta.cols_list.append((key, self.meta.cols[key]))
 
     class Options:
         # def __init__(self, *args, **kwargs):
@@ -67,8 +70,8 @@ class TarotListView(ListView):
         url_param = ""
         # query sur la base
         # liste des champs à afficher dans la vue
-        cols = []
-        cols_attrs = {}
+        cols = {}
+        cols_list = []
 
         filters = {} # filtres du query_set
         order_by = () # liste des colonnes à trier
@@ -86,23 +89,20 @@ class TarotListView(ListView):
             crudy.selected = []
         self.context["title"] = self.meta.title
         self.context["crudy"] = crudy
-        self.context["cols"] = self.meta.cols
         self.context["form"] = None
         self.context["paginator"] = self.paginator
-
-        # Fourniture des attributs des colonnes dans un dictionnaire
-        attrs_model = {
-            "title": "",
-            "td_class": "mdl-data-table__cell--non-numeric",
-            "class": "",
-            "type": "text",
-        }
-        self.context["dico"] =  {}
-        for index in self.meta.cols:
-            attrs = self.meta.cols_attrs.get(index, attrs_model)
-            for key in attrs_model:
-                attrs[key] = attrs.get(key, attrs_model[key])
-            self.context["dico"][index] = attrs
+        # update cols
+        # for key in self.meta.cols:
+        #     if self.meta.cols[key].get("type", "text") == "text":
+        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-left"
+        #     if self.meta.cols[key].get("type", "text") == "button":
+        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-center"
+        #     if self.meta.cols[key].get("type", "text") == "check":
+        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-center"
+        #     if self.meta.cols[key].get("type", "text") == "number":
+        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-center"
+        self.context["cols"] = self.meta.cols
+        self.context["cols_list"] = self.meta.cols_list
 
         # cochage de tous les enregistrements
         if 0 in crudy.selected:
@@ -120,21 +120,20 @@ class TarotListView(ListView):
         crudy.url_update = self.meta.url_update
         crudy.url_delete = self.meta.url_delete
         crudy.url_select = self.meta.url_select
-        crudy.qcols = self.qcols
+        crudy.qcols = len(self.meta.cols) -1
         return self.context
 
     def get_queryset(self):
         """ queryset générique """
         if 'id' not in self.meta.cols:
-            self.meta.cols.append("id")
+            self.meta.cols["id"] = { "hide": True }
         objs = self.meta.model.objects.all()\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols)
-        # Tri des colonnes dans l'ordre de cols
+        # Tri des colonnes dans l'ordre de cols ??? voir si toujours utile en python 3.5
         self.objs = []
         for row in objs:
-            self.qcols = len(self.meta.cols) -1
             ordered_dict = collections.OrderedDict()
             for col in self.meta.cols:
                 ordered_dict[col] = row[col]
@@ -155,20 +154,18 @@ class TarotPartieSelectView(TarotListView):
         url_add = "f_tarot_partie_create"
         url_update = "f_tarot_partie_update"
         url_folder = "f_tarot_partie_folder"
-        cols = ["name", "cartes"]
-        cols_attrs = {
+        cols = {
             "name": {"title":"Partie"},
-            "cartes": {"title":"Nombre de cartes max", "td_class": "crudy-data-table__cell--text-center"},
         }
         order_by = ('name',)
-        url_view = "v_whist_partie_select"
+        url_view = "v_tarot_partie_select"
         template_name = "v_tarot_view.html"
 
     def get_queryset(self):
         """ queryset générique """
         # crudy = Crudy(self.request, "tarot")
         if 'id' not in self.meta.cols:
-            self.meta.cols.append("id")
+            self.meta.cols["id"] = { "hide": True }
         self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
@@ -239,10 +236,8 @@ class TarotParticipantSelectView(TarotListView):
     class Meta(TarotListView.Options):
         model = TarotJoueur
         title = "Sélection des Participants"
-        cols = ["pseudo", "email"]
-        cols_attrs = {
+        cols = {
             "pseudo": {"title":"Nom du joueur"},
-            "email": {"title":"Email"},
         }
         order_by = ('pseudo',)
         url_add = "f_tarot_joueur_create"
@@ -254,7 +249,7 @@ class TarotParticipantSelectView(TarotListView):
         """ queryset générique """
         crudy = Crudy(self.request, "tarot")
         if 'id' not in self.meta.cols:
-            self.meta.cols.append("id")
+            self.meta.cols["id"] = { "hide": True }
         objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
@@ -269,7 +264,6 @@ class TarotParticipantSelectView(TarotListView):
         self.objs = []
         # tri des colonnes
         for row in objs:
-            self.qcols = len(self.meta.cols) -1
             ordered_dict = collections.OrderedDict()
             for col in self.meta.cols:
                 ordered_dict[col] = row[col]  
@@ -309,12 +303,12 @@ class TarotParticipantListView(TarotListView):
     class Meta(TarotListView.Options):
         model = TarotParticipant
         title = "Ordre des Participants autour de la table"
-        cols = ["joueur__pseudo", "donneur"]
         order_by = ('order', 'joueur__pseudo')
         url_order = "v_tarot_participant_order"
-        cols_attrs = {
-            "joueur__pseudo": {"title":"Nom du joueur"},
-            "donneur": {"title":"Donneur initial", "td_class": "crudy-data-table__cell--text-center"},
+        cols = {
+            "order": {"title":"Nom du joueur", "hide": True},
+            "joueur__pseudo": {"title":"Nom du joueur", "type": "text"},
+            "donneur": {"title":"Donneur initial", "type": "check"},
         }
         url_actions = [
             ("f_tarot_jeu_create", "Initialiser les jeux")
@@ -326,14 +320,13 @@ class TarotParticipantListView(TarotListView):
         """ queryset générique """
         crudy = Crudy(self.request, "tarot")
         if 'id' not in self.meta.cols:
-            self.meta.cols.append("id")
+            self.meta.cols["id"] = { "hide": True }
         objs = self.meta.model.objects.all()\
         .filter(partie_id=crudy.folder_id)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols)
         self.objs = []
         for row in objs:
-            self.qcols = len(self.meta.cols) -1
             ordered_dict = collections.OrderedDict()
             for col in self.meta.cols:
                 ordered_dict[col] = row[col]  
@@ -341,6 +334,10 @@ class TarotParticipantListView(TarotListView):
 
         crudy.url_participant_update = 'f_tarot_participant_update'
         crudy.action_param = 0
+
+        if len(self.objs) == 0:
+            self.meta.url_actions = []
+
         return self.objs
 
 def f_tarot_participant_update(request, record_id, checked):
@@ -412,18 +409,27 @@ class TarotJeuListView(TarotListView):
     class Meta(TarotListView.Options):
         model = TarotJeu
         title = "Faites vos Jeux"
-        cols = ["donneur", "participant__joueur__pseudo", "medal", "score", "carte", "pari", "real", "points"]
-        cols_attrs = {
+        cols = {
             "donneur": {"title":""},
             "participant__joueur__pseudo": {"title":"Participant"},
-            "medal": {"title":"M", "td_class": "crudy-data-table__cell--text-center"},
-            "score": {"title":"Score", "td_class": "crudy-data-table__cell--text-center"},
-            "carte": {"title":"Carte", "td_class": "crudy-data-table__cell--text-center"},
-            "pari": {"title":"Pari", "td_class": "crudy-data-table__cell--text-center"},
-            "real": {"title":"Réalisé", "td_class": "crudy-data-table__cell--text-center"},
-            "points": {"title":"Point", "td_class": "crudy-data-table__cell--text-center"},
-        }
+            "medal": {"title":"M"},
+            "score": {"title":"Score", "type":"number"},
+            "pari": {"title":"Contrat", "type":"button", "url": "f_tarot_jeu_pari"},
+            "partenaire": {"title":"Avec", "type":"check", "url": "f_tarot_jeu_partenaire"},
+            "real": {"title":"Réal", "type":"button", "url": "f_tarot_jeu_real"},
+            "bouts": {"title":"Bouts", "type":"button", "url": "f_tarot_jeu_bouts"},
+            # primes
+            "ptbout": {"title":"Primes", "type":"category", "url": "f_tarot_jeu_prime", "category": "prime"},
+            "poignee1": {"hide": True, "title": "Poignée", "type":"category", "category": "prime"},
+            "poignee2": {"hide": True, "title": "Double Poignée", "type":"category", "category": "prime"},
+            "poignee3": {"hide": True, "title": "Triple Poignée", "type":"category", "category": "prime"},
+            "misere1": {"hide": True, "title": "Misère d'Atout", "type":"category", "category": "prime"},
+            "misere2": {"hide": True, "title": "Misère de Tête", "type":"category", "category": "prime"},
+            "grchelem": {"hide": True, "title": "Grand Chelem", "type":"category", "category": "prime"},
+            "ptchelem": {"hide": True, "title": "Petit Chelem", "type":"category", "category": "prime"},
 
+            "points": {"title":"Points", "type":"number"},
+        }
         url_view = "v_tarot_jeu_list"
         url_actions = [
             ("f_tarot_jeu_compute", "Calculer les points")
@@ -440,7 +446,7 @@ class TarotJeuListView(TarotListView):
         crudy = Crudy(self.request, "tarot")
         # ajout de la colonne id
         if 'id' not in self.meta.cols:
-            self.meta.cols.append("id")
+            self.meta.cols["id"] = { "hide": True }
         # prise en compte de la colonne à trier en fonction de sort
         if self.sort == "score":
             crudy.sort = "score"
@@ -461,45 +467,40 @@ class TarotJeuListView(TarotListView):
         # Tri des colonnes dans l'ordre de cols
         objects_list = []
         for row in objs:
-            self.qcols = len(self.meta.cols) -1
+            # on remplit la colonne ptbout avec la catégorie prime
+            label_primes = []
+            for key, col in self.meta.cols_list:
+                if col.get("category") == "prime":
+                    if row[key]:
+                        label_primes.append((col.get("title")))
+            if len(label_primes) == 0:
+                label_primes.append(("0"))
+            row["ptbout"] = label_primes
             ordered_dict = collections.OrderedDict()
+            ordered_dict["id"] = row["id"]
             for col in self.meta.cols:
-                ordered_dict[col] = row[col]  
-            objects_list.append(ordered_dict) 
+                ordered_dict[col] = row[col]
+            objects_list.append(ordered_dict)
 
         qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
-        paginator = Paginator(objects_list, qparticipant)
+        if qparticipant > 0:
+            paginator = Paginator(objects_list, qparticipant)
+            
+            self.objs = paginator.get_page(self.page)
+            self.paginator = True # pour le template
+            crudy.url_jeu_pari = "f_tarot_jeu_pari"
+            crudy.url_jeu_real = "f_tarot_jeu_real"
+            crudy.action_param = self.page
+            crudy.jeu = int(self.page)
+            crudy.url_sort = 'v_tarot_jeu_sort'
+            partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+            crudy.jeu_current = partie.jeu
+            if int(crudy.jeu) > partie.jeu + 1:
+                self.meta.url_actions = []
+        else:
+            self.meta.url_actions = []
         
-        self.objs = paginator.get_page(self.page)
-        self.paginator = True # pour le template
-        # comptage de nombre de plis demandés et réalisés
-        qplis = 0
-        qreal = 0
-        qcarte = 0
-        for obj in self.objs:
-            qplis += obj["pari"]
-            qreal += obj["real"]
-            qcarte = obj["carte"]
-        crudy.cartes = []
-        for pp in range(1, paginator.num_pages + 1):
-            if pp <= paginator.num_pages / 2:
-                crudy.cartes.append((pp, pp))
-            else:
-                crudy.cartes.append((pp, paginator.num_pages - pp + 1))
-        crudy.url_jeu_pari = "f_tarot_jeu_pari"
-        crudy.url_jeu_real = "f_tarot_jeu_real"
-        crudy.action_param = self.page
-        crudy.jeu = int(self.page)
         crudy.url_sort = 'v_tarot_jeu_sort'
-        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
-        crudy.jeu_current = partie.jeu
-        if int(crudy.jeu) > partie.jeu + 1:
-            self.meta.url_actions = []
-        if qreal != qcarte:
-            self.meta.url_actions = []
-
-        self.meta.cols_attrs["pari"]["subtitle"] = "%s / %s" % (qplis, qcarte)
-        self.meta.cols_attrs["real"]["subtitle"] = "%s / %s" % (qreal, qcarte)
         return self.objs
 
 def f_tarot_jeu_create(request, id):
@@ -605,6 +606,47 @@ def f_tarot_jeu_real(request, record_id):
         crudy.message = "**%s**, combien de plis as-tu réalisé ? (**%d** pli avait été demandé) ?"\
         % (obj.participant.joueur.pseudo.upper(), obj.pari)
     form = forms.TarotJeuRealForm(request.POST or None, request=request, instance=obj)
+    if form.is_valid():
+        form.save()
+        return redirect(crudy.url_view, obj.jeu)
+    return render(request, "f_tarot_form.html", locals())
+
+def f_tarot_jeu_bouts(request, record_id):
+    """ Saisie du nombre de bouts 0 1 2 """
+    crudy = Crudy(request, "tarot")
+    crudy.is_form_autovalid = True
+    obj = get_object_or_404(TarotJeu, id=record_id)
+    title = "Nombre de bouts pour %s" % (obj.participant.joueur.pseudo.upper())
+    form = forms.TarotJeuBoutsForm(request.POST or None, request=request, instance=obj)
+    if form.is_valid():
+        form.save()
+        return redirect(crudy.url_view, obj.jeu)
+    return render(request, "f_tarot_form.html", locals())
+
+def f_tarot_jeu_partenaire(request, record_id, checked):
+    """ Saisie du partenaire """
+    crudy = Crudy(request, "tarot")
+    tarotJeu = get_object_or_404(TarotJeu, id=record_id)
+    jeux = TarotJeu.objects.all().filter(participant__partie_id=tarotJeu.participant.partie_id, jeu=tarotJeu.jeu)
+    for jeu in jeux:
+        if jeu.id == int(record_id):
+            if checked == "True":
+                jeu.partenaire = False
+            else:
+                jeu.partenaire = True
+        else:
+            jeu.partenaire = False
+        jeu.save()
+
+    return redirect(crudy.url_view, tarotJeu.jeu)
+
+def f_tarot_jeu_prime(request, record_id):
+    """ Saisie des primes """
+    crudy = Crudy(request, "tarot")
+    crudy.is_form_autovalid = False
+    obj = get_object_or_404(TarotJeu, id=record_id)
+    title = "Saisie des primes pour %s" % (obj.participant.joueur.pseudo.upper())
+    form = forms.TarotJeuPrimeForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view, obj.jeu)

@@ -21,27 +21,30 @@
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>
                     {% endif %} 
-                    {% for key in cols %}
-                        {% if forloop.first %}
-                        <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}</th>
-                        {% elif key != 'id' and key != "medal" %} 
-                            {% if dico|attr_title:key == 'Score' %}
-                            <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}
-                                {% if crudy.sort == "score" %}
-                                <button data-url="{% url crudy.url_sort crudy.jeu 'participant' %}"
-                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon crudy-button-action">
-                                <i class="material-icons">sort</i>
-                                </button>
+                    {% for key, col in cols_list %}
+                        {% if not col.hide %}
+                            {% if forloop.first %}
+                                <th class="{{col.td_class}}">{{ col.title }}</th>
+                            {% elif key != "medal" %} 
+                                {% if col.title == 'Score' %}
+                                <th class="{{ col.td_class }}"
+                                >{{ col.title }}
+                                    {% if crudy.sort == "score" %}
+                                    <button data-url="{% url crudy.url_sort crudy.jeu 'participant' %}"
+                                        class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon crudy-button-action">
+                                    <i class="material-icons">sort</i>
+                                    </button>
+                                    {% else %}
+                                    <button data-url="{% url crudy.url_sort crudy.jeu 'score' %}"
+                                        class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon crudy-button-action">
+                                    <i class="material-icons">import_export</i>
+                                    </button>
+                                    {% endif %}
+                                </th>
                                 {% else %}
-                                <button data-url="{% url crudy.url_sort crudy.jeu 'score' %}"
-                                    class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon crudy-button-action">
-                                <i class="material-icons">import_export</i>
-                                </button>
-                                {% endif %}
-                            </th>
-                            {% else %}
-                            <th class="{{ dico|attr_td_class:key }}">{{ dico|attr_title:key }}{% if dico|attr_subtitle:key %}<br>{{dico|attr_subtitle:key}}{% endif%}</th>
-                            {% endif %} 
+                                <th class="{{ col.td_class }}">{{ col.title }}{% if col.subtitle %}<br>{{col.subtitle}}{% endif%}</th>
+                                {% endif %} 
+                            {% endif %}
                         {% endif %} 
                     {% endfor %}
                 </tr>
@@ -112,120 +115,143 @@
                     {% endif %}
                 {% endif %}
                 {% for key, value in obj.items %}
-                    {% if forloop.first and crudy.url_update %}
-                        <td class="{{ dico|attr_td_class:key }}"><a href="{% url crudy.url_update obj.id %}">
-                                <span class="mdl-chip mdl-chip__text">{{ value|default_if_none:'' }}</span>
-                        </a></td>
-                    {% elif key != 'id' and key != 'medal' %}
-                    {% if crudy.url_view == "v_tarot_jeu_list" and key == "participant__joueur__pseudo" %}
-                        <td class="{{ dico|attr_td_class:key }}">
-                                <span class="mdl-chip mdl-chip--contact">
-                                    {% if obj.medal == 1 %}
-                                    <span class="mdl-chip__contact mdl-color--amber mdl-color-text--black">1</span>
-                                    {% elif obj.medal == 2 %}
-                                    <span class="mdl-chip__contact mdl-color--grey mdl-color-text--white">2</span>
-                                    {% elif obj.medal == 3 %}
-                                    <span class="mdl-chip__contact mdl-color--blue-grey mdl-color-text--white">3</span>
-                                    {% elif obj.medal == 9 %}
-                                    <span class="mdl-chip__contact mdl-color--brown mdl-color-text--white">&nbsp;</span>
-                                    {% else %}
-                                    <span class="mdl-chip__contact mdl-color--grey-200 mdl-color-text--white">&nbsp;</span>
-                                    {% endif %}
-                                    <span class="mdl-chip__text">{{ value|default_if_none:'' }}</span>
-                                </span>
-                            </td>
-                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "pari" %}
-                            <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie des PARIS {% endcomment %}
-                                {% if crudy.jeu > crudy.jeu_current %}
-                                <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
-                                    disabled="disabled">
-                                {{ value }}
-                                </button>
-                                {% elif value != 0 %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
-                                    data-url="{% url crudy.url_jeu_pari obj.id %}">
-                                    {{ value }}
-                                    </button>
-                                {% else %}
-                                <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
-                                data-url="{% url crudy.url_jeu_pari obj.id %}">
-                                {{ value }}
-                                </button>
-                                {% endif %}
-                            </td>
-                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "real" %}
-                            <td class="{{ dico|attr_td_class:key }}"> {% comment %} Saisie du REALISE {% endcomment %}
-                                {% if crudy.jeu > crudy.jeu_current %}
+                    {% if cols|attr_hide:key != True %}
+                        {% if forloop.first and crudy.url_update %}
+                            <td style="text-align: left"><a href="{% url crudy.url_update obj.id %}">
+                                    <span class="mdl-chip mdl-chip__text">{{ value|default_if_none:'' }}</span>
+                            </a></td>
+                        {% elif key != 'medal' %}
+                            {% if crudy.url_view == "v_tarot_jeu_list" and key == "participant__joueur__pseudo" %}
+                                <td style="text-align: left">
+                                    <span class="mdl-chip mdl-chip--contact">
+                                        {% if obj.medal == 1 %}
+                                        <span class="mdl-chip__contact mdl-color--amber mdl-color-text--black">1</span>
+                                        {% elif obj.medal == 2 %}
+                                        <span class="mdl-chip__contact mdl-color--grey mdl-color-text--white">2</span>
+                                        {% elif obj.medal == 3 %}
+                                        <span class="mdl-chip__contact mdl-color--blue-grey mdl-color-text--white">3</span>
+                                        {% elif obj.medal == 9 %}
+                                        <span class="mdl-chip__contact mdl-color--brown mdl-color-text--white">&nbsp;</span>
+                                        {% else %}
+                                        <span class="mdl-chip__contact mdl-color--grey-200 mdl-color-text--white">&nbsp;</span>
+                                        {% endif %}
+                                        <span class="mdl-chip__text">{{ value|default_if_none:'' }}</span>
+                                    </span>
+                                </td>
+                            {% elif crudy.url_view == "v_tarot_jeu_list" and key == "pari" %}
+                                <td style="text-align: center"> {% comment %} Saisie des PARIS {% endcomment %}
+                                    {% if crudy.jeu > crudy.jeu_current %}
                                     <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
-                                        disabled="disabled" onClick="window.location='{% url crudy.url_jeu_real obj.id %}';">
+                                        disabled="disabled">
                                     {{ value }}
                                     </button>
-                                {% elif value != 0 %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
+                                    {% elif value != 0 %}
+                                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
+                                        data-url="{% url crudy.url_jeu_pari obj.id %}">
+                                        {{ value }}
+                                        </button>
+                                    {% else %}
+                                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
+                                        data-url="{% url crudy.url_jeu_pari obj.id %}">
+                                        {{ value }}
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            {% elif crudy.url_view == "v_tarot_jeu_list" and key == "real" %}
+                                <td style="text-align: center"> {% comment %} Saisie du REALISE {% endcomment %}
+                                    {% if crudy.jeu > crudy.jeu_current %}
+                                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
+                                            disabled="disabled" onClick="window.location='{% url crudy.url_jeu_real obj.id %}';">
+                                        {{ value }}
+                                        </button>
+                                    {% elif value != 0 %}
+                                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
+                                            data-url="{% url crudy.url_jeu_real obj.id %}">
+                                        {{ value }}
+                                        </button>
+                                    {% else %}
+                                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
                                         data-url="{% url crudy.url_jeu_real obj.id %}">
-                                    {{ value }}
-                                    </button>
+                                        {{ value }}
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            {% elif crudy.url_view == "v_tarot_jeu_list" and key == "donneur" %}
+                                {% if value == 1 %}
+                                    <td style="text-align: center" style="width: 10px;"><i class="material-icons" title="le donneur pour ce tour">room</i></td>
                                 {% else %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
-                                    data-url="{% url crudy.url_jeu_real obj.id %}">
+                                    <td style="text-align: center; width: 10px;">&nbsp;</span></td>
+                                {% endif %}
+                            {% elif crudy.url_view == "v_tarot_participant_list" and key == "donneur" %}
+                                {% if value > 0 %}
+                                <td style="text-align: center">
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
+                                        style="width: unset" for="checkbox_{{obj.id}}">
+                                    <input type="checkbox" class="mdl-checkbox__input" id="checkbox_{{obj.id}}"
+                                        checked="checked"
+                                        onClick="window.location='{% url crudy.url_participant_update obj.id 0 %}';">
+                                    </label>
+                                </td>
+                                {% else %}
+                                <td style="text-align: center">
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
+                                        style="width: unset" for="checkbox_{{obj.id}}">
+                                    <input type="checkbox" class="mdl-checkbox__input" id="checkbox_{{obj.id}}"
+                                        onClick="window.location='{% url crudy.url_participant_update obj.id 1 %}';">
+                                    </label>
+                                </td>
+                                {% endif %}
+                            {% elif cols|attr_type:key == "check" %}
+                                <td style="text-align: center">
+                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
+                                        for="checkbox_{{obj.id}}">
+                                    <input type="checkbox" class="mdl-checkbox__input crudy-button-action" id="checkbox_{{obj.id}}"
+                                        {% if value %}checked="checked"{% endif %} 
+                                        data-url="{% url cols|attr_url:key obj.id value %}">
+                                    </label>
+                                </td>
+                            {% elif cols|attr_type:key == "number" %}
+                                {% if value > 0 %}
+                                <td style="text-align: center"><span class="mdl-color-text--green" style="width: 100%"><b>{{ value }}</b></span></td>
+                                {% else %}
+                                <td style="text-align: center"><span class="mdl-color-text--red" style="width: 100%"><b>{{ value }}</b></span></td>
+                                {% endif %}
+                            {% elif cols|attr_type:key == "button" %}
+                                <td style="text-align: center">
+                                    {% if crudy.jeu > crudy.jeu_current %}
+                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
+                                        disabled="disabled">
                                     {{ value }}
                                     </button>
-                                {% endif %}
-                            </td>
-                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "donneur" %}
-                            {% if value == 1 %}
-                                <td class="{{ dico|attr_td_class:key }}" style="width: 10px;"><i class="material-icons" title="le donneur pour ce tour">room</i></td>
+                                    {% elif value != 0 %}
+                                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
+                                        data-url="{% url cols|attr_url:key obj.id %}">
+                                        {{ value }}
+                                        </button>
+                                    {% else %}
+                                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
+                                        data-url="{% url cols|attr_url:key obj.id %}">
+                                        {{ value }}
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            {% elif cols|attr_type:key == "category" %}
+                                <td style="text-align: left">
+                                {% for cat in value %}
+                                    <button class="mdl-chip crudy-button-action" data-url="{% url cols|attr_url:key obj.id %}">
+                                        <span class="mdl-chip__text">{{ cat }}</span>
+                                    </button>
+                                {% endfor %}
+                                </td>
                             {% else %}
-                                <td class="{{ dico|attr_td_class:key }}" style="width: 10px;">&nbsp;</span></td>
+                                <td style="text-align: left">{{ value|default_if_none:'' }}</td>
                             {% endif %}
-                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "points" %}
-                            {% if value > 0 %}
-                            <td class="{{ dico|attr_td_class:key }}"><span class="@register.filter(name='attr_type')
-                                def attr_type(dico, key):
-                                    return dico[key].get("type", "")
-                                    @register.filter(name='attr_type')
-                                    def attr_type(dico, key):
-                                        return dico[key].get("type", "")
-                                        @register.filter(name='attr_type')
-                                        def attr_type(dico, key):
-                                            return dico[key].get("type", "")
-                                        mdl-color-text--green">{{ value }}</span></td>
-                            {% else %}
-                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--red">{{ value }}</span></td>
-                            {% endif %}
-                        {% elif crudy.url_view == "v_tarot_jeu_list" and key == "score" %}
-                            {% if value > 0 %}
-                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--green"><b>{{ value }}</b></span></td>
-                            {% else %}
-                            <td class="{{ dico|attr_td_class:key }}"><span class="mdl-color-text--red"><b>{{ value }}</b></span></td>
-                            {% endif %}
-                        {% elif crudy.url_view == "v_tarot_participant_list" and key == "donneur" %}
-                            {% if value > 0 %}
-                            <td class="{{ dico|attr_td_class:key }}">
-                                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
-                                    style="width: unset" for="checkbox_{{obj.id}}">
-                                <input type="checkbox" class="mdl-checkbox__input" id="checkbox_{{obj.id}}"
-                                    checked="checked"
-                                    onClick="window.location='{% url crudy.url_participant_update obj.id 0 %}';">
-                                </label>
-                            </td>
-                            {% else %}
-                            <td class="{{ dico|attr_td_class:key }}">
-                                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect"
-                                    style="width: unset" for="checkbox_{{obj.id}}">
-                                <input type="checkbox" class="mdl-checkbox__input" id="checkbox_{{obj.id}}"
-                                    onClick="window.location='{% url crudy.url_participant_update obj.id 1 %}';">
-                                </label>
-                            </td>
-                            {% endif %}
-                        {% else %}
-                            <td class="{{ dico|attr_td_class:key }}">{{ value|default_if_none:'' }}</td>
                         {% endif %}
                     {% endif %}
                 {% endfor %}
                 </tr>
             {% endfor %}
-            {% if paginator %}
+            {% comment %} {% if paginator %}
             <tr>
                 <td colspan="{{crudy.qcols}}" class="mdl-data-table__cell--non-numeric" style="text-align: center">
                 {% for jeu, carte in crudy.cartes %}
@@ -252,7 +278,7 @@
                 {% endfor %}
                 </td>
             </tr>
-            {% endif %}
+            {% endif %} {% endcomment %}
         </table>
     </div>
 </div>
@@ -267,7 +293,7 @@
 {% if crudy.url_view == "v_tarot_participant_select" %}
     <div class="mdl-card__supporting-text">
 {% filter apply_markup:"markdown" %} 
-{% include "i_tarot__participant_select.md" %}
+{% include "i_tarot_participant_select.md" %}
 {% endfilter %}
     </div>
 </div>

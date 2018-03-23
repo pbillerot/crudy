@@ -74,6 +74,10 @@ def field_attrs(field):
         attrs.append((name, attr))
     return attrs
 
+@register.filter(name='pluriel')
+def pluriel(num):
+    return "s" if int(num) > 1 else ""
+
 # Rechechr d'un attribut dans le dictionnaire des champs ou colonnes
 @register.filter(name='attr_title')
 def attr_title(dico, key):
@@ -83,7 +87,7 @@ def attr_subtitle(dico, key):
     return dico[key].get("subtitle", "")
 @register.filter(name='attr_td_class')
 def attr_td_class(dico, key):
-    return dico[key].get("td_class", "")
+    return dico[key].get("td_class", "crudy-data-table__cell--text-center")
 @register.filter(name='attr_class')
 def attr_class(dico, key):
     return dico[key].get("class", "")
@@ -92,7 +96,10 @@ def attr_style(dico, key):
     return dico[key].get("style", "")
 @register.filter(name='attr_type')
 def attr_type(dico, key):
-    return dico[key].get("type", "")
-@register.filter(name='pluriel')
-def pluriel(num):
-    return "s" if int(num) > 1 else ""
+    return dico[key].get("type", "text")
+@register.filter(name='attr_url')
+def attr_url(dico, key):
+    return dico[key].get("url", "")
+@register.filter(name='attr_hide')
+def attr_hide(dico, key):
+    return dico[key].get("hide", "")

@@ -14,6 +14,7 @@ def p_portail_home(request):
     """ Portail d'accueil de CRUDY """
     crudy = Crudy(request, "portail")
     title = crudy.application["title"]
+    crudy.folder_id = None
     return render(request, 'p_portail_home.html', locals())
 
 def p_portail_help(request):
@@ -48,4 +49,5 @@ def f_portail_logout(request):
     if request.user.is_authenticated:
         print(request.user.email, 'disconnecting')
     logout(request)
-    return render(request, 'p_portail_home.html', locals())
+    return redirect('p_portail_home')
+    # return render(request, 'p_portail_home.html', locals())

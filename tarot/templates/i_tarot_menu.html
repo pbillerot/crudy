@@ -1,9 +1,9 @@
 <nav class="demo-navigation mdl-navigation mdl-color--grey-200 mdl-color-text--grey-200">
     <div class="mdl-card__title mdl-typography--title mdl-color-text--grey-600">
-        WHIST
+        TAROT
     </div>
     {% if crudy.folder_id %}
-    <a class="mdl-navigation__link" href="{% url 'v_whist_partie_select' %}" title="Créer / choisir une partie...">
+    <a class="mdl-navigation__link" href="{% url 'v_tarot_partie_select' %}" title="Créer / choisir une partie...">
         <i class="material-icons" role="presentation">playlist_add_check</i>
         {{crudy.folder_name}}
     </a>
@@ -14,7 +14,7 @@
     <a class="mdl-navigation__link" href="{% url 'v_tarot_jeu_list' 1 %}">
         <i class="material-icons" role="presentation">video_library</i>Faites vos jeux</a>
     {% else %}
-    <a class="mdl-navigation__link" href="{% url 'v_whist_partie_select' %}">
+    <a class="mdl-navigation__link" href="{% url 'v_tarot_partie_select' %}">
         <i class="material-icons" role="presentation">playlist_add_check</i>Créer, choisir une partie</a>
     {% endif %}
     <div class="mdl-layout-spacer"></div>

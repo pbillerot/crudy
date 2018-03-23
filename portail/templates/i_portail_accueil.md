@@ -1,5 +1,11 @@
 ## Bienvenue dans Crudy
 
-Veuillez vouc connectez pour utiliser les applications
+Pour utiliser les applications, veuillez vous connecter.
 
+Un compte **demo** est à votre disposition pour découvrir les applications.
 
+compte: **demo**
+
+mot de passe : **democrate**
+
+[Se connecter...](/portail/login)

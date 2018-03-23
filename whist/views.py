@@ -341,6 +341,9 @@ class WhistParticipantListView(WhistListView):
 
         crudy.url_participant_update = 'f_whist_participant_update'
         crudy.action_param = 0
+        if len(self.objs) == 0:
+            self.meta.url_actions = []
+
         return self.objs
 
 def f_whist_participant_update(request, record_id, checked):
@@ -468,38 +471,43 @@ class WhistJeuListView(WhistListView):
             objects_list.append(ordered_dict) 
 
         qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
-        paginator = Paginator(objects_list, qparticipant)
-        
-        self.objs = paginator.get_page(self.page)
-        self.paginator = True # pour le template
-        # comptage de nombre de plis demandés et réalisés
-        qplis = 0
-        qreal = 0
-        qcarte = 0
-        for obj in self.objs:
-            qplis += obj["pari"]
-            qreal += obj["real"]
-            qcarte = obj["carte"]
-        crudy.cartes = []
-        for pp in range(1, paginator.num_pages + 1):
-            if pp <= paginator.num_pages / 2:
-                crudy.cartes.append((pp, pp))
-            else:
-                crudy.cartes.append((pp, paginator.num_pages - pp + 1))
-        crudy.url_jeu_pari = "f_whist_jeu_pari"
-        crudy.url_jeu_real = "f_whist_jeu_real"
-        crudy.action_param = self.page
-        crudy.jeu = int(self.page)
-        crudy.url_sort = 'v_whist_jeu_sort'
-        partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
-        crudy.jeu_current = partie.jeu
-        if int(crudy.jeu) > partie.jeu + 1:
-            self.meta.url_actions = []
-        if qreal != qcarte:
+        self.objs = None
+        if qparticipant > 0:
+            paginator = Paginator(objects_list, qparticipant)
+            
+            self.objs = paginator.get_page(self.page)
+            self.paginator = True # pour le template
+            # comptage de nombre de plis demandés et réalisés
+            qplis = 0
+            qreal = 0
+            qcarte = 0
+            for obj in self.objs:
+                qplis += obj["pari"]
+                qreal += obj["real"]
+                qcarte = obj["carte"]
+            crudy.cartes = []
+            for pp in range(1, paginator.num_pages + 1):
+                if pp <= paginator.num_pages / 2:
+                    crudy.cartes.append((pp, pp))
+                else:
+                    crudy.cartes.append((pp, paginator.num_pages - pp + 1))
+            crudy.url_jeu_pari = "f_whist_jeu_pari"
+            crudy.url_jeu_real = "f_whist_jeu_real"
+            crudy.action_param = self.page
+            crudy.jeu = int(self.page)
+            partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
+            crudy.jeu_current = partie.jeu
+            if int(crudy.jeu) > partie.jeu + 1:
+                self.meta.url_actions = []
+            if qreal != qcarte:
+                self.meta.url_actions = []
+
+            self.meta.cols_attrs["pari"]["subtitle"] = "%s / %s" % (qplis, qcarte)
+            self.meta.cols_attrs["real"]["subtitle"] = "%s / %s" % (qreal, qcarte)
+        else:
             self.meta.url_actions = []
 
-        self.meta.cols_attrs["pari"]["subtitle"] = "%s / %s" % (qplis, qcarte)
-        self.meta.cols_attrs["real"]["subtitle"] = "%s / %s" % (qreal, qcarte)
+        crudy.url_sort = 'v_whist_jeu_sort'
         return self.objs
 
 def f_whist_jeu_create(request, id):

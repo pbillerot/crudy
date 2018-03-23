@@ -2,7 +2,7 @@
 function crudy_button_action(event) {
     var target = event.target
     var obj = target
-    if (target.tagName != "BUTTON") {
+    if (target.tagName != "BUTTON" && target.tagName != "INPUT") {
         obj = target.parentElement
     }
     // obj.textContent
