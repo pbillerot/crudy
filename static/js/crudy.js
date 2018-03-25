@@ -4,7 +4,10 @@ function crudy_button_action(event) {
     var obj = target
     if (target.tagName != "BUTTON" && target.tagName != "INPUT") {
         obj = target.parentElement
-    }
+            if (obj.tagName != "BUTTON" && obj.tagName != "INPUT") {
+                obj = obj.parentElement
+            }
+        }
     // obj.textContent
     var url = obj.dataset.url
     // obj.set_attribute("disabled", "disabled");

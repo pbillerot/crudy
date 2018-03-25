@@ -108,7 +108,8 @@ class TarotJeuPrimeForm(TarotForm):
 
     class Meta:
         model = TarotJeu
-        fields = ['ptbout', 'misere1', 'misere2', 'poignee1', 'poignee2', 'poignee3', 'ptchelem', 'pchelem', 'ppchelem', 'grchelem', 'gchelem', 'gpchelem']
+        fields = ['ptbout', 'misere1', 'misere2', 'poignee1', 'poignee2', 'poignee3'\
+        , 'ptchelem', 'pchelem', 'ppchelem', 'grchelem', 'gchelem', 'gpchelem']
         widgets = {
             'ptbout': forms.CheckboxInput(attrs={'type': 'check'}),
             'misere1': forms.CheckboxInput(attrs={'type': 'check'}),

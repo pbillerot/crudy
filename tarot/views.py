@@ -413,7 +413,9 @@ class TarotJeuListView(TarotListView):
             "pari": {"title":"Enchères", "type":"radio", "url": "f_tarot_jeu_pari",
             "list": [(".","."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
             "partenaire": {"title":"Avec", "type":"check", "url": "f_tarot_jeu_partenaire"},
-            "real": {"title":"Réal", "type":"button", "url": "f_tarot_jeu_real"},
+            "real": {"title":"Réal", "type":"radio", "url": "f_tarot_jeu_real", "colored_number":"True",
+                "list": [(-30,"- 30"),(-20,"- 20"),(-10,"- 10"),(-1,"- 0")\
+                ,(+1,"+ 0"),(+10,"+ 10"),(+20,"+ 20"),(+30,"+ 30"),(+40,"+ 40"),(+50,"+ 50"),(+60,"+ 60")]},
             "primes": {"title":"Primes", "type":"category", "url": "f_tarot_jeu_prime", "category": "prime"},
             # primes
             "ptbout": {"hide": True, "title":"Petit au bout", "type":"check", "url": "f_tarot_jeu_prime", "category": "prime"},
@@ -473,6 +475,9 @@ class TarotJeuListView(TarotListView):
             if len(primes) == 0:
                 primes.append(("0"))
             row["primes"] = primes
+            # raz real si pas d'enchère
+            if row["pari"] == ".":
+                row["real"] = ""
             ordered_dict = collections.OrderedDict()
             ordered_dict["id"] = row["id"]
             for col in self.meta.cols:

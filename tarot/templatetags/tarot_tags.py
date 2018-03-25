@@ -109,3 +109,6 @@ def attr_tooltip(dico, key):
 @register.filter(name='attr_list')
 def attr_list(dico, key):
     return dico[key].get("list", "[]")
+@register.filter(name='attr_colored_number')
+def attr_colored_number(dico, key):
+    return dico[key].get("colored_number", False)
