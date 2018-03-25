@@ -308,7 +308,7 @@ class TarotParticipantListView(TarotListView):
         cols = {
             "order": {"title":"Nom du joueur", "hide": True},
             "joueur__pseudo": {"title":"Nom du joueur", "type": "text"},
-            "donneur": {"title":"Donneur initial", "type": "check"},
+            "donneur": {"title":"Donneur Initial", "type": "check", "url":"f_tarot_participant_update"},
         }
         url_actions = [
             ("f_tarot_jeu_create", "Initialiser les jeux")
@@ -343,17 +343,13 @@ class TarotParticipantListView(TarotListView):
 def f_tarot_participant_update(request, record_id, checked):
     """ Mise à jour du donneur """
     crudy = Crudy(request, "tarot")
-    iid = int(record_id)
 
     participants = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id)
-    joueur_id = 0
     for participant in participants:
-        if participant.id == iid:
-            participant.donneur = int(checked)
-            if int(checked) == 1:
-                joueur_id = participant.joueur_id
+        if participant.id == int(record_id):
+             participant.donneur = False if checked == "True" else True
         else:
-            participant.donneur = 0
+            participant.donneur = False
         participant.save()
 
     return redirect(crudy.url_view)
@@ -410,23 +406,24 @@ class TarotJeuListView(TarotListView):
         model = TarotJeu
         title = "Faites vos Jeux"
         cols = {
-            "donneur": {"title":""},
-            "participant__joueur__pseudo": {"title":"Participant"},
-            "medal": {"title":"M"},
+            "donneur": {"title":"", "type": "position", "tooltip": "Le donneur pour ce tour"},
+            "participant__joueur__pseudo": {"title":"Participant", "type":"medal"},
+            "medal": {"hide":True},
             "score": {"title":"Score", "type":"number"},
-            "pari": {"title":"Contrat", "type":"button", "url": "f_tarot_jeu_pari"},
+            "pari": {"title":"Enchères", "type":"radio", "url": "f_tarot_jeu_pari",
+            "list": [(".","."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
             "partenaire": {"title":"Avec", "type":"check", "url": "f_tarot_jeu_partenaire"},
             "real": {"title":"Réal", "type":"button", "url": "f_tarot_jeu_real"},
-            "bouts": {"title":"Bouts", "type":"button", "url": "f_tarot_jeu_bouts"},
+            "primes": {"title":"Primes", "type":"category", "url": "f_tarot_jeu_prime", "category": "prime"},
             # primes
-            "ptbout": {"title":"Primes", "type":"category", "url": "f_tarot_jeu_prime", "category": "prime"},
-            "poignee1": {"hide": True, "title": "Poignée", "type":"category", "category": "prime"},
-            "poignee2": {"hide": True, "title": "Double Poignée", "type":"category", "category": "prime"},
-            "poignee3": {"hide": True, "title": "Triple Poignée", "type":"category", "category": "prime"},
-            "misere1": {"hide": True, "title": "Misère d'Atout", "type":"category", "category": "prime"},
-            "misere2": {"hide": True, "title": "Misère de Tête", "type":"category", "category": "prime"},
-            "grchelem": {"hide": True, "title": "Grand Chelem", "type":"category", "category": "prime"},
-            "ptchelem": {"hide": True, "title": "Petit Chelem", "type":"category", "category": "prime"},
+            "ptbout": {"hide": True, "title":"Petit au bout", "type":"check", "url": "f_tarot_jeu_prime", "category": "prime"},
+            "poignee1": {"hide": True, "title": "Poignée", "type":"check", "category": "prime"},
+            "poignee2": {"hide": True, "title": "Double Poignée", "type":"check", "category": "prime"},
+            "poignee3": {"hide": True, "title": "Triple Poignée", "type":"check", "category": "prime"},
+            "misere1": {"hide": True, "title": "Misère d'Atout", "type":"check", "category": "prime"},
+            "misere2": {"hide": True, "title": "Misère de Tête", "type":"check", "category": "prime"},
+            "grchelem": {"hide": True, "title": "Grand Chelem", "type":"check", "category": "prime"},
+            "ptchelem": {"hide": True, "title": "Petit Chelem", "type":"check", "category": "prime"},
 
             "points": {"title":"Points", "type":"number"},
         }
@@ -468,14 +465,14 @@ class TarotJeuListView(TarotListView):
         objects_list = []
         for row in objs:
             # on remplit la colonne ptbout avec la catégorie prime
-            label_primes = []
+            primes = []
             for key, col in self.meta.cols_list:
                 if col.get("category") == "prime":
                     if row[key]:
-                        label_primes.append((col.get("title")))
-            if len(label_primes) == 0:
-                label_primes.append(("0"))
-            row["ptbout"] = label_primes
+                        primes.append((col.get("title")))
+            if len(primes) == 0:
+                primes.append(("0"))
+            row["primes"] = primes
             ordered_dict = collections.OrderedDict()
             ordered_dict["id"] = row["id"]
             for col in self.meta.cols:
@@ -585,11 +582,18 @@ def f_tarot_jeu_pari(request, record_id):
     crudy = Crudy(request, "tarot")
     crudy.is_form_autovalid = True
     obj = get_object_or_404(TarotJeu, id=record_id)
-    title = "Pari de %s" % (obj.participant.joueur.pseudo.upper())
-    crudy.message = "**%s**, Combien penses-tu faire de plis ?" % (obj.participant.joueur.pseudo.upper())
+    title = "Enchère de %s" % (obj.participant.joueur.pseudo.upper())
     form = forms.TarotJeuPariForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
+        jeu_courant = get_object_or_404(TarotJeu, id=record_id)
+        if jeu_courant.pari != ".":
+            # Nettoyage des enchères des autres joueurs
+            jeux = TarotJeu.objects.all().filter(participant__partie__id=obj.participant.partie_id, jeu=obj.jeu)
+            for jeu in jeux:
+                if jeu.id != jeu_courant.id:
+                    jeu.pari = "."
+                    jeu.save()
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_tarot_form.html", locals())
 
@@ -598,26 +602,8 @@ def f_tarot_jeu_real(request, record_id):
     crudy = Crudy(request, "tarot")
     crudy.is_form_autovalid = True
     obj = get_object_or_404(TarotJeu, id=record_id)
-    title = "Réalisé de %s" % (obj.participant.joueur.pseudo.upper())
-    if obj.pari > 1:
-        crudy.message = "**%s**, combien de plis as-tu réalisé ? (**%d** plis avaient été demandés) ?"\
-        % (obj.participant.joueur.pseudo.upper(), obj.pari)
-    else:
-        crudy.message = "**%s**, combien de plis as-tu réalisé ? (**%d** pli avait été demandé) ?"\
-        % (obj.participant.joueur.pseudo.upper(), obj.pari)
+    title = "Nombre de points réalisé par %s" % (obj.participant.joueur.pseudo.upper())
     form = forms.TarotJeuRealForm(request.POST or None, request=request, instance=obj)
-    if form.is_valid():
-        form.save()
-        return redirect(crudy.url_view, obj.jeu)
-    return render(request, "f_tarot_form.html", locals())
-
-def f_tarot_jeu_bouts(request, record_id):
-    """ Saisie du nombre de bouts 0 1 2 """
-    crudy = Crudy(request, "tarot")
-    crudy.is_form_autovalid = True
-    obj = get_object_or_404(TarotJeu, id=record_id)
-    title = "Nombre de bouts pour %s" % (obj.participant.joueur.pseudo.upper())
-    form = forms.TarotJeuBoutsForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view, obj.jeu)
@@ -630,10 +616,7 @@ def f_tarot_jeu_partenaire(request, record_id, checked):
     jeux = TarotJeu.objects.all().filter(participant__partie_id=tarotJeu.participant.partie_id, jeu=tarotJeu.jeu)
     for jeu in jeux:
         if jeu.id == int(record_id):
-            if checked == "True":
-                jeu.partenaire = False
-            else:
-                jeu.partenaire = True
+            jeu.partenaire = False if checked == "True" else True
         else:
             jeu.partenaire = False
         jeu.save()

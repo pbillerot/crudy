@@ -68,18 +68,8 @@ class TarotJeuPariForm(TarotForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        crudy = Crudy(self.request, "tarot")
-        tarotJeu = kwargs["instance"]
-        # nre de plis demandés
-        plis = 0
-        for jeu in TarotJeu.objects.all().filter(participant__partie_id=crudy.folder_id, jeu=tarotJeu.jeu):
-            if jeu.donneur != 1:
-                plis += jeu.pari
-        choices = []
-        for i in range(0, tarotJeu.carte + 1):
-            if tarotJeu.carte - plis == i and tarotJeu.donneur == 1:
-                continue
-            choices.append((i, "%s pli" % (i,)))
+        choices = [(".", "Je passe"),("PT", "Petite (10 points)"),("PC", "Pouce (20 points)")\
+        ,("GA", "Garde (40 points)"),("GS", "Garde Sans (60 points)"),("GC", "Garde Contre (80 points)")]
         self.fields['pari'].choices = choices
         self.fields['pari'].label = ""
 
@@ -96,33 +86,11 @@ class TarotJeuRealForm(TarotForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        crudy = Crudy(self.request, "tarot")
-        tarotJeu = kwargs["instance"]
-        choices = [("PT", "Petite"),("PC", "Pouce"),("GA", "Garde"),("GS", "Garde Sans"),("GC", "Garde Contre")]
-        for i in range(0, tarotJeu.carte + 1):
-            choices.append((i, "%s pli" % (i,)))
+        choices = [(-30,"chute de 30"),(-20,"chute de 20"),(-10,"chute de 10"),(-1,"chute de 0")\
+        ,(+1,"fait de 0"),(+10,"fait de 10"),(+20,"fait de 20"),(+30,"fait de 30")\
+        ,(+40,"fait de 40"),(+50,"fait de 50"),(+60,"fait de 60")]
         self.fields['real'].choices = choices
         self.fields['real'].label = ""
-
-class TarotJeuBoutsForm(TarotForm):
-    """ Saisie du nombre de bouts """
-
-    class Meta:
-        model = TarotJeu
-        fields = ['bouts']
-        widgets = {
-            'bouts': forms.TextInput(attrs={'type': 'radio'}),
-        }
-        readonly_fields = ()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        crudy = Crudy(self.request, "tarot")
-        choices = []
-        for i in range(0, 3):
-            choices.append((i, "%s bout" % (i,)))
-        self.fields['bouts'].choices = choices
-        self.fields['bouts'].label = ""
 
 class TarotJeuPartenaireForm(TarotForm):
     """ Saisie du partenaire """
@@ -140,7 +108,7 @@ class TarotJeuPrimeForm(TarotForm):
 
     class Meta:
         model = TarotJeu
-        fields = ['ptbout', 'misere1', 'misere2', 'poignee1', 'poignee2', 'poignee3', 'ptchelem', 'grchelem']
+        fields = ['ptbout', 'misere1', 'misere2', 'poignee1', 'poignee2', 'poignee3', 'ptchelem', 'pchelem', 'ppchelem', 'grchelem', 'gchelem', 'gpchelem']
         widgets = {
             'ptbout': forms.CheckboxInput(attrs={'type': 'check'}),
             'misere1': forms.CheckboxInput(attrs={'type': 'check'}),
@@ -149,7 +117,11 @@ class TarotJeuPrimeForm(TarotForm):
             'poignee2': forms.CheckboxInput(attrs={'type': 'check'}),
             'poignee3': forms.CheckboxInput(attrs={'type': 'check'}),
             'ptchelem': forms.CheckboxInput(attrs={'type': 'check'}),
+            'pchelem': forms.CheckboxInput(attrs={'type': 'check'}),
+            'ppchelem': forms.CheckboxInput(attrs={'type': 'check'}),
             'grchelem': forms.CheckboxInput(attrs={'type': 'check'}),
+            'gchelem': forms.CheckboxInput(attrs={'type': 'check'}),
+            'gpchelem': forms.CheckboxInput(attrs={'type': 'check'}),
         }
         readonly_fields = ()
 

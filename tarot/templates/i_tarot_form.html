@@ -46,7 +46,7 @@
                                         {% if field.value == radio_id %}checked="checked"{%endif%}
                                         {% if crudy.is_form_autovalid%}onclick="document.getElementById('maForm').submit();"{% endif %}
                                         class="mdl-radio__button" >
-                                    <span class="mdl-radio__label">{{radio_label}}{{radio_id|pluriel}}</span>
+                                    <span class="mdl-radio__label">{{radio_label}}</span>
                                 </label>
                             {% endfor%}
                             </div>

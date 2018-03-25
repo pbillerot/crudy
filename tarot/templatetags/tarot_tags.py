@@ -103,3 +103,9 @@ def attr_url(dico, key):
 @register.filter(name='attr_hide')
 def attr_hide(dico, key):
     return dico[key].get("hide", "")
+@register.filter(name='attr_tooltip')
+def attr_tooltip(dico, key):
+    return dico[key].get("tooltip", "")
+@register.filter(name='attr_list')
+def attr_list(dico, key):
+    return dico[key].get("list", "[]")
