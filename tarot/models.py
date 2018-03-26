@@ -18,6 +18,7 @@ class TarotPartie(models.Model):
                            )
     date = models.DateField(auto_now_add=True, auto_now=False, verbose_name="Date de la partie")
     jeu = models.IntegerField(default=0, verbose_name="n° du jeu en cours")
+    qparticipant = models.IntegerField(default=0, verbose_name="Nombre de joueurs")
 
     def __str__(self):
         return self.name
@@ -87,8 +88,8 @@ class TarotJeu(models.Model):
     objects = models.Manager()
     participant = models.ForeignKey(TarotParticipant, on_delete=models.CASCADE)
     jeu = models.IntegerField(default=0, verbose_name='N° du tour')
-    pari = models.TextField(default="", verbose_name='Contrat')
-    real = models.IntegerField(default=0, verbose_name='Réalisé')
+    pari = models.TextField(default="...", verbose_name='Contrat')
+    real = models.IntegerField(default=99, verbose_name='Réalisé')
     points = models.IntegerField(default=0, verbose_name='Points')
     score = models.IntegerField(default=0, verbose_name='Score')
     medal = models.IntegerField(default=0, verbose_name='Médaille') # Gold Silver Bronze Chocolate
@@ -123,12 +124,16 @@ class TarotJeu(models.Model):
         # suppression des jeux 
         TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id).delete()
 
-        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
-        partie.jeu = 1
-        partie.save()
 
         # Création d'une ligne par participant
         participants = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id)
+
+        # Upadate partie
+        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+        partie.jeu = 1
+        partie.qparticipant = participants.count()
+        partie.save()
+
         for participant in participants:
             jeu = TarotJeu(participant=participant, jeu=1, donneur=participant.donneur)
             jeu.save()

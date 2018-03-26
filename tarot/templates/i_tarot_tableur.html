@@ -181,6 +181,28 @@
                             {% else %}
                             <td style="text-align: center"><span class="mdl-color-text--red" style="width: 100%"><b>{{ value }}</b></span></td>
                             {% endif %}
+                        {% elif cols|attr_type:key == "point" %}
+                            <td style="text-align: center">
+                                {% if value == 99 %}
+                                &nbsp;
+                                {% elif value > 0 %}
+                                    <button class="mdl-chip crudy-button-action mdl-color--light-green" style="cursor: pointer" data-url="{% url cols|attr_url:key obj.id %}">
+                                        <span class="mdl-chip__text">
+                                            {% for kk, valeur in cols|attr_list:key %}
+                                                {% if kk == value %}<b>{{valeur}}</b>{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </button>
+                                {% else %}
+                                    <button class="mdl-chip crudy-button-action mdl-color--red mdl-color-text--white" style="cursor: pointer" data-url="{% url cols|attr_url:key obj.id %}">
+                                        <span class="mdl-chip__text">
+                                            {% for kk, valeur in cols|attr_list:key %}
+                                                {% if kk == value %}<b>{{valeur}}</b>{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </button>
+                                {% endif %}
+                            </td>
                         {% elif cols|attr_type:key == "position" %}
                             {% if value == True %}
                                 <td style="text-align: center" style="width: 10px;"><i class="material-icons" title="{{cols|attr_tooltip:key}}">room</i></td>
@@ -189,33 +211,13 @@
                             {% endif %}
                         {% elif cols|attr_type:key == "radio" %}
                             <td style="text-align: center">
-                                {% if cols|attr_colored_number:key and value != "" %}
-                                    {% if value > 0 %}
-                                        <button class="mdl-chip crudy-button-action mdl-color--light-green" style="cursor: pointer" data-url="{% url cols|attr_url:key obj.id %}">
-                                            <span class="mdl-chip__text">
-                                                {% for key, valeur in cols|attr_list:key %}
-                                                    {% if key == value %}<b>{{valeur}}</b>{% endif %}
-                                                {% endfor %}
-                                            </span>
-                                        </button>
-                                    {% else %}
-                                        <button class="mdl-chip crudy-button-action mdl-color--red mdl-color-text--white" style="cursor: pointer" data-url="{% url cols|attr_url:key obj.id %}">
-                                            <span class="mdl-chip__text">
-                                                {% for key, valeur in cols|attr_list:key %}
-                                                    {% if key == value %}<b>{{valeur}}</b>{% endif %}
-                                                {% endfor %}
-                                            </span>
-                                        </button>
-                                    {% endif %}
-                                {% else %}
-                                   {% for id, valeur in cols|attr_list:key %}
-                                        {% if id == value %}
-                                        <button class="mdl-chip crudy-button-action" style="cursor: pointer" data-url="{% url cols|attr_url:key obj.id %}">
-                                            <span class="mdl-chip__text">{{valeur}}</span>
-                                        </button>
-                                        {% endif %}
+                                <button class="mdl-chip crudy-button-action" style="cursor: pointer" data-url="{% url cols|attr_url:key obj.id %}">
+                                    <span class="mdl-chip__text">
+                                    {% for kk, valeur in cols|attr_list:key %}
+                                        {% if kk == value %}<b>{{valeur}}</b>{% endif %}
                                     {% endfor %}
-                                {% endif %}
+                                    </span>
+                                </button>
                             </td>
                         {% else %}
                             <td style="text-align: left">{{ value|default_if_none:'' }}</td>

@@ -59,8 +59,9 @@
                                 <span class="crudy-field-helper-text">{{ field.help_text|safe }}</span>
                             {% endif %}
                         {% elif field|field_attr:'type' == 'check' %}
-                            <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="{{field.html_name}}">
-                                <input type="checkbox" class="mdl-checkbox__input" id="{{field.html_name}}" name="{{field.html_name}}"
+                            <label class="mdl-checkbox mdl-js-checkbox Mmdl-js-ripple-effect" for="{{field.html_name}}">
+                                <input type="checkbox" class="mdl-checkbox__input crudy-check-action" id="{{field.html_name}}" name="{{field.html_name}}"
+                                data-group="{{field|field_attr:'group'}}"
                                 {% if field.value == True %}checked{% endif %}/>
                                 <span class="mdl-checkbox__label">{{ field.label }}</span>
                             </label>

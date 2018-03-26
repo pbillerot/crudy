@@ -411,10 +411,10 @@ class TarotJeuListView(TarotListView):
             "medal": {"hide":True},
             "score": {"title":"Score", "type":"number"},
             "pari": {"title":"Enchères", "type":"radio", "url": "f_tarot_jeu_pari",
-            "list": [(".","."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
+            "list": [("...","..."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
             "partenaire": {"title":"Avec", "type":"check", "url": "f_tarot_jeu_partenaire"},
-            "real": {"title":"Réal", "type":"radio", "url": "f_tarot_jeu_real", "colored_number":"True",
-                "list": [(-30,"- 30"),(-20,"- 20"),(-10,"- 10"),(-1,"- 0")\
+            "real": {"title":"Réal", "type":"point", "url": "f_tarot_jeu_real",
+                "list": [(-30,"- 30"),(-20,"- 20"),(-10,"- 10"),(-1,"- 0"),(0,"0")\
                 ,(+1,"+ 0"),(+10,"+ 10"),(+20,"+ 20"),(+30,"+ 30"),(+40,"+ 40"),(+50,"+ 50"),(+60,"+ 60")]},
             "primes": {"title":"Primes", "type":"category", "url": "f_tarot_jeu_prime", "category": "prime"},
             # primes
@@ -425,7 +425,11 @@ class TarotJeuListView(TarotListView):
             "misere1": {"hide": True, "title": "Misère d'Atout", "type":"check", "category": "prime"},
             "misere2": {"hide": True, "title": "Misère de Tête", "type":"check", "category": "prime"},
             "grchelem": {"hide": True, "title": "Grand Chelem", "type":"check", "category": "prime"},
+            "gchelem": {"hide": True, "title": "Grand Chelem non annoncé", "type":"check", "category": "prime"},
+            "gpchelem": {"hide": True, "title": "Grand Chelem perdu", "type":"check", "category": "prime"},
             "ptchelem": {"hide": True, "title": "Petit Chelem", "type":"check", "category": "prime"},
+            "pchelem": {"hide": True, "title": "Petit Chelem non annoncé", "type":"check", "category": "prime"},
+            "ppchelem": {"hide": True, "title": "Petit Chelem perdu", "type":"check", "category": "prime"},
 
             "points": {"title":"Points", "type":"number"},
         }
@@ -477,7 +481,7 @@ class TarotJeuListView(TarotListView):
             row["primes"] = primes
             # raz real si pas d'enchère
             if row["pari"] == ".":
-                row["real"] = ""
+                row["real"] = 99
             ordered_dict = collections.OrderedDict()
             ordered_dict["id"] = row["id"]
             for col in self.meta.cols:
@@ -516,18 +520,23 @@ def f_tarot_jeu_create(request, id):
 def f_tarot_jeu_compute(request, ijeu):
     """ Calcul des points du jeux, du score et du rang du joueur """
     crudy = Crudy(request, "tarot")
-    jeux = TarotJeu.objects.all()\
-    .filter(participant__partie__id=crudy.folder_id)\
-    .order_by("jeu")
+    jeux = TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id).order_by("jeu","_pari","_partenaire")
+    jeux = TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id).order_by("jeu","_pari","_partenaire")
     score = {}
+    ijeu = 0
     for jeu in jeux:
+        if ijeu != jeu.jeu: # changement de jeu
+            jeu_ok = False
+            prenneur = 0
+            partenaire = 0
+            ijeu = jeu.jeu
         joueur_id = jeu.participant.joueur_id
-        if jeu.jeu <= int(ijeu):
-            if jeu.pari == jeu.real:
-                jeu.points = 10 + 2 * jeu.pari
-            else:
-                jeu.points = -10
-            score[joueur_id] = score.get(joueur_id, 0) + jeu.points
+        if jeu.partenaire: # le partenaire
+            partenaire = joueur_id
+        if jeu.real != 0: # le prenneur
+            prenneur = joueur_id
+
+        score[joueur_id] = score.get(joueur_id, 0) + jeu.points
         jeu.score = score[joueur_id]
         jeu.save()
     # Attribution des médailles
@@ -592,12 +601,15 @@ def f_tarot_jeu_pari(request, record_id):
     if form.is_valid():
         form.save()
         jeu_courant = get_object_or_404(TarotJeu, id=record_id)
-        if jeu_courant.pari != ".":
+        jeu_courant.real = 0
+        jeu_courant.save()
+        if jeu_courant.pari != "...":
             # Nettoyage des enchères des autres joueurs
             jeux = TarotJeu.objects.all().filter(participant__partie__id=obj.participant.partie_id, jeu=obj.jeu)
             for jeu in jeux:
                 if jeu.id != jeu_courant.id:
-                    jeu.pari = "."
+                    jeu.pari = "..."
+                    jeu.real = 99
                     jeu.save()
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_tarot_form.html", locals())
