@@ -35,7 +35,7 @@
                     {% for field in form %}
                         {% if field|field_attr:'type' == 'radio' %}
                             <label class="" for="{{field.html_name}}">
-                                    {{ field.label|apply_markup:"markdown" }}
+                                {{ field.label|apply_markup:"markdown" }}
                             </label>
                             <div class="" id="{{field.html_name}}">
                             {% for radio_id, radio_label in field.field.choices %}

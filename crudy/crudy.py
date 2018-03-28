@@ -60,7 +60,8 @@ class Crudy():
         "url_folder": None,
         "qcols": None,
         "form_autovalid": False,
-        "message": None
+        "message": None,
+        "modified": False
     }
     request = None
     request_context = None
@@ -298,4 +299,12 @@ class Crudy():
     @message.setter
     def message(self, value):
         self.ctx["message"] = value
+        self.save()
+
+    @property
+    def modified(self):
+        return self.ctx["modified"]
+    @modified.setter
+    def modified(self, value):
+        self.ctx["modified"] = value
         self.save()

@@ -226,34 +226,26 @@
                 {% endfor %}
                 </tr>
             {% endfor %}
-            {% comment %} {% if paginator %}
+            {% if paginator %}
             <tr>
                 <td colspan="{{crudy.qcols}}" class="mdl-data-table__cell--non-numeric" style="text-align: center">
-                {% for jeu, carte in crudy.cartes %}
+                {% for jeu in paginator.page_range %}
                     {% if objs.number == jeu %}
-                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary" 
-                            >{{ carte }}
-                        </button>
-                    {% elif jeu < crudy.jeu_current %}
-                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary crudy-button-action"
                         data-url="{% url crudy.url_view jeu %}"
-                            >{{ carte }}
-                        </button>
-                    {% elif jeu == crudy.jeu_current %}
-                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--purple crudy-button-action" 
-                        data-url="{% url crudy.url_view jeu %}"
-                            >{{ carte }}
+                            >{{ jeu }}
                         </button>
                     {% else %}
-                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--colored crudy-button-action" 
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
                         data-url="{% url crudy.url_view jeu %}"
-                        >{{ carte }}
+                            >{{ jeu }}
+                        </button>
                     </button>
                     {% endif %}
                 {% endfor %}
                 </td>
             </tr>
-            {% endif %} {% endcomment %}
+            {% endif %}
         </table>
     </div>
 </div>

@@ -41,7 +41,7 @@ class TarotListView(ListView):
     context = None
     objs = []
     qcols = 0
-    paginator = False
+    paginator = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -432,8 +432,10 @@ class TarotJeuListView(TarotListView):
             "ppchelem": {"hide": True, "title": "Petit Chelem perdu", "type":"check", "category": "prime"},
 
             "points": {"title":"Points", "type":"number"},
+            "modified": {"hide": True},
         }
         url_view = "v_tarot_jeu_list"
+        url_add = "f_tarot_jeu_add"
         url_actions = [
             ("f_tarot_jeu_compute", "Calculer les points")
         ]
@@ -469,6 +471,8 @@ class TarotJeuListView(TarotListView):
 
         # Tri des colonnes dans l'ordre de cols
         objects_list = []
+        b_calcul_realised = False
+        crudy.modified = False
         for row in objs:
             # on remplit la colonne ptbout avec la catégorie prime
             primes = []
@@ -490,22 +494,24 @@ class TarotJeuListView(TarotListView):
 
         qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
         if qparticipant > 0:
-            paginator = Paginator(objects_list, qparticipant)
-            
-            self.objs = paginator.get_page(self.page)
-            self.paginator = True # pour le template
-            crudy.url_jeu_pari = "f_tarot_jeu_pari"
-            crudy.url_jeu_real = "f_tarot_jeu_real"
+            self.paginator = Paginator(objects_list, qparticipant)
+            self.objs = self.paginator.get_page(self.page)
+            for row in self.objs:
+                if row.get("points") != 0:
+                    b_calcul_realised = True
+                if row.get("modified"):
+                    crudy.modified = True
             crudy.action_param = self.page
             crudy.jeu = int(self.page)
             crudy.url_sort = 'v_tarot_jeu_sort'
             partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
             crudy.jeu_current = partie.jeu
-            if int(crudy.jeu) > partie.jeu + 1:
-                self.meta.url_actions = []
-        else:
+
+        if not crudy.modified:
             self.meta.url_actions = []
-        
+
+        if not b_calcul_realised or int(self.page) != self.paginator.num_pages or crudy.modified:
+            self.meta.url_add = None
         crudy.url_sort = 'v_tarot_jeu_sort'
         return self.objs
 
@@ -517,28 +523,159 @@ def f_tarot_jeu_create(request, id):
 
     return redirect("v_tarot_jeu_list", 1)
 
+def f_tarot_jeu_add(request):
+    """ ajout d'un jeu dans la partie """
+    crudy = Crudy(request, "tarot")
+    jeu = TarotJeu()
+    jeu.add_jeux(crudy)
+
+    partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+    return redirect("v_tarot_jeu_list", partie.jeu)
+
+encheres = {
+    "PT": 10,
+    "PC": 20,
+    "GA": 40,
+    "GS": 60,
+    "GC": 80,
+}
+primes = {
+    "ptbout": 10,
+    "misere1": 10,
+    "misere2": 10,
+    "poignee1": 20,
+    "poignee2": 30,
+    "poignee3": 40,
+    "grchelem": 400,
+    "gchelem": 200,
+    "gpchelem": -200,
+    "ptchelem": 200,
+    "pchelem": 100,
+    "ppchelem": -100,
+}
+
 def f_tarot_jeu_compute(request, ijeu):
     """ Calcul des points du jeux, du score et du rang du joueur """
     crudy = Crudy(request, "tarot")
-    jeux = TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id).order_by("jeu","_pari","_partenaire")
-    jeux = TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id).order_by("jeu","_pari","_partenaire")
+    jeux = TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id).order_by("jeu","-pari")
+    participants = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id)
+
     score = {}
+    miseres = {}
+    points = 0
     ijeu = 0
+
+    # CALCUL DES POINTS 
     for jeu in jeux:
         if ijeu != jeu.jeu: # changement de jeu
-            jeu_ok = False
-            prenneur = 0
-            partenaire = 0
+            # enregistrement des points et score des joueurs
+            if ijeu != 0:
+                jjs = TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id, jeu=ijeu)
+                for jj in jjs:
+                    jj.points = 0
+                    if jj.prenneur:
+                        if participants.count() == 3:
+                            jj.points = points * 2
+                        elif participants.count() == 4:
+                            jj.points = points * 3
+                        elif participants.count() == 5:
+                            jj.points = points * 2
+                        elif participants.count() == 6:
+                            jj.points = points * 2
+                    if jj.partenaire:
+                        jj.points += points
+                    if not jj.prenneur and not jj.partenaire:
+                        jj.points = points * -1
+                    # misères
+                    for j_id in miseres:
+                        if j_id == jj.participant.joueur_id:
+                            jj.points += miseres[j_id] * (participants.count() -1)
+                        else:
+                            jj.points += miseres[j_id] * -1
+                    score[jj.participant.joueur_id] = score.get(jj.participant.joueur_id, 0) + jj.points
+                    jj.score = score[jj.participant.joueur_id]
+                    jj.save()
+            # on prépare le tour suivant
+            miseres = {}
+            points = 0
             ijeu = jeu.jeu
-        joueur_id = jeu.participant.joueur_id
-        if jeu.partenaire: # le partenaire
-            partenaire = joueur_id
-        if jeu.real != 0: # le prenneur
-            prenneur = joueur_id
 
-        score[joueur_id] = score.get(joueur_id, 0) + jeu.points
-        jeu.score = score[joueur_id]
-        jeu.save()
+        # Calcul de la donne à répartir sur les joueurs
+        if jeu.prenneur:
+            points = encheres[jeu.pari]
+            if jeu.real > 0:
+                if jeu.real == 1:
+                    points = points
+                else:
+                    points = points + jeu.real
+            else:
+                if jeu.real == -1:
+                    points = points * -1
+                else:
+                    points = points * -1 + jeu.real
+        if jeu.prenneur or jeu.partenaire:
+            if jeu.ptbout:
+                points = points + 10
+            if jeu.real > 0:
+                if jeu.poignee1: 
+                    points = points + 20
+                if jeu.poignee2: 
+                    points = points + 30
+                if jeu.poignee3: 
+                    points = points + 40
+                if jeu.ptchelem:
+                    points = points + 200
+                if jeu.pchelem:
+                    points = points + 100
+                if jeu.grchelem:
+                    points = points + 400
+                if jeu.gchelem:
+                    points = points + 200
+            else:
+                if jeu.gpchelem:
+                    points = points - 200
+                if jeu.ppchelem:
+                    points = points - 100
+        else:
+            if jeu.ptbout:
+                points = points - 10
+
+        # misères
+        if jeu.misere1: 
+            miseres[jeu.participant.joueur_id] = miseres.get(jeu.participant.joueur_id, 0) + 10
+        if jeu.misere2: 
+            miseres[jeu.participant.joueur_id] = miseres.get(jeu.participant.joueur_id, 0) + 10
+
+    # DERNIER TOUR
+    if ijeu != 0:
+        # enregistrement des points et score des joueurs
+        # on refait une boucle
+        jjs = TarotJeu.objects.all().filter(participant__partie__id=crudy.folder_id, jeu=ijeu)
+        for jj in jjs:
+            jj.points = 0
+            if jj.prenneur:
+                if participants.count() == 3:
+                    jj.points = points * 2
+                elif participants.count() == 4:
+                    jj.points = points * 3
+                elif participants.count() == 5:
+                    jj.points = points * 2
+                elif participants.count() == 6:
+                    jj.points = points * 2
+            if jj.partenaire:
+                jj.points += points
+            if not jj.prenneur and not jj.partenaire:
+                jj.points = points * -1
+            # misères
+            for j_id in miseres:
+                if j_id == jj.participant.joueur_id:
+                    jj.points += miseres[j_id] * (participants.count() -1)
+                else:
+                    jj.points += miseres[j_id] * -1
+            score[jj.participant.joueur_id] = score.get(jj.participant.joueur_id, 0) + jj.points
+            jj.score = score[jj.participant.joueur_id]
+            jj.save()
+
     # Attribution des médailles
     jeux = TarotJeu.objects.all()\
     .filter(participant__partie__id=crudy.folder_id)\
@@ -577,19 +714,21 @@ def f_tarot_jeu_compute(request, ijeu):
             jeu.medal = 3
         elif bronze == jeu.score:
             jeu.medal = 3
+        jeu.modified = False
         jeu.save()
     # Médaille de chocolat
     if last_pk != 0:
         last_jeu = get_object_or_404(TarotJeu, pk=last_pk)
         last_jeu.medal = 9
         last_jeu.save()
-    # maj partie jeu en cours
-    partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
-    if partie.jeu == int(ijeu) and int(ijeu) <= last_jeu.jeu:
-        partie.jeu = int(ijeu) + 1
-        partie.save()
 
-    return redirect("v_tarot_jeu_list", partie.jeu)
+    # maj du score des participants
+    for j_id in score:
+        participant = get_object_or_404(TarotParticipant, id=j_id)
+        participant.score = score.get(j_id)
+        participant.save()
+    
+    return redirect("v_tarot_jeu_list", ijeu)
 
 def f_tarot_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
@@ -601,7 +740,10 @@ def f_tarot_jeu_pari(request, record_id):
     if form.is_valid():
         form.save()
         jeu_courant = get_object_or_404(TarotJeu, id=record_id)
+        jeu_courant.prenneur = True
+        jeu_courant.partenaire = True
         jeu_courant.real = 0
+        jeu_courant.modified = True
         jeu_courant.save()
         if jeu_courant.pari != "...":
             # Nettoyage des enchères des autres joueurs
@@ -623,6 +765,8 @@ def f_tarot_jeu_real(request, record_id):
     form = forms.TarotJeuRealForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
+        obj.modified = True
+        obj.save()
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_tarot_form.html", locals())
 
@@ -636,6 +780,7 @@ def f_tarot_jeu_partenaire(request, record_id, checked):
             jeu.partenaire = False if checked == "True" else True
         else:
             jeu.partenaire = False
+        jeu.modified = True
         jeu.save()
 
     return redirect(crudy.url_view, tarotJeu.jeu)
@@ -649,5 +794,15 @@ def f_tarot_jeu_prime(request, record_id):
     form = forms.TarotJeuPrimeForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
+        obj.modified = True
+        obj.save()
+        # un seul ptbout par jeu
+        if obj.ptbout:
+            jeux = TarotJeu.objects.all().filter(participant__partie__id=obj.participant.partie_id, jeu=obj.jeu)
+            for jeu in jeux:
+                if jeu.id != obj.id:
+                    jeu.ptbout = False
+                    jeu.save()
+
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_tarot_form.html", locals())
