@@ -1,5 +1,6 @@
 # coding: utf-8
 """ Gestion du contexte de CRUDY """
+import sys
 
 class Crudy():
     ## Dictionnaire des applications
@@ -308,3 +309,7 @@ class Crudy():
     def modified(self, value):
         self.ctx["modified"] = value
         self.save()
+
+    @property
+    def version_python(self):
+        return (sys.version)
