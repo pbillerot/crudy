@@ -46,8 +46,11 @@ class TarotListView(ListView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.meta = self.Meta()
+        if 'id' not in self.meta.cols:
+            self.meta.cols["id"] = { "hide": True }
+            self.meta.cols_ordered.append('id')
         self.meta.cols_list = []
-        for key in self.meta.cols:
+        for key in self.meta.cols_ordered:
             self.meta.cols_list.append((key, self.meta.cols[key]))
 
     class Options:
@@ -71,6 +74,7 @@ class TarotListView(ListView):
         # query sur la base
         # liste des champs à afficher dans la vue
         cols = {}
+        cols_ordered = []
         cols_list = []
 
         filters = {} # filtres du query_set
@@ -91,16 +95,6 @@ class TarotListView(ListView):
         self.context["crudy"] = crudy
         self.context["form"] = None
         self.context["paginator"] = self.paginator
-        # update cols
-        # for key in self.meta.cols:
-        #     if self.meta.cols[key].get("type", "text") == "text":
-        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-left"
-        #     if self.meta.cols[key].get("type", "text") == "button":
-        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-center"
-        #     if self.meta.cols[key].get("type", "text") == "check":
-        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-center"
-        #     if self.meta.cols[key].get("type", "text") == "number":
-        #         self.meta.cols[key]["td_class"] = "crudy-data-table__cell--text-center"
         self.context["cols"] = self.meta.cols
         self.context["cols_list"] = self.meta.cols_list
 
@@ -125,17 +119,15 @@ class TarotListView(ListView):
 
     def get_queryset(self):
         """ queryset générique """
-        if 'id' not in self.meta.cols:
-            self.meta.cols["id"] = { "hide": True }
         objs = self.meta.model.objects.all()\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
-        .values(*self.meta.cols)
+        .values(*self.meta.cols_ordered)
         # Tri des colonnes dans l'ordre de cols ??? voir si toujours utile en python 3.5
         self.objs = []
         for row in objs:
             ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols:
+            for col in self.meta.cols_ordered:
                 ordered_dict[col] = row[col]
             self.objs.append(ordered_dict)
 
@@ -154,6 +146,7 @@ class TarotPartieSelectView(TarotListView):
         url_add = "f_tarot_partie_create"
         url_update = "f_tarot_partie_update"
         url_folder = "f_tarot_partie_folder"
+        cols_ordered = ['name']
         cols = {
             "name": {"title":"Partie"},
         }
@@ -164,8 +157,6 @@ class TarotPartieSelectView(TarotListView):
     def get_queryset(self):
         """ queryset générique """
         # crudy = Crudy(self.request, "tarot")
-        if 'id' not in self.meta.cols:
-            self.meta.cols["id"] = { "hide": True }
         self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
@@ -238,6 +229,7 @@ class TarotParticipantSelectView(TarotListView):
     class Meta(TarotListView.Options):
         model = TarotJoueur
         title = "Sélection des Participants"
+        cols_ordered = ['pseudo']
         cols = {
             "pseudo": {"title":"Nom du joueur"},
         }
@@ -250,12 +242,10 @@ class TarotParticipantSelectView(TarotListView):
     def get_queryset(self):
         """ queryset générique """
         crudy = Crudy(self.request, "tarot")
-        if 'id' not in self.meta.cols:
-            self.meta.cols["id"] = { "hide": True }
         objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
-        .values(*self.meta.cols)
+        .values(*self.meta.cols_ordered)
         # Cochage des participants dans la liste des joueurs
         participants = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id)
         crudy.joined = []
@@ -307,6 +297,7 @@ class TarotParticipantListView(TarotListView):
         title = "Ordre des Participants autour de la table"
         order_by = ('order', 'joueur__pseudo')
         url_order = "v_tarot_participant_order"
+        cols_ordered = ['order','joueur__pseudo','donneur']
         cols = {
             "order": {"title":"Nom du joueur", "hide": True},
             "joueur__pseudo": {"title":"Nom du joueur", "type": "text"},
@@ -321,8 +312,6 @@ class TarotParticipantListView(TarotListView):
     def get_queryset(self):
         """ queryset générique """
         crudy = Crudy(self.request, "tarot")
-        if 'id' not in self.meta.cols:
-            self.meta.cols["id"] = { "hide": True }
         objs = self.meta.model.objects.all()\
         .filter(partie_id=crudy.folder_id)\
         .order_by(*self.meta.order_by)\
@@ -409,13 +398,15 @@ class TarotJeuListView(TarotListView):
     class Meta(TarotListView.Options):
         model = TarotJeu
         title = "Faites vos Jeux"
+        cols_ordered = ['donneur','participant__joueur__pseudo','medal','score','pari','partenaire','real','primes'\
+        ,'ptbout','poignee1','poignee2','poignee3','misere1','misere2','grchelem','gchelem','ptchelem','pchelem','ppchelem','points','modified']
         cols = {
             "donneur": {"title":"", "type": "position", "tooltip": "Le donneur pour ce tour"},
             "participant__joueur__pseudo": {"title":"Participant", "type":"medal"},
             "medal": {"hide":True},
             "score": {"title":"Score", "type":"number"},
             "pari": {"title":"Enchères", "type":"radio", "url": "f_tarot_jeu_pari",
-            "list": [("...","..."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
+                "list": [("...","..."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
             "partenaire": {"title":"Avec", "type":"check", "url": "f_tarot_jeu_partenaire"},
             "real": {"title":"Réal", "type":"point", "url": "f_tarot_jeu_real",
                 "list": [(-30,"- 30"),(-20,"- 20"),(-10,"- 10"),(-1,"- 0"),(0,"0")\
@@ -453,9 +444,6 @@ class TarotJeuListView(TarotListView):
     def get_queryset(self):
         """ fournir les données à afficher dans la vue """
         crudy = Crudy(self.request, "tarot")
-        # ajout de la colonne id
-        if 'id' not in self.meta.cols:
-            self.meta.cols["id"] = { "hide": True }
         # prise en compte de la colonne à trier en fonction de sort
         if self.sort == "score":
             crudy.sort = "score"
@@ -471,7 +459,7 @@ class TarotJeuListView(TarotListView):
         objs = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=crudy.folder_id)\
         .order_by(*order_by)\
-        .values(*self.meta.cols)
+        .values(*self.meta.cols_ordered)
 
         # Tri des colonnes dans l'ordre de cols
         objects_list = []
@@ -492,9 +480,10 @@ class TarotJeuListView(TarotListView):
                 row["real"] = 99
             ordered_dict = collections.OrderedDict()
             ordered_dict["id"] = row["id"]
-            for col in self.meta.cols:
+            for col in self.meta.cols_ordered:
                 ordered_dict[col] = row[col]
-            objects_list.append(ordered_dict)
+            # objects_list.append(ordered_dict)
+            objects_list.append(row)
 
         qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
         if qparticipant > 0:
