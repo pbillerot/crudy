@@ -41,6 +41,7 @@ class Crudy():
         "jeu_current": 0,
         "url_view": None,
         "sort": None,
+        "url_return": None,
     }
     # Contexte de la request
     ctx = {
@@ -48,7 +49,6 @@ class Crudy():
         "joined": [],
         "carte": [],
         "action_param": None,
-        "url_return": None,
         "url_actions": None,
         "url_delete": None,
         "url_jeu_pari": None,
@@ -191,10 +191,10 @@ class Crudy():
 
     @property
     def url_return(self):
-        return self.ctx["url_return"]
+        return self.ses["url_return"]
     @url_return.setter
     def url_return(self, value):
-        self.ctx["url_return"] = value
+        self.ses["url_return"] = value
         self.save()
 
     @property

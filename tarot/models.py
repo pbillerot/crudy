@@ -154,7 +154,7 @@ class TarotJeu(models.Model):
         for participant in participants:
             jeu = TarotJeu(participant=participant, jeu=partie.jeu)
             if participant.donneur == 1:
-                donneur_id = participant.joueur_id
+                donneur_id = participant.id
             jeu.score = participant.score
             jeu.save()
 
@@ -163,8 +163,8 @@ class TarotJeu(models.Model):
         ijeu = 1
         for jeu in jeux:
             if donneur_id == 0:
-                donneur_id = jeu.participant.joueur_id
-            if jeu.jeu == ijeu and jeu.participant.joueur_id == donneur_id:
+                donneur_id = jeu.participant.id
+            if jeu.jeu == ijeu and jeu.participant.id == donneur_id:
                 jeu.donneur = 1
                 donneur_id = 0
                 ijeu = jeu.jeu + 1

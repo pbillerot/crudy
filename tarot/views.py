@@ -194,6 +194,7 @@ def f_tarot_partie_create(request):
     title = "Nouvelle Partie"
     model = TarotPartie
     crudy.message = ""
+    crudy.is_form_autovalid = False
     if request.POST:
         form = forms.TarotPartieForm(request.POST, request=request)
         if form.is_valid():
@@ -214,6 +215,7 @@ def f_tarot_partie_update(request, record_id):
     crudy.url_delete = "f_tarot_partie_delete"
     obj = get_object_or_404(TarotPartie, id=record_id)
     model = TarotPartie
+    crudy.is_form_autovalid = False
     form = forms.TarotPartieForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
@@ -372,6 +374,7 @@ def f_tarot_joueur_create(request):
     title = "Nouveau Joueur"
     crudy.message = ""
     model = TarotJoueur
+    crudy.is_form_autovalid = False
     if request.POST:
         form = forms.TarotJoueurForm(request.POST, request=request)
         if form.is_valid():
@@ -389,6 +392,7 @@ def f_tarot_joueur_update(request, record_id):
     crudy.url_delete = "f_tarot_joueur_delete"
     title = "Modification d'un Joueur"
     crudy.message = ""
+    crudy.is_form_autovalid = False
     obj = get_object_or_404(TarotJoueur, id=record_id)
     form = forms.TarotJoueurForm(request.POST or None, instance=obj, request=request)
     if form.is_valid():
@@ -507,6 +511,12 @@ class TarotJeuListView(TarotListView):
             partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
             crudy.jeu_current = partie.jeu
 
+        # on cache la colonne partenaire si jeu à 4 ou 3
+        if qparticipant == 3 or qparticipant == 4:
+            self.meta.cols["partenaire"]["hide"] = True
+        else:
+            self.meta.cols["partenaire"]["hide"] = False
+
         if not crudy.modified:
             self.meta.url_actions = []
 
@@ -575,25 +585,30 @@ def f_tarot_jeu_compute(request, ijeu):
                     jj.points = 0
                     if jj.prenneur:
                         if participants.count() == 3:
-                            jj.points = points * 2
+                            jj.points = points * 1 # car ausi partenaire
                         elif participants.count() == 4:
-                            jj.points = points * 3
+                            jj.points = points * 2 # car ausi partenaire
                         elif participants.count() == 5:
                             jj.points = points * 2
                         elif participants.count() == 6:
                             jj.points = points * 2
                     if jj.partenaire:
-                        jj.points += points
+                        if jj.prenneur and participants.count() > 4:
+                            jj.points += points * 2
+                        else:
+                            jj.points += points
                     if not jj.prenneur and not jj.partenaire:
                         jj.points = points * -1
                     # misères
                     for j_id in miseres:
-                        if j_id == jj.participant.joueur_id:
+                        if j_id == jj.participant.id:
                             jj.points += miseres[j_id] * (participants.count() -1)
                         else:
                             jj.points += miseres[j_id] * -1
-                    score[jj.participant.joueur_id] = score.get(jj.participant.joueur_id, 0) + jj.points
-                    jj.score = score[jj.participant.joueur_id]
+                    if participants.count() == 6 and jj.donneur:
+                        jj.points = 0
+                    score[jj.participant.id] = score.get(jj.participant.id, 0) + jj.points
+                    jj.score = score[jj.participant.id]
                     jj.save()
             # on prépare le tour suivant
             miseres = {}
@@ -642,9 +657,9 @@ def f_tarot_jeu_compute(request, ijeu):
 
         # misères
         if jeu.misere1: 
-            miseres[jeu.participant.joueur_id] = miseres.get(jeu.participant.joueur_id, 0) + 10
+            miseres[jeu.participant.id] = miseres.get(jeu.participant.id, 0) + 10
         if jeu.misere2: 
-            miseres[jeu.participant.joueur_id] = miseres.get(jeu.participant.joueur_id, 0) + 10
+            miseres[jeu.participant.id] = miseres.get(jeu.participant.id, 0) + 10
 
     # DERNIER TOUR
     if ijeu != 0:
@@ -655,25 +670,30 @@ def f_tarot_jeu_compute(request, ijeu):
             jj.points = 0
             if jj.prenneur:
                 if participants.count() == 3:
-                    jj.points = points * 2
+                    jj.points = points * 1
                 elif participants.count() == 4:
-                    jj.points = points * 3
+                    jj.points = points * 2
                 elif participants.count() == 5:
                     jj.points = points * 2
                 elif participants.count() == 6:
                     jj.points = points * 2
             if jj.partenaire:
-                jj.points += points
+                if jj.prenneur and participants.count() > 4:
+                    jj.points += points * 2
+                else:
+                    jj.points += points
             if not jj.prenneur and not jj.partenaire:
                 jj.points = points * -1
             # misères
             for j_id in miseres:
-                if j_id == jj.participant.joueur_id:
+                if j_id == jj.participant.id:
                     jj.points += miseres[j_id] * (participants.count() -1)
                 else:
                     jj.points += miseres[j_id] * -1
-            score[jj.participant.joueur_id] = score.get(jj.participant.joueur_id, 0) + jj.points
-            jj.score = score[jj.participant.joueur_id]
+            if participants.count() == 6 and jj.donneur:
+                jj.points = 0
+            score[jj.participant.id] = score.get(jj.participant.id, 0) + jj.points
+            jj.score = score[jj.participant.id]
             jj.save()
 
     # Attribution des médailles
