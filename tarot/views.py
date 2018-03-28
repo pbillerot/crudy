@@ -482,8 +482,7 @@ class TarotJeuListView(TarotListView):
             ordered_dict["id"] = row["id"]
             for col in self.meta.cols_ordered:
                 ordered_dict[col] = row[col]
-            # objects_list.append(ordered_dict)
-            objects_list.append(row)
+            objects_list.append(ordered_dict)
 
         qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
         if qparticipant > 0:
