@@ -873,13 +873,14 @@ class TarotJeuParticipantView(TarotListView):
         prise = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, jeu=OuterRef('jeu'), prenneur=True)\
         .exclude(pk=OuterRef('pk'))
 
-        self.objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id)\
+        objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id)\
         .order_by('jeu')\
         .values(*self.meta.cols_ordered, prise=Subquery(prise.values('pari')))
 
         # Tri des colonnes dans l'ordre de cols + remplissage des colonnes calculées
         participant_name = ""
-        for row in self.objs:
+        self.objs = []
+        for row in objs:
             participant_name = row["participant__joueur__pseudo"]
             primes = []
             for key, col in self.meta.cols_list:
@@ -893,6 +894,11 @@ class TarotJeuParticipantView(TarotListView):
             # raz real si pas d'enchère
             if row["pari"] == "...":
                 row["pari"] = "."
+            ordered_dict = collections.OrderedDict()
+            ordered_dict["id"] = row["id"]
+            for col in self.meta.cols_ordered:
+                ordered_dict[col] = row[col]
+            self.objs.append(ordered_dict)
 
         # on cache la colonne partenaire si jeu à 4 ou 3
         qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
