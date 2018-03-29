@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^jeu/real/(.+)/$', login_required(views.f_tarot_jeu_real), name='f_tarot_jeu_real'),
     url(r'^jeu/partenaire/(.+)/(.+)/$', login_required(views.f_tarot_jeu_partenaire), name='f_tarot_jeu_partenaire'),
     url(r'^jeu/prime/(.+)/$', login_required(views.f_tarot_jeu_prime), name='f_tarot_jeu_prime'),
+    url(r'^jeu/participant/(?P<participant_id>.+)/$', login_required(views.TarotJeuParticipantView.as_view()), name='v_tarot_jeu_participant'),
 ]

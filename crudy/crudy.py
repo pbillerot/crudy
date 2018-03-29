@@ -59,6 +59,7 @@ class Crudy():
         "url_sort": None,
         "url_join": None,
         "url_folder": None,
+        "url_back": None,
         "qcols": None,
         "form_autovalid": False,
         "message": None,
@@ -196,6 +197,14 @@ class Crudy():
     @url_return.setter
     def url_return(self, value):
         self.ses["url_return"] = value
+        self.save()
+
+    @property
+    def url_back(self):
+        return self.ctx["url_back"]
+    @url_back.setter
+    def url_back(self, value):
+        self.ctx["url_back"] = value
         self.save()
 
     @property

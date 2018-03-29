@@ -2,9 +2,9 @@
 function crudy_button_action(event) {
     var target = event.target
     var obj = target
-    if (target.tagName != "BUTTON" && target.tagName != "INPUT") {
+    if (target.tagName != "BUTTON" && target.tagName != "INPUT" && target.tagName != "A") {
         obj = target.parentElement
-        if (obj.tagName != "BUTTON" && obj.tagName != "INPUT") {
+        if (obj.tagName != "BUTTON" && obj.tagName != "INPUT" && obj.tagName != "A") {
             obj = obj.parentElement
         }
     }

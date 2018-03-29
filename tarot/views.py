@@ -11,7 +11,7 @@ from django.urls import resolve
 from django.http import JsonResponse
 from django.views.generic import ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django.db.models import OuterRef, Subquery
 from crudy.crudy import Crudy
 from . import forms
 from .models import TarotPartie, TarotJoueur, TarotParticipant, TarotJeu
@@ -70,7 +70,9 @@ class TarotListView(ListView):
         url_order = None
         url_actions = []
         url_view = None
+        url_return = None
         url_param = ""
+        url_back = None
         # query sur la base
         # liste des champs à afficher dans la vue
         cols = {}
@@ -104,6 +106,7 @@ class TarotListView(ListView):
                 crudy.selected.append(obj["id"])
         # tri des objs dans l'ordre des cols
         crudy.url_view = self.meta.url_view
+        crudy.url_back = self.meta.url_back
         crudy.url_return = self.request.path
         crudy.url_join = self.meta.url_join
         crudy.url_param = self.meta.url_param
@@ -160,7 +163,7 @@ class TarotPartieSelectView(TarotListView):
         self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
-        .values(*self.meta.cols)
+        .values(*self.meta.cols_ordered)
         return self.objs
 
 def f_tarot_partie_folder(request, record_id):
@@ -257,7 +260,7 @@ class TarotParticipantSelectView(TarotListView):
         # tri des colonnes
         for row in objs:
             ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols:
+            for col in self.meta.cols_ordered:
                 ordered_dict[col] = row[col]  
             self.objs.append(ordered_dict) 
 
@@ -315,11 +318,11 @@ class TarotParticipantListView(TarotListView):
         objs = self.meta.model.objects.all()\
         .filter(partie_id=crudy.folder_id)\
         .order_by(*self.meta.order_by)\
-        .values(*self.meta.cols)
+        .values(*self.meta.cols_ordered)
         self.objs = []
         for row in objs:
             ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols:
+            for col in self.meta.cols_ordered:
                 ordered_dict[col] = row[col]  
             self.objs.append(ordered_dict) 
 
@@ -398,13 +401,14 @@ class TarotJeuListView(TarotListView):
     class Meta(TarotListView.Options):
         model = TarotJeu
         title = "Faites vos Jeux"
-        cols_ordered = ['donneur','participant__joueur__pseudo','medal','score','pari','partenaire','real','primes'\
+        cols_ordered = ['donneur','participant__joueur__pseudo','participant__id','medal','score','pari','partenaire','real','primes'\
         ,'ptbout','poignee1','poignee2','poignee3','misere1','misere2','grchelem','gchelem','ptchelem','pchelem','ppchelem','points','modified']
         cols = {
             "donneur": {"title":"", "type": "position", "tooltip": "Le donneur pour ce tour"},
-            "participant__joueur__pseudo": {"title":"Participant", "type":"medal"},
+            "participant__joueur__pseudo": {"title":"Participant", "type":"medal", "url":"v_tarot_jeu_participant"},
+            "participant__id": {"hide": True},
             "medal": {"hide":True},
-            "score": {"title":"Score", "type":"number"},
+            "score": {"title":"Score", "type":"number", "sort":"v_tarot_jeu_sort"},
             "pari": {"title":"Enchères", "type":"radio", "url": "f_tarot_jeu_pari",
                 "list": [("...","..."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
             "partenaire": {"title":"Avec", "type":"check", "url": "f_tarot_jeu_partenaire"},
@@ -814,3 +818,89 @@ def f_tarot_jeu_prime(request, record_id):
 
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_tarot_form.html", locals())
+
+class TarotJeuParticipantView(TarotListView):
+    """ Liste des jeux par joueur """
+
+    class Meta(TarotListView.Options):
+        model = TarotJeu
+        title = "Jeux de"
+        cols_ordered = ['jeu','participant__joueur__pseudo',"participant__id",'medal','score','pari','partenaire','real','primes'\
+        ,'ptbout','poignee1','poignee2','poignee3','misere1','misere2','grchelem','gchelem','ptchelem','pchelem','ppchelem','points','prise']
+        cols = {
+            "jeu": {"title":"Jeu", "type":"numeric"},
+            "participant__joueur__pseudo": {"title":"Participant", "type":"medal", "url":"v_tarot_jeu_participant", "disabled": True},
+            "participant__id": {"hide": True},
+            "medal": {"hide":True},
+            "score": {"title":"Score", "type":"number"},
+            "pari": {"title":"Enchères", "type":"radio", "url": "f_tarot_jeu_pari", "disabled": True,
+                "list": [("...","..."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
+            "partenaire": {"title":"Avec", "type":"check", "url": "f_tarot_jeu_partenaire", "disabled": True},
+            "real": {"title":"Réal", "type":"point", "url": "f_tarot_jeu_real", "disabled": True,
+                "list": [(-30,"- 30"),(-20,"- 20"),(-10,"- 10"),(-1,"- 0"),(0,"0")\
+                ,(+1,"+ 0"),(+10,"+ 10"),(+20,"+ 20"),(+30,"+ 30"),(+40,"+ 40"),(+50,"+ 50"),(+60,"+ 60")]},
+            "primes": {"title":"Primes", "type":"category", "url": "f_tarot_jeu_prime", "category": "prime", "disabled": True},
+            # primes
+            "ptbout": {"hide": True, "title":"Petit au bout", "type":"check", "url": "f_tarot_jeu_prime", "category": "prime"},
+            "poignee1": {"hide": True, "title": "Poignée", "type":"check", "category": "prime"},
+            "poignee2": {"hide": True, "title": "Double Poignée", "type":"check", "category": "prime"},
+            "poignee3": {"hide": True, "title": "Triple Poignée", "type":"check", "category": "prime"},
+            "misere1": {"hide": True, "title": "Misère d'Atout", "type":"check", "category": "prime"},
+            "misere2": {"hide": True, "title": "Misère de Tête", "type":"check", "category": "prime"},
+            "grchelem": {"hide": True, "title": "Grand Chelem", "type":"check", "category": "prime"},
+            "gchelem": {"hide": True, "title": "Grand Chelem non annoncé", "type":"check", "category": "prime"},
+            "gpchelem": {"hide": True, "title": "Grand Chelem perdu", "type":"check", "category": "prime"},
+            "ptchelem": {"hide": True, "title": "Petit Chelem", "type":"check", "category": "prime"},
+            "pchelem": {"hide": True, "title": "Petit Chelem non annoncé", "type":"check", "category": "prime"},
+            "ppchelem": {"hide": True, "title": "Petit Chelem perdu", "type":"check", "category": "prime"},
+
+            "points": {"title":"Points", "type":"number"},
+            "prise": {"title":"Contre", "type":"radio", "url": "f_tarot_jeu_pari", "disabled": True
+                ,"list": [("...","..."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
+        }
+        url_view = "v_tarot_jeu_participant"
+
+    def dispatch(self, request, *args, **kwargs):
+        """ dispatch is called when the class instance loads """
+        self.participant_id = kwargs.get('participant_id')
+        return super().dispatch(request, args, kwargs)
+
+    def get_queryset(self):
+        """ fournir les données à afficher dans la vue """
+        crudy = Crudy(self.request, "tarot")
+        self.meta.url_back = "/tarot/jeu/list/%s" % self.participant_id
+
+        prise = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, jeu=OuterRef('jeu'), prenneur=True)\
+        .exclude(pk=OuterRef('pk'))
+
+        self.objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id)\
+        .order_by('jeu')\
+        .values(*self.meta.cols_ordered, prise=Subquery(prise.values('pari')))
+
+        # Tri des colonnes dans l'ordre de cols + remplissage des colonnes calculées
+        participant_name = ""
+        for row in self.objs:
+            participant_name = row["participant__joueur__pseudo"]
+            primes = []
+            for key, col in self.meta.cols_list:
+                # on remplit la colonne prime avec la catégorie prime
+                if col.get("category") == "prime":
+                    if row[key]:
+                        primes.append((col.get("title")))
+            if len(primes) == 0:
+                primes.append(("0"))
+            row["primes"] = primes
+            # raz real si pas d'enchère
+            if row["pari"] == "...":
+                row["pari"] = "."
+
+        # on cache la colonne partenaire si jeu à 4 ou 3
+        qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
+
+        self.meta.title = 'Jeux de "%s"' % participant_name
+
+        if qparticipant == 3 or qparticipant == 4:
+            self.meta.cols["partenaire"]["hide"] = True
+        else:
+            self.meta.cols["partenaire"]["hide"] = False
+        return self.objs

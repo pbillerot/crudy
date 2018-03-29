@@ -1,6 +1,11 @@
 {% load crudy_tags %}
 <div class="mdl-layout__header-row">
 {% if crudy.url_view and not form %} 
+    {% if crudy.url_back %}
+    <a class="mdl-navigation__link crudy-button-action" data-url="{{crudy.url_back}}">
+            <i class="material-icons">arrow_back</i>
+    </a>
+    {% endif %}
     <span class="mdl-layout-title">{{title}}</span>
     {% if crudy.url_join %}
     <span class="mdl-layout-title">

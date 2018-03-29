@@ -112,3 +112,9 @@ def attr_list(dico, key):
 @register.filter(name='attr_colored_number')
 def attr_colored_number(dico, key):
     return dico[key].get("colored_number", False)
+@register.filter(name='attr_sort')
+def sort(dico, key):
+    return dico[key].get("sort", False)
+@register.filter(name='attr_disabled')
+def disabled(dico, key):
+    return dico[key].get("disabled", False)
