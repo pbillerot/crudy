@@ -159,7 +159,7 @@
                             <td style="text-align: left">
                                 <button class="mdl-chip mdl-chip--contact crudy-button-action"
                                 {%if cols|attr_disabled:key%}disabled="disabled"{%endif%}
-                                data-url="{% url cols|attr_url:key obj.participant__id %}">
+                                data-url="{% url cols|attr_url:key obj|get_col:cols.param.medal %}">
                                     {% if obj.medal == 1 %}
                                     <span class="mdl-chip__contact mdl-color--amber mdl-color-text--black">1</span>
                                     {% elif obj.medal == 2 %}

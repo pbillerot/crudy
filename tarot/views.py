@@ -402,7 +402,7 @@ class TarotJeuListView(TarotListView):
         model = TarotJeu
         title = "Faites vos Jeux"
         cols_ordered = ['donneur','participant__joueur__pseudo','participant__id','medal','score','pari','partenaire','real','primes'\
-        ,'ptbout','poignee1','poignee2','poignee3','misere1','misere2','grchelem','gchelem','ptchelem','pchelem','ppchelem','points','modified']
+        ,'ptbout','poignee1','poignee2','poignee3','misere1','misere2','grchelem','gchelem','ptchelem','pchelem','ppchelem','points']
         cols = {
             "donneur": {"title":"", "type": "position", "tooltip": "Le donneur pour ce tour"},
             "participant__joueur__pseudo": {"title":"Participant", "type":"medal", "url":"v_tarot_jeu_participant"},
@@ -431,13 +431,9 @@ class TarotJeuListView(TarotListView):
             "ppchelem": {"hide": True, "title": "Petit Chelem perdu", "type":"check", "category": "prime"},
 
             "points": {"title":"Points", "type":"number"},
-            "modified": {"hide": True},
+            "param": {"medal": "participant__id"},
         }
         url_view = "v_tarot_jeu_list"
-        url_add = "f_tarot_jeu_add"
-        url_actions = [
-            ("f_tarot_jeu_compute", "Calculer les points")
-        ]
 
     def dispatch(self, request, *args, **kwargs):
         """ dispatch is called when the class instance loads """
@@ -460,6 +456,9 @@ class TarotJeuListView(TarotListView):
         else:
             order_by = ('jeu', 'participant__order',)
 
+        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+        crudy.modified = partie.modified
+
         objs = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=crudy.folder_id)\
         .order_by(*order_by)\
@@ -468,7 +467,6 @@ class TarotJeuListView(TarotListView):
         # Tri des colonnes dans l'ordre de cols
         objects_list = []
         b_calcul_realised = False
-        crudy.modified = False
         for row in objs:
             # on remplit la colonne ptbout avec la catégorie prime
             primes = []
@@ -495,8 +493,6 @@ class TarotJeuListView(TarotListView):
             for row in self.objs:
                 if row.get("points") != 0:
                     b_calcul_realised = True
-                if row.get("modified"):
-                    crudy.modified = True
             crudy.action_param = self.page
             crudy.jeu = int(self.page)
             crudy.url_sort = 'v_tarot_jeu_sort'
@@ -509,11 +505,16 @@ class TarotJeuListView(TarotListView):
         else:
             self.meta.cols["partenaire"]["hide"] = False
 
-        if not crudy.modified:
-            self.meta.url_actions = []
-
-        if not b_calcul_realised or int(self.page) != self.paginator.num_pages or crudy.modified:
-            self.meta.url_add = None
+        self.meta.url_actions = []
+        # ("f_tarot_jeu_compute", "Calculer les points")
+        # ("f_tarot_jeu_add", "Nouveau jeu")
+        if crudy.modified:
+            self.meta.url_actions.append(("f_tarot_jeu_compute", "Calculer les points"))
+        else:
+            if int(self.page) == self.paginator.num_pages and b_calcul_realised:
+                self.meta.url_actions.append(("f_tarot_jeu_add", "Nouveau jeu"))
+        # if not b_calcul_realised or int(self.page) != self.paginator.num_pages or crudy.modified:
+        #     self.meta.url_add = None
         crudy.url_sort = 'v_tarot_jeu_sort'
         return self.objs
 
@@ -525,7 +526,7 @@ def f_tarot_jeu_create(request, id):
 
     return redirect("v_tarot_jeu_list", 1)
 
-def f_tarot_jeu_add(request):
+def f_tarot_jeu_add(request, id):
     """ ajout d'un jeu dans la partie """
     crudy = Crudy(request, "tarot")
     jeu = TarotJeu()
@@ -726,7 +727,6 @@ def f_tarot_jeu_compute(request, ijeu):
             jeu.medal = 3
         elif bronze == jeu.score:
             jeu.medal = 3
-        jeu.modified = False
         jeu.save()
     # Médaille de chocolat
     if last_pk != 0:
@@ -739,7 +739,11 @@ def f_tarot_jeu_compute(request, ijeu):
         participant = get_object_or_404(TarotParticipant, id=j_id)
         participant.score = score.get(j_id)
         participant.save()
-    
+
+    partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+    partie.modified = False
+    partie.save()
+
     return redirect("v_tarot_jeu_list", ijeu)
 
 def f_tarot_jeu_pari(request, record_id):
@@ -755,7 +759,6 @@ def f_tarot_jeu_pari(request, record_id):
         jeu_courant.prenneur = True
         jeu_courant.partenaire = True
         jeu_courant.real = 0
-        jeu_courant.modified = True
         jeu_courant.save()
         if jeu_courant.pari != "...":
             # Nettoyage des enchères des autres joueurs
@@ -777,8 +780,9 @@ def f_tarot_jeu_real(request, record_id):
     form = forms.TarotJeuRealForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
-        obj.modified = True
-        obj.save()
+        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+        partie.modified = True
+        partie.save()
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_tarot_form.html", locals())
 
@@ -792,8 +796,10 @@ def f_tarot_jeu_partenaire(request, record_id, checked):
             jeu.partenaire = False if checked == "True" else True
         else:
             jeu.partenaire = False
-        jeu.modified = True
         jeu.save()
+    partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+    partie.modified = True
+    partie.save()
 
     return redirect(crudy.url_view, tarotJeu.jeu)
 
@@ -806,8 +812,6 @@ def f_tarot_jeu_prime(request, record_id):
     form = forms.TarotJeuPrimeForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
-        obj.modified = True
-        obj.save()
         # un seul ptbout par jeu
         if obj.ptbout:
             jeux = TarotJeu.objects.all().filter(participant__partie__id=obj.participant.partie_id, jeu=obj.jeu)
@@ -815,6 +819,9 @@ def f_tarot_jeu_prime(request, record_id):
                 if jeu.id != obj.id:
                     jeu.ptbout = False
                     jeu.save()
+        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+        partie.modified = True
+        partie.save()
 
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_tarot_form.html", locals())
@@ -829,7 +836,7 @@ class TarotJeuParticipantView(TarotListView):
         ,'ptbout','poignee1','poignee2','poignee3','misere1','misere2','grchelem','gchelem','ptchelem','pchelem','ppchelem','points','prise']
         cols = {
             "jeu": {"title":"Jeu", "type":"numeric"},
-            "participant__joueur__pseudo": {"title":"Participant", "type":"medal", "url":"v_tarot_jeu_participant", "disabled": True},
+            "participant__joueur__pseudo": {"title":"Participant", "type":"medal", "url":"v_tarot_jeu_list"},
             "participant__id": {"hide": True},
             "medal": {"hide":True},
             "score": {"title":"Score", "type":"number"},
@@ -857,6 +864,7 @@ class TarotJeuParticipantView(TarotListView):
             "points": {"title":"Points", "type":"number"},
             "prise": {"title":"Contre", "type":"radio", "url": "f_tarot_jeu_pari", "disabled": True
                 ,"list": [("...","..."), ("PT","Petite"), ("PC","Pouce"), ("GA","Garde"), ("GS","Garde Sans"), ("GC","Garde Contre")]},
+            "param": {"medal": "jeu"}
         }
         url_view = "v_tarot_jeu_participant"
 
@@ -891,9 +899,6 @@ class TarotJeuParticipantView(TarotListView):
             if len(primes) == 0:
                 primes.append(("0"))
             row["primes"] = primes
-            # raz real si pas d'enchère
-            if row["pari"] == "...":
-                row["pari"] = "."
             ordered_dict = collections.OrderedDict()
             ordered_dict["id"] = row["id"]
             for col in self.meta.cols_ordered:

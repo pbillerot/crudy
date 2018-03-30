@@ -24,7 +24,7 @@ urlpatterns = [
 
     url(r'^jeu/list/(?P<page>.+)/$', login_required(views.TarotJeuListView.as_view()), name='v_tarot_jeu_list'),
     url(r'^jeu/sort/(?P<page>.+)/(?P<sort>.+)/$', login_required(views.TarotJeuListView.as_view()), name='v_tarot_jeu_sort'),
-    url(r'^jeu/add/$', login_required(views.f_tarot_jeu_add), name='f_tarot_jeu_add'),
+    url(r'^jeu/add/(.+)/$', login_required(views.f_tarot_jeu_add), name='f_tarot_jeu_add'),
     url(r'^jeu/create/(.+)/$', login_required(views.f_tarot_jeu_create), name='f_tarot_jeu_create'),
     url(r'^jeu/compute/(.+)/$', login_required(views.f_tarot_jeu_compute), name='f_tarot_jeu_compute'),
     url(r'^jeu/pari/(.+)/$', login_required(views.f_tarot_jeu_pari), name='f_tarot_jeu_pari'),

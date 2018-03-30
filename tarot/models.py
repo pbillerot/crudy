@@ -19,6 +19,7 @@ class TarotPartie(models.Model):
     date = models.DateField(auto_now_add=True, auto_now=False, verbose_name="Date de la partie")
     jeu = models.IntegerField(default=0, verbose_name="n° du jeu en cours")
     qparticipant = models.IntegerField(default=0, verbose_name="Nombre de joueurs")
+    modified = models.BooleanField(default=False, verbose_name="L'un des jeux a été modifié")
 
     def __str__(self):
         return self.name
@@ -109,7 +110,6 @@ class TarotJeu(models.Model):
     pchelem = models.BooleanField(default=False, verbose_name='Petit Chelem non annoncé (100 points)')
     gpchelem = models.BooleanField(default=False, verbose_name='Grand Chelem annoncé non réalisé (-200 points)')
     ppchelem = models.BooleanField(default=False, verbose_name='Petit Chelem annoncé non réalisé (-100 points)')
-    modified = models.BooleanField(default=False, verbose_name='A été modifié')
 
     def __str__(self):
         # return "{0}_{1}_{2}".format(self.partie, self.joueur, self.jeu)
