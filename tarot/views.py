@@ -18,12 +18,7 @@ from .models import TarotPartie, TarotJoueur, TarotParticipant, TarotJeu
 
 def p_tarot_home(request):
     """ vue Home """
-    crudy = Crudy(request, "tarot")
-    title = crudy.application.get("title")
-    crudy.url_actions = []
-    crudy.layout = "portail"
-    form = None
-    return render(request, 'p_tarot_help.html', locals())
+    return redirect("p_tarot_help")
 
 def p_tarot_help(request):
     """ Guide """
@@ -32,14 +27,14 @@ def p_tarot_help(request):
     crudy.url_actions = []
     crudy.layout = "help"
     form = None
-    return render(request, 'p_tarot_help.html', locals())
+    return render(request, 'p_crudy_help.html', locals())
 
 class TarotListView(ListView):
     """
         Gestion des vues
     """
     context_object_name = "objs"
-    template_name = "v_tarot_view.html"
+    template_name = "v_crudy_view.html"
     context = None
     objs = []
     qcols = 0
@@ -60,7 +55,7 @@ class TarotListView(ListView):
 
         title = "Titre de la vue"
         model = None
-        template_name = "v_tarot_view.html"
+        template_name = "v_crudy_view.html"
         application = "tarot"
         # urls définis dans ursl.py
         url_add = None
@@ -161,7 +156,6 @@ class TarotPartieSelectView(TarotListView):
         }
         order_by = ('name',)
         url_view = "v_tarot_partie_select"
-        template_name = "v_tarot_view.html"
 
     def get_queryset(self):
         """ queryset générique """
@@ -206,7 +200,7 @@ def f_tarot_partie_create(request):
             return redirect(crudy.url_view)
     else:
         form = forms.TarotPartieForm(request=request)
-    return render(request, 'f_tarot_form.html', locals())
+    return render(request, 'f_crudy_form.html', locals())
 
 def f_tarot_partie_update(request, record_id):
     """ Modification d'une partie """
@@ -221,7 +215,7 @@ def f_tarot_partie_update(request, record_id):
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view)
-    return render(request, "f_tarot_form.html", locals())
+    return render(request, "f_crudy_form.html", locals())
 
 def f_tarot_partie_delete(request, record_id):
     """ suppression de l'enregistrement """
@@ -386,7 +380,7 @@ def f_tarot_joueur_create(request):
             return redirect(crudy.url_view)
     else:
         form = forms.TarotJoueurForm(request=request)
-    return render(request, 'f_tarot_form.html', locals())
+    return render(request, 'f_crudy_form.html', locals())
 
 def f_tarot_joueur_update(request, record_id):
     """ mise à jour d'un joueur """
@@ -400,7 +394,7 @@ def f_tarot_joueur_update(request, record_id):
     if form.is_valid():
         form.save()
         return redirect(crudy.url_view)
-    return render(request, "f_tarot_form.html", locals())
+    return render(request, "f_crudy_form.html", locals())
 
 """
     Gestion des jeux
@@ -782,7 +776,7 @@ def f_tarot_jeu_pari(request, record_id):
                     jeu.real = 99
                     jeu.save()
         return redirect(crudy.url_view, obj.jeu)
-    return render(request, "f_tarot_form.html", locals())
+    return render(request, "f_crudy_form.html", locals())
 
 def f_tarot_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
@@ -797,7 +791,7 @@ def f_tarot_jeu_real(request, record_id):
         partie.modified = True
         partie.save()
         return redirect(crudy.url_view, obj.jeu)
-    return render(request, "f_tarot_form.html", locals())
+    return render(request, "f_crudy_form.html", locals())
 
 def f_tarot_jeu_partenaire(request, record_id, checked):
     """ Saisie du partenaire """
@@ -838,7 +832,7 @@ def f_tarot_jeu_prime(request, record_id):
         partie.save()
 
         return redirect(crudy.url_view, obj.jeu)
-    return render(request, "f_tarot_form.html", locals())
+    return render(request, "f_crudy_form.html", locals())
 
 class TarotJeuParticipantView(TarotListView):
     """ Liste des jeux par joueur """

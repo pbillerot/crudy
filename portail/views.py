@@ -15,6 +15,7 @@ def p_portail_home(request):
     crudy = Crudy(request, "portail")
     title = crudy.application["title"]
     crudy.folder_id = None
+    crudy.layout = "portail"
     return render(request, 'p_portail_home.html', locals())
 
 def p_portail_help(request):

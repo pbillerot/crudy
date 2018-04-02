@@ -28,6 +28,12 @@ class Crudy():
             "menu_title": "Tarot",
             "url_name": "p_tarot_home",
             "image": "images/tarot/tarot2.jpg",
+            "menu": [
+                # Libellé du menu, icone, url_name, paramètre(s) url
+                ("Choix des Participants", "group", "v_tarot_participant_select", ""),
+                ("Ordonner les Participants", "sort", "v_tarot_participant_list", ""),
+                ("Faites vos jeux", "video_library", "v_tarot_jeu_list", "1"),
+            ]
         },
     }
 
@@ -75,7 +81,7 @@ class Crudy():
     def __init__(self, request, app_id="portail"):
         """ Récupération du contexte de la session """
         self.request = request
-        self.app = self.apps.get(app_id)
+        self.application = app_id
 
         # Contexte de la request
         # self.request_context = RequestContext(request)
@@ -113,7 +119,14 @@ class Crudy():
     @application.setter
     def application(self, app_id):
         self.app = self.apps.get(app_id)
+        self.app["id"] = app_id
         self.save()
+    @property
+    def application_help(self):
+        return "i_%s_help.md" % self.app["id"]
+    @property
+    def application_menu(self):
+        return "i_%s_menu.html" % self.app["id"]
 
     @property
     def selected(self):

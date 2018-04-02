@@ -4,19 +4,19 @@
         TAROT
     </div>
     {% if crudy.folder_id %}
-    <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_partie_select' %}" title="Créer / choisir une partie...">
-        <i class="material-icons" role="presentation">playlist_add_check</i>
-        {{crudy.folder_name}}
-    </a>
-    <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_participant_select' %}">
-        <i class="material-icons" role="presentation">group</i>Choix des Participants</a>
-    <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_participant_list' %}">
-        <i class="material-icons" role="presentation">sort</i>Ordonner les Participants</a>
-    <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_jeu_list' 1 %}">
-        <i class="material-icons" role="presentation">video_library</i>Faites vos jeux</a>
+        <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_partie_select' %}" title="Créer / choisir une partie...">
+            <i class="material-icons" role="presentation">playlist_add_check</i>
+            {{crudy.folder_name}}
+        </a>
+        <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_participant_select' %}">
+            <i class="material-icons" role="presentation">group</i>Choix des Participants</a>
+        <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_participant_list' %}">
+            <i class="material-icons" role="presentation">sort</i>Ordonner les Participants</a>
+        <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_jeu_list' 1 %}">
+            <i class="material-icons" role="presentation">video_library</i>Faites vos jeux</a>
     {% else %}
-    <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_partie_select' %}">
-        <i class="material-icons" role="presentation">playlist_add_check</i>Créer, choisir une partie</a>
+        <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_partie_select' %}">
+            <i class="material-icons" role="presentation">playlist_add_check</i>Créer, choisir une partie</a>
     {% endif %}
     <div class="mdl-layout-spacer"></div>
     <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'p_tarot_help' %}">
