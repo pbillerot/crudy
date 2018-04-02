@@ -21,7 +21,7 @@
             {% endfor %} 
         {% endif %} 
         {% if crudy.selected and not url_folder %}
-            <a class="mdl-navigation__link" href="{% url url_delete %}">
+            <a class="mdl-navigation__link crudy-button-action" data-url="{% url url_delete %}">
                 <i class="material-icons">trash</i>
             </a>
             <span class="">

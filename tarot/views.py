@@ -21,14 +21,16 @@ def p_tarot_home(request):
     crudy = Crudy(request, "tarot")
     title = crudy.application.get("title")
     crudy.url_actions = []
+    crudy.layout = "portail"
     form = None
-    return render(request, 'p_tarot_home.html', locals())
+    return render(request, 'p_tarot_help.html', locals())
 
 def p_tarot_help(request):
     """ Guide """
     crudy = Crudy(request, "tarot")
     title = crudy.application.get("title")
     crudy.url_actions = []
+    crudy.layout = "help"
     form = None
     return render(request, 'p_tarot_help.html', locals())
 
@@ -82,6 +84,8 @@ class TarotListView(ListView):
         filters = {} # filtres du query_set
         order_by = () # liste des colonnes à trier
 
+        help_page = None # nom du fichier markdown
+
     class Meta(Options):
         pass
 
@@ -118,6 +122,8 @@ class TarotListView(ListView):
         crudy.url_delete = self.meta.url_delete
         crudy.url_select = self.meta.url_select
         crudy.qcols = len(self.meta.cols) -1
+        crudy.layout = "view"
+        crudy.help_page = self.meta.help_page
         return self.context
 
     def get_queryset(self):
@@ -169,6 +175,7 @@ class TarotPartieSelectView(TarotListView):
 def f_tarot_partie_folder(request, record_id):
     """ Enregistrement d'une partie dans folder"""
     crudy = Crudy(request, "tarot")
+    crudy.layout = "form"
     iid = int(record_id)
 
     # un seul item à la fois
@@ -185,10 +192,10 @@ def f_tarot_partie_folder(request, record_id):
 def f_tarot_partie_create(request):
     """ Nouvelle partie """
     crudy = Crudy(request, "tarot")
+    crudy.layout = "form"
     title = "Nouvelle Partie"
     model = TarotPartie
     crudy.message = ""
-    crudy.is_form_autovalid = False
     if request.POST:
         form = forms.TarotPartieForm(request.POST, request=request)
         if form.is_valid():
@@ -204,12 +211,12 @@ def f_tarot_partie_create(request):
 def f_tarot_partie_update(request, record_id):
     """ Modification d'une partie """
     crudy = Crudy(request, "tarot")
+    crudy.layout = "form"
     title = "Modification d'une Partie"
     crudy.message = ""
     crudy.url_delete = "f_tarot_partie_delete"
     obj = get_object_or_404(TarotPartie, id=record_id)
     model = TarotPartie
-    crudy.is_form_autovalid = False
     form = forms.TarotPartieForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
@@ -241,6 +248,8 @@ class TarotParticipantSelectView(TarotListView):
         url_update = "f_tarot_joueur_update"
         url_join = "v_tarot_participant_join"
         url_view = "v_tarot_participant_select"
+        help_page = "i_tarot_participant_select.md"
+
 
     def get_queryset(self):
         """ queryset générique """
@@ -292,7 +301,7 @@ def f_tarot_joueur_delete(request, record_id):
     return redirect(crudy.url_view)
 
 
-class TarotParticipantListView(TarotListView):
+class TarotParticipantSortView(TarotListView):
     """ Tri des participants """
 
     class Meta(TarotListView.Options):
@@ -311,6 +320,7 @@ class TarotParticipantListView(TarotListView):
         ]
         url_delete = "v_tarot_participant_list"
         url_view = "v_tarot_participant_list"
+        help_page = "i_tarot_participant_list.md"
 
     def get_queryset(self):
         """ queryset générique """
@@ -363,10 +373,10 @@ def v_tarot_participant_order(request, record_id, orientation):
 def f_tarot_joueur_create(request):
     """ création d'un joueur """
     crudy = Crudy(request, "tarot")
+    crudy.layout = "form"
     title = "Nouveau Joueur"
     crudy.message = ""
     model = TarotJoueur
-    crudy.is_form_autovalid = False
     if request.POST:
         form = forms.TarotJoueurForm(request.POST, request=request)
         if form.is_valid():
@@ -381,10 +391,10 @@ def f_tarot_joueur_create(request):
 def f_tarot_joueur_update(request, record_id):
     """ mise à jour d'un joueur """
     crudy = Crudy(request, "tarot")
+    crudy.layout = "form"
     crudy.url_delete = "f_tarot_joueur_delete"
     title = "Modification d'un Joueur"
     crudy.message = ""
-    crudy.is_form_autovalid = False
     obj = get_object_or_404(TarotJoueur, id=record_id)
     form = forms.TarotJoueurForm(request.POST or None, instance=obj, request=request)
     if form.is_valid():
@@ -444,6 +454,7 @@ class TarotJeuListView(TarotListView):
     def get_queryset(self):
         """ fournir les données à afficher dans la vue """
         crudy = Crudy(self.request, "tarot")
+        crudy.add_title = "Ajouter un jeux"
         # prise en compte de la colonne à trier en fonction de sort
         if self.sort == "score":
             crudy.sort = "score"
@@ -486,6 +497,8 @@ class TarotJeuListView(TarotListView):
                 ordered_dict[col] = row[col]
             objects_list.append(ordered_dict)
 
+        self.meta.url_actions = []
+
         qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
         if qparticipant > 0:
             self.paginator = Paginator(objects_list, qparticipant)
@@ -498,6 +511,11 @@ class TarotJeuListView(TarotListView):
             crudy.url_sort = 'v_tarot_jeu_sort'
             partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
             crudy.jeu_current = partie.jeu
+            if crudy.modified:
+                self.meta.url_actions.append(("f_tarot_jeu_compute", "Calculer les points"))
+            else:
+                if int(self.page) == self.paginator.num_pages and b_calcul_realised:
+                    self.meta.url_add = "f_tarot_jeu_add"
 
         # on cache la colonne partenaire si jeu à 4 ou 3
         if qparticipant == 3 or qparticipant == 4:
@@ -505,16 +523,6 @@ class TarotJeuListView(TarotListView):
         else:
             self.meta.cols["partenaire"]["hide"] = False
 
-        self.meta.url_actions = []
-        # ("f_tarot_jeu_compute", "Calculer les points")
-        # ("f_tarot_jeu_add", "Nouveau jeu")
-        if crudy.modified:
-            self.meta.url_actions.append(("f_tarot_jeu_compute", "Calculer les points"))
-        else:
-            if int(self.page) == self.paginator.num_pages and b_calcul_realised:
-                self.meta.url_actions.append(("f_tarot_jeu_add", "Nouveau jeu"))
-        # if not b_calcul_realised or int(self.page) != self.paginator.num_pages or crudy.modified:
-        #     self.meta.url_add = None
         crudy.url_sort = 'v_tarot_jeu_sort'
         return self.objs
 
@@ -526,7 +534,7 @@ def f_tarot_jeu_create(request, id):
 
     return redirect("v_tarot_jeu_list", 1)
 
-def f_tarot_jeu_add(request, id):
+def f_tarot_jeu_add(request):
     """ ajout d'un jeu dans la partie """
     crudy = Crudy(request, "tarot")
     jeu = TarotJeu()
@@ -749,15 +757,17 @@ def f_tarot_jeu_compute(request, ijeu):
 def f_tarot_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
     crudy = Crudy(request, "tarot")
-    crudy.is_form_autovalid = True
+    crudy.layout = "form"
     obj = get_object_or_404(TarotJeu, id=record_id)
     title = "Enchère de %s" % (obj.participant.joueur.pseudo.upper())
     form = forms.TarotJeuPariForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
+        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
         jeu_courant = get_object_or_404(TarotJeu, id=record_id)
         jeu_courant.prenneur = True
-        jeu_courant.partenaire = True
+        if partie.qparticipant < 5:
+            jeu_courant.partenaire = True
         jeu_courant.real = 0
         jeu_courant.save()
         if jeu_courant.pari != "...":
@@ -766,6 +776,9 @@ def f_tarot_jeu_pari(request, record_id):
             for jeu in jeux:
                 if jeu.id != jeu_courant.id:
                     jeu.pari = "..."
+                    jeu.prenneur = False
+                    if partie.qparticipant < 5:
+                        jeu.partenaire = False
                     jeu.real = 99
                     jeu.save()
         return redirect(crudy.url_view, obj.jeu)
@@ -774,7 +787,7 @@ def f_tarot_jeu_pari(request, record_id):
 def f_tarot_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, "tarot")
-    crudy.is_form_autovalid = True
+    crudy.layout = "form"
     obj = get_object_or_404(TarotJeu, id=record_id)
     title = "Nombre de points réalisé par %s" % (obj.participant.joueur.pseudo.upper())
     form = forms.TarotJeuRealForm(request.POST or None, request=request, instance=obj)
@@ -789,6 +802,7 @@ def f_tarot_jeu_real(request, record_id):
 def f_tarot_jeu_partenaire(request, record_id, checked):
     """ Saisie du partenaire """
     crudy = Crudy(request, "tarot")
+    crudy.layout = "form"
     tarotJeu = get_object_or_404(TarotJeu, id=record_id)
     jeux = TarotJeu.objects.all().filter(participant__partie_id=tarotJeu.participant.partie_id, jeu=tarotJeu.jeu)
     for jeu in jeux:
@@ -806,7 +820,7 @@ def f_tarot_jeu_partenaire(request, record_id, checked):
 def f_tarot_jeu_prime(request, record_id):
     """ Saisie des primes """
     crudy = Crudy(request, "tarot")
-    crudy.is_form_autovalid = False
+    crudy.layout = "form"
     obj = get_object_or_404(TarotJeu, id=record_id)
     title = "Saisie des primes pour %s" % (obj.participant.joueur.pseudo.upper())
     form = forms.TarotJeuPrimeForm(request.POST or None, request=request, instance=obj)

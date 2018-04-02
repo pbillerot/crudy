@@ -34,7 +34,8 @@ class WhistPartieForm(WhistForm):
             'name': forms.TextInput(attrs={
                 'type': 'text',
                 'maxlength': 15,
-                "required": "required"
+                "required": "required",
+                "autofocus": "autofocus"
             }),
             'cartes': forms.TextInput(attrs={
                 'type': 'text',
@@ -62,7 +63,7 @@ class WhistJoueurForm(WhistForm):
         model = WhistJoueur
         fields = ['pseudo']
         widgets = {
-            'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required"}),
+            'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required", "autofocus": "autofocus"}),
             # 'email': forms.TextInput(attrs={'type': 'email'}),
         }
         readonly_fields = ()
@@ -80,7 +81,7 @@ class WhistJeuPariForm(WhistForm):
         model = WhistJeu
         fields = ['pari']
         widgets = {
-            'pari': forms.RadioSelect(attrs={'type': 'radio'})
+            'pari': forms.RadioSelect(attrs={'type': 'radio',"autofocus": "autofocus"})
         }
         readonly_fields = ()
 

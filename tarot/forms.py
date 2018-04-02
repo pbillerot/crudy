@@ -34,7 +34,8 @@ class TarotPartieForm(TarotForm):
             'name': forms.TextInput(attrs={
                 'type': 'text',
                 'maxlength': 15,
-                "required": "required"
+                "required": "required",
+                "autofocus": "autofocus"
             }),
         }
 
@@ -44,7 +45,7 @@ class TarotJoueurForm(TarotForm):
         model = TarotJoueur
         fields = ['pseudo']
         widgets = {
-            'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required"}),
+            'pseudo': forms.TextInput(attrs={'type': 'text', 'maxlength': 15, "required": "required", "autofocus": "autofocus"}),
             # 'email': forms.TextInput(attrs={'type': 'email'}),
         }
         readonly_fields = ()

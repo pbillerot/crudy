@@ -1,3 +1,4 @@
+{% load static %}
 <nav class="demo-navigation mdl-navigation mdl-color--grey-200 mdl-color-text--grey-200">
 {% if crudy.request.user.is_authenticated %}
     {% comment %} <div class="mdl-card__title mdl-typography--title mdl-color-text--grey-600">
@@ -5,21 +6,17 @@
     </div>
     {% for app_id, application in crudy.applications %}
         {% if app_id != "portail" %}
-    <a class="mdl-navigation__link" href="{% url application.url_name %}">
+    <a class="mdl-navigation__link crudy-button-action" data-url="{% url application.url_name %}">
         <i class="material-icons" role="presentation">{{application.logo}}</i>{{application.resume}}</a>
         {% endif%}
     {% endfor %} {% endcomment %}
 {% endif %}
     <div class="mdl-layout-spacer"></div>
 {% if crudy.request.user.is_superuser %}
-<a class="mdl-navigation__link" href="/admin">
+<a class="mdl-navigation__link crudy-button-action" data-url="/admin">
     <i class="material-icons" role="presentation">system_update_alt</i>Administrer...
     <span class="visuallyhidden">Admin</span>
 {% endif %}
-    <a class="mdl-navigation__link" href="{% url 'p_portail_help' %}">
-        <i class="material-icons" role="presentation">help_outline</i>
-    <span class="visuallyhidden">Help</span>
-    </a>
 <span>Python {{crudy.version_python}}</span>
 
 </nav>

@@ -6,15 +6,15 @@ class Crudy():
     ## Dictionnaire des applications
     apps = {
         "portail": {
-            "title": "Crudy",
-            "resume": """Le framework tant attendu""",
+            "title": "Tapis Vert",
+            "resume": """L'outil pour compter les points des jeux de cartes""",
             "logo": "filter_none",
             "menu_title": "Choix des applications",
             "url_name": "p_portail_home",
             "image": "images/portail/carte.png",
         },
         "whist": {
-            "title": "Whist",
+            "title": "Tapis Vert pour le Whist",
             "resume": """Compter les points du Whist""",
             "logo": "filter_1",
             "menu_title": "Whist",
@@ -22,8 +22,8 @@ class Crudy():
             "image": "images/whist/Brewtnall_The-Whist-Party.jpg",
         },
         "tarot": {
-            "title": "Tarot",
-            "resume": """Compter les points du jeu de Tarot""",
+            "title": "Tapis Vert pour le Tarot",
+            "resume": """Compter les points du Tarot""",
             "logo": "filter_3",
             "menu_title": "Tarot",
             "url_name": "p_tarot_home",
@@ -63,7 +63,11 @@ class Crudy():
         "qcols": None,
         "form_autovalid": False,
         "message": None,
-        "modified": False
+        "modified": False,
+        "layout": None, # portail, help, view, form
+        "version": "1.1 du 29 mars 2018",
+        "add_title": "Ajouter",
+        "help_page": None
     }
     request = None
     request_context = None
@@ -322,3 +326,33 @@ class Crudy():
     @property
     def version_python(self):
         return (sys.version)
+
+    @property
+    def layout(self):
+        return self.ctx["layout"]
+    @layout.setter
+    def layout(self, value):
+        self.ctx["layout"] = value
+        self.save()
+
+    @property
+    def add_title(self):
+        return self.ctx["add_title"]
+    @add_title.setter
+    def add_title(self, value):
+        self.ctx["add_title"] = value
+        self.save()
+
+    @property
+    def help_page(self):
+        return self.ctx["help_page"]
+    @help_page.setter
+    def help_page(self, value):
+        self.ctx["help_page"] = value
+        self.save()
+
+    @property
+    def version(self):
+        return self.ctx["version"]
+
+

@@ -2,7 +2,7 @@
 {% load markup_tags %}
 <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--12-col">
-        <div class="mdl-card mdl-shadow--2dp" style="width: 480px">
+        <div class="mdl-card mdl-shadow--2dp" style="width: 480px; max-width: 100%;">
             <div class="mdl-card__title mdl-color--primary mdl-color-text--white">
                 <div class="mdl-card__title-text">{{title}}</div>
                 {% if crudy.url_delete %}
@@ -98,3 +98,11 @@
         </div>
     </div>
 </div>
+{% if crudy.help_page %}
+<div class="mdl-card__supporting-text">
+{% filter apply_markup:"markdown" %} 
+{% include crudy.help_page %}
+{% endfilter %}
+</div>
+</div>
+{% endif %}

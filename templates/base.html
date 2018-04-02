@@ -123,6 +123,18 @@
         </a>
       </nav>
       {% endblock menu %}
+      <footer class="mdl-mini-footer">
+          <div class="mdl-mini-footer__right-section">
+              <button class="mdl-mini-footer__social-btn crudy-button-action" 
+              title="Lien vers les sources sur Github" data-url="https://github.com/pbillerot/crudy"
+                  target="_blank">
+                  <img src="{% static 'images/material/GitHub-Mark-Light-32px.png' %}" />
+              </button>
+          </div>
+          <div class="mdl-mini-footer__left-section">
+              <a>Tapis Vert</a> version {{crudy.version}}
+          </div>
+      </footer>
     </div>
     <!-- Content -->
     <main class="mdl-layout__content mdl-color--grey-100" style="overflow-x: auto">

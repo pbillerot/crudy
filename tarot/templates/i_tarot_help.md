@@ -1,3 +1,3 @@
-# Guide d'utilisation
+### Guide d'utilisation de "Tapis Vert" pour le Tarot
 
-https://fr.wikipedia.org/wiki/Tarot_fran%C3%A7ais
+[Les règles du Tarot et ses variantes](https://fr.wikipedia.org/wiki/Tarot_français)
