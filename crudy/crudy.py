@@ -71,7 +71,7 @@ class Crudy():
         "message": None,
         "modified": False,
         "layout": None, # portail, help, view, form
-        "version": "1.1 du 29 mars 2018",
+        "version": "1.11 du 3 avril 2018",
         "add_title": "Ajouter",
         "help_page": None
     }

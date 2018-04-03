@@ -15,6 +15,10 @@ Sources disponible sur [Github](https://github.com/pbillerot/crudy)
 - Templates : <https://docs.djangoproject.com/fr/2.0/ref/templates/builtins/>
 - django-markup: <http://django-markup.readthedocs.io/en/latest/index.html> 
 
+
+### Version 1.11 du 3 avril 2018
+- Revue de l'ergonomie
+
 ### Version 1.1 du 28 mars 2018
 - Comptage des points du Tarot à 3, 4, 5, et 6 joueurs
 

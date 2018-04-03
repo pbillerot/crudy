@@ -1,7 +1,7 @@
 {% load static %}
 <nav class="demo-navigation mdl-navigation mdl-color--grey-200 mdl-color-text--grey-200">
     <div class="mdl-card__title mdl-typography--title mdl-color-text--grey-600">
-        TAROT
+        {{crudy.application.id|upper}}
     </div>
     {% if crudy.folder_id %}
         <a class="mdl-navigation__link crudy-button-action" data-url="{% url 'v_tarot_partie_select' %}" title="Créer / choisir une partie...">
