@@ -68,16 +68,18 @@ class TarotParticipant(models.Model):
 
     def save(self, *args, **kwargs):
         """ Calcul de l'ordre """
+        print("save", self.partie)
         if self.pk is None:
             count_participants = TarotParticipant.objects.all()\
-                .filter(partie__exact=self.partie).count()
+                .filter(partie=self.partie).count()
             self.order = (count_participants) * 2
         super().save(*args, **kwargs)
 
     def compute_order(self):
         """ recalcule de l'ordre """
+        print("compute_order", self.partie)
         participants = TarotParticipant.objects.all()\
-        .filter(partie__exact=self.partie).order_by("order")
+        .filter(partie=self.partie).order_by("order")
         order = 0
         for participant in participants:
             participant.order = order
@@ -175,6 +177,7 @@ class TarotJeu(models.Model):
 
 def post_delete_tarot(sender, instance, **kwargs):
     """ traitements suite à la suppression d'un enregistrement """
+    print("post_delete_tarot")
     if isinstance(instance, (TarotParticipant,)):
         instance.compute_order()
 

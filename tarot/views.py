@@ -7,7 +7,6 @@ import collections
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve
-# from django.views.decorators.csrf import csrf_tarot_protect
 from django.http import JsonResponse
 from django.views.generic import ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -275,7 +274,7 @@ def v_tarot_participant_join(request, record_id):
     iid = int(record_id)
 
     if iid in crudy.joined:
-        participant = TarotParticipant.objects.all().filter(partie_id__exact=crudy.folder_id, joueur_id__exact=iid)
+        participant = TarotParticipant.objects.all().filter(partie_id=crudy.folder_id, joueur_id=iid)
         participant.delete()
         # compute_ordre() dans post_delete_tarot 
         crudy.joined.remove(iid)
