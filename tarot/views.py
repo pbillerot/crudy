@@ -284,6 +284,7 @@ def v_tarot_participant_join(request, record_id):
         participant.compute_order()
         crudy.joined.append(iid)
 
+    print("v_tarot_participant_join redirect to", crudy.url_view)
     return redirect(crudy.url_view)
 
 def f_tarot_joueur_delete(request, record_id):
