@@ -205,7 +205,7 @@ def f_tarot_partie_create(request):
             post = form.save(commit=False)
             post.owner = request.user.username
             post.save()
-            return redirect(crudy.url_view)
+            return redirect("v_tarot_partie_select")
     else:
         form = forms.TarotPartieForm(request=request)
     return render(request, 'f_crudy_form.html', locals())
@@ -222,7 +222,7 @@ def f_tarot_partie_update(request, record_id):
     form = forms.TarotPartieForm(request.POST or None, request=request, instance=obj)
     if form.is_valid():
         form.save()
-        return redirect(crudy.url_view)
+        return redirect("v_tarot_partie_select")
     return render(request, "f_crudy_form.html", locals())
 
 def f_tarot_partie_delete(request, record_id):
@@ -230,7 +230,7 @@ def f_tarot_partie_delete(request, record_id):
     crudy = Crudy(request, APP_NAME)
     obj = get_object_or_404(TarotPartie, id=record_id)
     obj.delete()
-    return redirect(crudy.url_view)
+    return redirect("v_tarot_partie_select")
 
 """
     Gestion des participants
@@ -293,14 +293,14 @@ def v_tarot_participant_join(request, record_id):
         participant.compute_order()
         crudy.joined.append(iid)
 
-    return redirect(crudy.url_view)
+    return redirect("v_tarot_participant_select")
 
 def f_tarot_joueur_delete(request, record_id):
     """ suppression de l'enregistrement """
     crudy = Crudy(request, APP_NAME)
     obj = get_object_or_404(TarotJoueur, id=record_id)
     obj.delete()
-    return redirect(crudy.url_view)
+    return redirect("v_tarot_participant_select")
 
 @method_decorator(folder_required, name="dispatch")
 class TarotParticipantSortView(TarotListView):
@@ -358,7 +358,7 @@ def f_tarot_participant_update(request, record_id, checked):
             participant.donneur = False
         participant.save()
 
-    return redirect(crudy.url_view)
+    return redirect("v_tarot_participant_list")
 
 def v_tarot_participant_order(request, record_id, orientation):
     """ On remonte le joueur dans la liste """
@@ -370,7 +370,7 @@ def v_tarot_participant_order(request, record_id, orientation):
     participant.save()
     participant.compute_order()
 
-    return redirect(crudy.url_view)
+    return redirect("v_tarot_participant_list")
 
 def f_tarot_joueur_create(request):
     """ création d'un joueur """
@@ -385,7 +385,7 @@ def f_tarot_joueur_create(request):
             post = form.save(commit=False)
             post.owner = request.user.username
             post.save()
-            return redirect(crudy.url_view)
+            return redirect("v_tarot_participant_list")
     else:
         form = forms.TarotJoueurForm(request=request)
     return render(request, 'f_crudy_form.html', locals())
@@ -401,7 +401,7 @@ def f_tarot_joueur_update(request, record_id):
     form = forms.TarotJoueurForm(request.POST or None, instance=obj, request=request)
     if form.is_valid():
         form.save()
-        return redirect(crudy.url_view)
+        return redirect("v_tarot_participant_list")
     return render(request, "f_crudy_form.html", locals())
 
 """
@@ -784,7 +784,7 @@ def f_tarot_jeu_pari(request, record_id):
                         jeu.partenaire = False
                     jeu.real = 99
                     jeu.save()
-        return redirect(crudy.url_view, obj.jeu)
+        return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
 def f_tarot_jeu_real(request, record_id):
@@ -799,7 +799,7 @@ def f_tarot_jeu_real(request, record_id):
         partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
         partie.modified = True
         partie.save()
-        return redirect(crudy.url_view, obj.jeu)
+        return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
 def f_tarot_jeu_partenaire(request, record_id, checked):
@@ -818,7 +818,7 @@ def f_tarot_jeu_partenaire(request, record_id, checked):
     partie.modified = True
     partie.save()
 
-    return redirect(crudy.url_view, tarotJeu.jeu)
+    return redirect("v_tarot_jeu_list", tarotJeu.jeu)
 
 def f_tarot_jeu_prime(request, record_id):
     """ Saisie des primes """
@@ -840,7 +840,7 @@ def f_tarot_jeu_prime(request, record_id):
         partie.modified = True
         partie.save()
 
-        return redirect(crudy.url_view, obj.jeu)
+        return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
 @method_decorator(folder_required, name="dispatch")
