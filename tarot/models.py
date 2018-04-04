@@ -66,18 +66,17 @@ class TarotParticipant(models.Model):
         verbose_name = "Participant"
         verbose_name_plural = "Participants"
 
-    def save(self, *args, **kwargs):
-        """ Calcul de l'ordre """
-        print("save", self.partie)
-        if self.pk is None:
-            count_participants = TarotParticipant.objects.all()\
-                .filter(partie=self.partie).count()
-            self.order = (count_participants) * 2
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     """ Calcul de l'ordre """
+    #     print("save", self.partie)
+    #     if self.pk is None:
+    #         count_participants = TarotParticipant.objects.all()\
+    #             .filter(partie=self.partie).count()
+    #         self.order = (count_participants) * 2
+    #     super().save(*args, **kwargs)
 
     def compute_order(self):
         """ recalcule de l'ordre """
-        print("compute_order", self.partie)
         participants = TarotParticipant.objects.all()\
         .filter(partie=self.partie).order_by("order")
         order = 0
