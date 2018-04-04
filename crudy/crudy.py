@@ -6,6 +6,7 @@ class Crudy():
     ## Dictionnaire des applications
     apps = {
         "portail": {
+            "id": "portail",
             "title": "Tapis Vert",
             "resume": """L'outil pour compter les points des jeux de cartes""",
             "logo": "filter_none",
@@ -14,6 +15,7 @@ class Crudy():
             "image": "images/portail/carte.png",
         },
         "whist": {
+            "id": "whist",
             "title": "Tapis Vert pour le Whist",
             "resume": """Compter les points du Whist""",
             "logo": "filter_1",
@@ -22,6 +24,7 @@ class Crudy():
             "image": "images/whist/Brewtnall_The-Whist-Party.jpg",
         },
         "tarot": {
+            "id": "tarot",
             "title": "Tapis Vert pour le Tarot",
             "resume": """Compter les points du Tarot""",
             "logo": "filter_3",
@@ -42,6 +45,7 @@ class Crudy():
 
     # Contexte de la session
     ses = {
+        "app_id": None,
         "folder_id": None,
         "folder_name": None,
         "jeu": 0,
@@ -115,18 +119,17 @@ class Crudy():
 
     @property
     def application(self):
-        return self.app
+        return self.apps.get(self.ses.get("app_id"))
     @application.setter
     def application(self, app_id):
-        self.app = self.apps.get(app_id)
-        self.app["id"] = app_id
+        self.ses["app_id"] = app_id
         self.save()
     @property
     def application_help(self):
-        return "i_%s_help.md" % self.app["id"]
+        return "i_%s_help.md" % self.ses.get("app_id")
     @property
     def application_menu(self):
-        return "i_%s_menu.html" % self.app["id"]
+        return "i_%s_menu.html" % self.ses.get("app_id")
 
     @property
     def selected(self):

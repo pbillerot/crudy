@@ -25,7 +25,6 @@ def folder_required(function):
         if crudy.folder_id:
             return function(request, *args, **kwargs)
         else:
-            print("folder_required redirection")
             return redirect("v_tarot_partie_select")
     wrap.__doc__ = function.__doc__
     wrap.__name__ = function.__name__
@@ -303,7 +302,7 @@ def f_tarot_joueur_delete(request, record_id):
     obj.delete()
     return redirect(crudy.url_view)
 
-
+@method_decorator(folder_required, name="dispatch")
 class TarotParticipantSortView(TarotListView):
     """ Tri des participants """
 
