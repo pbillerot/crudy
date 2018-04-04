@@ -40,9 +40,6 @@ class Crudy():
         },
     }
 
-    # Application en cours
-    app = None # alimentée par le constructeur
-
     # Contexte de la session
     ses = {
         "app_id": None,
@@ -53,9 +50,7 @@ class Crudy():
         "url_view": None,
         "sort": None,
         "url_return": None,
-    }
-    # Contexte de la request
-    ctx = {
+        #
         "selected": [],
         "joined": [],
         "carte": [],
@@ -75,7 +70,7 @@ class Crudy():
         "message": None,
         "modified": False,
         "layout": None, # portail, help, view, form
-        "version": "1.11 du 3 avril 2018",
+        "version": "1.12 du 4 avril 2018",
         "add_title": "Ajouter",
         "help_page": None
     }
@@ -90,13 +85,9 @@ class Crudy():
         # Contexte de la request
         # self.request_context = RequestContext(request)
         # if self.request_context.get("crudy_ctx", None):
-        #     self.ctx = self.request_context.get("crudy_ctx")
+        #     self.ses = self.request_context.get("crudy_ctx")
         # else:
-        #     self.request_context["crudy_ctx"] = self.ctx
-        if self.request.session.get("crudy_ctx", None):
-            self.ses = self.request.session.get("crudy_ctx")
-        else:
-            self.request.session["crudy_ctx"] = self.ctx
+        #     self.request_context["crudy_ctx"] = self.ses
         # contexte de la session
         if self.request.session.get("crudy_ses", None):
             self.ses = self.request.session.get("crudy_ses")
@@ -106,8 +97,6 @@ class Crudy():
     def save(self):
         """ Enregistrement du contexte dans la session """
         self.request.session["crudy_ses"] = self.ses
-        self.request.session["crudy_ctx"] = self.ctx
-        # self.request_context["crudy_ctx"] = self.ctx
 
     @property
     def applications(self):
@@ -133,18 +122,18 @@ class Crudy():
 
     @property
     def selected(self):
-        return self.ctx["selected"]
+        return self.ses["selected"]
     @selected.setter
     def selected(self, value):
-        self.ctx["selected"] = value
+        self.ses["selected"] = value
         self.save()
 
     @property
     def joined(self):
-        return self.ctx["joined"]
+        return self.ses["joined"]
     @joined.setter
     def joined(self, value):
-        self.ctx["joined"] = value
+        self.ses["joined"] = value
         self.save()
 
     @property
@@ -165,18 +154,18 @@ class Crudy():
 
     @property
     def carte(self):
-        return self.ctx["carte"]
+        return self.ses["carte"]
     @carte.setter
     def carte(self, value):
-        self.ctx["carte"] = value
+        self.ses["carte"] = value
         self.save()
 
     @property
     def cartes(self):
-        return self.ctx["cartes"]
+        return self.ses["cartes"]
     @cartes.setter
     def cartes(self, value):
-        self.ctx["cartes"] = value
+        self.ses["cartes"] = value
         self.save()
 
     @property
@@ -197,18 +186,18 @@ class Crudy():
 
     @property
     def url_actions(self):
-        return self.ctx["url_actions"]
+        return self.ses["url_actions"]
     @url_actions.setter
     def url_actions(self, value):
-        self.ctx["url_actions"] = value
+        self.ses["url_actions"] = value
         self.save()
 
     @property
     def url_delete(self):
-        return self.ctx["url_delete"]
+        return self.ses["url_delete"]
     @url_delete.setter
     def url_delete(self, value):
-        self.ctx["url_delete"] = value
+        self.ses["url_delete"] = value
         self.save()
 
     @property
@@ -221,26 +210,26 @@ class Crudy():
 
     @property
     def url_back(self):
-        return self.ctx["url_back"]
+        return self.ses["url_back"]
     @url_back.setter
     def url_back(self, value):
-        self.ctx["url_back"] = value
+        self.ses["url_back"] = value
         self.save()
 
     @property
     def url_join(self):
-        return self.ctx["url_join"]
+        return self.ses["url_join"]
     @url_join.setter
     def url_join(self, value):
-        self.ctx["url_join"] = value
+        self.ses["url_join"] = value
         self.save()
 
     @property
     def url_folder(self):
-        return self.ctx["url_folder"]
+        return self.ses["url_folder"]
     @url_folder.setter
     def url_folder(self, value):
-        self.ctx["url_folder"] = value
+        self.ses["url_folder"] = value
         self.save()
 
     @property
@@ -253,50 +242,50 @@ class Crudy():
 
     @property
     def url_jeu_pari(self):
-        return self.ctx["url_jeu_pari"]
+        return self.ses["url_jeu_pari"]
     @url_jeu_pari.setter
     def url_jeu_pari(self, value):
-        self.ctx["url_jeu_pari"] = value
+        self.ses["url_jeu_pari"] = value
         self.save()
 
     @property
     def url_jeu_real(self):
-        return self.ctx["url_jeu_real"]
+        return self.ses["url_jeu_real"]
     @url_jeu_real.setter
     def url_jeu_real(self, value):
-        self.ctx["url_jeu_real"] = value
+        self.ses["url_jeu_real"] = value
         self.save()
 
     @property
     def url_participant(self):
-        return self.ctx["url_participant"]
+        return self.ses["url_participant"]
     @url_participant.setter
     def url_participant(self, value):
-        self.ctx["url_participant"] = value
+        self.ses["url_participant"] = value
         self.save()
 
     @property
     def url_participant_update(self):
-        return self.ctx["url_participant_update"]
+        return self.ses["url_participant_update"]
     @url_participant_update.setter
     def url_participant_update(self, value):
-        self.ctx["url_participant_update"] = value
+        self.ses["url_participant_update"] = value
         self.save()
 
     @property
     def action_param(self):
-        return self.ctx["action_param"]
+        return self.ses["action_param"]
     @action_param.setter
     def action_param(self, value):
-        self.ctx["action_param"] = value
+        self.ses["action_param"] = value
         self.save()
 
     @property
     def url_sort(self):
-        return self.ctx["url_sort"]
+        return self.ses["url_sort"]
     @url_sort.setter
     def url_sort(self, value):
-        self.ctx["url_sort"] = value
+        self.ses["url_sort"] = value
         self.save()
 
     @property
@@ -309,34 +298,34 @@ class Crudy():
 
     @property
     def qcols(self):
-        return self.ctx["qcols"]
+        return self.ses["qcols"]
     @qcols.setter
     def qcols(self, value):
-        self.ctx["qcols"] = value
+        self.ses["qcols"] = value
         self.save()
 
     @property
     def is_form_autovalid(self):
-        return self.ctx["form_autovalid"]
+        return self.ses["form_autovalid"]
     @is_form_autovalid.setter
     def is_form_autovalid(self, value):
-        self.ctx["form_autovalid"] = value
+        self.ses["form_autovalid"] = value
         self.save()
 
     @property
     def message(self):
-        return self.ctx["message"]
+        return self.ses["message"]
     @message.setter
     def message(self, value):
-        self.ctx["message"] = value
+        self.ses["message"] = value
         self.save()
 
     @property
     def modified(self):
-        return self.ctx["modified"]
+        return self.ses["modified"]
     @modified.setter
     def modified(self, value):
-        self.ctx["modified"] = value
+        self.ses["modified"] = value
         self.save()
 
     @property
@@ -345,30 +334,30 @@ class Crudy():
 
     @property
     def layout(self):
-        return self.ctx["layout"]
+        return self.ses["layout"]
     @layout.setter
     def layout(self, value):
-        self.ctx["layout"] = value
+        self.ses["layout"] = value
         self.save()
 
     @property
     def add_title(self):
-        return self.ctx["add_title"]
+        return self.ses["add_title"]
     @add_title.setter
     def add_title(self, value):
-        self.ctx["add_title"] = value
+        self.ses["add_title"] = value
         self.save()
 
     @property
     def help_page(self):
-        return self.ctx["help_page"]
+        return self.ses["help_page"]
     @help_page.setter
     def help_page(self, value):
-        self.ctx["help_page"] = value
+        self.ses["help_page"] = value
         self.save()
 
     @property
     def version(self):
-        return self.ctx["version"]
+        return self.ses["version"]
 
 
