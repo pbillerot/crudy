@@ -188,7 +188,6 @@ def f_tarot_partie_folder(request, record_id):
     obj = get_object_or_404(TarotPartie, id=record_id)
     crudy.folder_id = obj.id
     crudy.folder_name = obj.name
-
     return redirect("v_tarot_participant_select")
 
 def f_tarot_partie_create(request):
@@ -502,7 +501,7 @@ class TarotJeuListView(TarotListView):
 
         self.meta.url_actions = []
 
-        qparticipant = TarotParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
+        qparticipant = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id).count()
         if qparticipant > 0:
             self.paginator = Paginator(objects_list, qparticipant)
             self.objs = self.paginator.get_page(self.page)

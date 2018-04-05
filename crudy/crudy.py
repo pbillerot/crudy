@@ -93,6 +93,8 @@ class Crudy():
             self.ses = self.request.session.get("crudy_ses")
         else:
             self.request.session["crudy_ses"] = self.ses
+        print("*** ses: ", self.ses)
+
 
     def save(self):
         """ Enregistrement du contexte dans la session """
@@ -141,6 +143,7 @@ class Crudy():
         return self.ses["folder_id"]
     @folder_id.setter
     def folder_id(self, value):
+        print("set folder", value)
         self.ses["folder_id"] = value
         self.save()
 
