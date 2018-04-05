@@ -70,7 +70,7 @@ class Crudy():
         "message": None,
         "modified": False,
         "layout": None, # portail, help, view, form
-        "version": "1.12 du 4 avril 2018",
+        "version": "1.13 du 5 avril 2018",
         "add_title": "Ajouter",
         "help_page": None
     }
@@ -93,8 +93,6 @@ class Crudy():
             self.ses = self.request.session.get("crudy_ses")
         else:
             self.request.session["crudy_ses"] = self.ses
-        print("*** ses: ", self.ses)
-
 
     def save(self):
         """ Enregistrement du contexte dans la session """
@@ -143,7 +141,6 @@ class Crudy():
         return self.ses["folder_id"]
     @folder_id.setter
     def folder_id(self, value):
-        print("set folder", value)
         self.ses["folder_id"] = value
         self.save()
 
