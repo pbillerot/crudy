@@ -15,6 +15,10 @@ Sources disponible sur [Github](https://github.com/pbillerot/crudy)
 - Templates : <https://docs.djangoproject.com/fr/2.0/ref/templates/builtins/>
 - django-markup: <http://django-markup.readthedocs.io/en/latest/index.html> 
 
+### Version 1.2 du 11 avril 2018
+- L'application Whist intégrée dans le framework CRUDY
+- Protection de toutes les URLs
+
 ### Version 1.13 du 5 avril 2018
 > Avertissement: avec Apache2 limiter le nombre de process wsgi à 1 \
 > sinon le contexte crudy ne peut pas être partagé entre chaque request

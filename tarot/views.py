@@ -6,7 +6,6 @@ import re
 import collections
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 from django.urls import resolve
 from django.http import JsonResponse
@@ -55,11 +54,10 @@ class TarotPartieSelectView(CrudyListView):
 
         title = "Sélection / ajout d'une partie"
         url_add = "f_tarot_partie_create"
-        url_update = "f_tarot_partie_update"
         url_folder = "f_tarot_partie_folder"
         cols_ordered = ['name']
         cols = {
-            "name": {"title":"Partie"},
+            "name": {"title":"Partie", "type":"button", "url":"f_tarot_partie_update"},
         }
         order_by = ('name',)
         url_view = "v_tarot_partie_select"
@@ -127,7 +125,6 @@ def f_tarot_partie_delete(request, record_id):
 """
     Gestion des participants
 """
-@method_decorator(folder_required, name="dispatch")
 class TarotParticipantSelectView(CrudyListView):
     """ Liste des participants """
 
@@ -137,11 +134,10 @@ class TarotParticipantSelectView(CrudyListView):
         title = "Sélection des Participants"
         cols_ordered = ['pseudo']
         cols = {
-            "pseudo": {"title":"Nom du joueur"},
+            "pseudo": {"title":"Nom du joueur", "type":"button", "url":"f_tarot_joueur_update"},
         }
         order_by = ('pseudo',)
         url_add = "f_tarot_joueur_create"
-        url_update = "f_tarot_joueur_update"
         url_join = "v_tarot_participant_join"
         url_view = "v_tarot_participant_select"
         help_page = "i_tarot_participant_select.md"
@@ -170,7 +166,6 @@ class TarotParticipantSelectView(CrudyListView):
 
         return self.objs
 
-@method_decorator(folder_required, name="dispatch")
 def v_tarot_participant_join(request, record_id):
     """ Création d'un participant à partir de la sélection dans la vue des joueurs """
     crudy = Crudy(request, APP_NAME)
@@ -189,7 +184,6 @@ def v_tarot_participant_join(request, record_id):
 
     return redirect("v_tarot_participant_select")
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_joueur_create(request):
     """ création d'un joueur """
     crudy = Crudy(request, APP_NAME)
@@ -209,7 +203,6 @@ def f_tarot_joueur_create(request):
         form = forms.TarotJoueurForm(request=request)
     return render(request, 'f_crudy_form.html', locals())
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_joueur_update(request, record_id):
     """ mise à jour d'un joueur """
     crudy = Crudy(request, APP_NAME)
@@ -224,7 +217,6 @@ def f_tarot_joueur_update(request, record_id):
         return redirect("v_tarot_participant_select")
     return render(request, "f_crudy_form.html", locals())
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_joueur_delete(request, record_id):
     """ suppression de l'enregistrement """
     crudy = Crudy(request, APP_NAME)
@@ -232,7 +224,6 @@ def f_tarot_joueur_delete(request, record_id):
     obj.delete()
     return redirect("v_tarot_participant_select")
 
-@method_decorator(folder_required, name="dispatch")
 class TarotParticipantSortView(CrudyListView):
     """ Tri des participants """
 
@@ -251,7 +242,6 @@ class TarotParticipantSortView(CrudyListView):
         url_actions = [
             ("f_tarot_jeu_create", "Initialiser les jeux")
         ]
-        url_delete = "v_tarot_participant_list"
         url_view = "v_tarot_participant_list"
         help_page = "i_tarot_participant_list.md"
 
@@ -276,7 +266,6 @@ class TarotParticipantSortView(CrudyListView):
 
         return self.objs
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_participant_update(request, record_id, checked):
     """ Mise à jour du donneur """
     crudy = Crudy(request, APP_NAME)
@@ -291,7 +280,6 @@ def f_tarot_participant_update(request, record_id, checked):
 
     return redirect("v_tarot_participant_list")
 
-@method_decorator(folder_required, name="dispatch")
 def v_tarot_participant_order(request, record_id, orientation):
     """ On remonte le joueur dans la liste """
     crudy = Crudy(request, APP_NAME)
@@ -307,7 +295,6 @@ def v_tarot_participant_order(request, record_id, orientation):
 """
     Gestion des jeux
 """
-@method_decorator(folder_required, name="dispatch")
 class TarotJeuListView(CrudyListView):
     """ Liste des jeux """
 
@@ -430,7 +417,6 @@ class TarotJeuListView(CrudyListView):
         crudy.url_sort = 'v_tarot_jeu_sort'
         return self.objs
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_create(request, id):
     """ création des jeux (tours) de la partie """
     crudy = Crudy(request, APP_NAME)
@@ -439,7 +425,6 @@ def f_tarot_jeu_create(request, id):
 
     return redirect("v_tarot_jeu_list", 1)
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_add(request):
     """ ajout d'un jeu dans la partie """
     crudy = Crudy(request, APP_NAME)
@@ -471,7 +456,6 @@ primes = {
     "ppchelem": -100,
 }
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_compute(request, ijeu):
     """ Calcul des points du jeux, du score et du rang du joueur """
     crudy = Crudy(request, APP_NAME)
@@ -661,7 +645,6 @@ def f_tarot_jeu_compute(request, ijeu):
 
     return redirect("v_tarot_jeu_list", ijeu)
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
     crudy = Crudy(request, APP_NAME)
@@ -692,7 +675,6 @@ def f_tarot_jeu_pari(request, record_id):
         return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, APP_NAME)
@@ -708,7 +690,6 @@ def f_tarot_jeu_real(request, record_id):
         return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_partenaire(request, record_id, checked):
     """ Saisie du partenaire """
     crudy = Crudy(request, APP_NAME)
@@ -727,7 +708,6 @@ def f_tarot_jeu_partenaire(request, record_id, checked):
 
     return redirect("v_tarot_jeu_list", tarotJeu.jeu)
 
-@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_prime(request, record_id):
     """ Saisie des primes """
     crudy = Crudy(request, APP_NAME)
@@ -751,7 +731,6 @@ def f_tarot_jeu_prime(request, record_id):
         return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
-@method_decorator(folder_required, name="dispatch")
 class TarotJeuParticipantView(CrudyListView):
     """ Liste des jeux par joueur """
 
@@ -808,7 +787,9 @@ class TarotJeuParticipantView(CrudyListView):
         prise = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, jeu=OuterRef('jeu'), prenneur=True)\
         .exclude(pk=OuterRef('pk'))
 
-        objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id)\
+        partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
+
+        objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id, jeu__lt=partie.jeu)\
         .order_by('jeu')\
         .values(*self.meta.cols_ordered, prise=Subquery(prise.values('pari')))
 

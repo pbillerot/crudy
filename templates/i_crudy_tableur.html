@@ -111,28 +111,24 @@
                 {% endif %}
                 {% for key, value in obj.items %}
                     {% if cols|attr_hide:key != True %}
-                        {% if forloop.first and crudy.url_update %}
-                            <td style="text-align: left"><button class="mdl-button mdl-chip crudy-button-action" data-url="{% url crudy.url_update obj.id %}">
-                                    <span class="mdl-chip mdl-chip__text">{{ value|default_if_none:'' }}</span>
-                            </button></td>
-                        {% elif cols|attr_type:key == "button" %}
-                            <td style="text-align: center">
-                                {% if crudy.jeu > crudy.jeu_current %}
-                                <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab"
+                        {% if cols|attr_type:key == "button" %}
+                            <td style="text-align: left">
+                                {% if crudy.jeu > crudy.jeu_current or cols|attr_disabled:key %}
+                                <button class="mdl-button mdl-chip mdl-color-text--grey-800 mdl-color--grey-200"
                                     disabled="disabled">
-                                {{ value }}
+                                    <span class="mdl-chip__text">{{ value|default_if_none:'' }}</span>
                                 </button>
                                 {% elif value == "" %}
                                     &nbsp;
                                 {% elif value != 0 %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
+                                    <button class="mdl-button mdl-chip mdl-color-text--grey-50 mdl-color--grey-500 crudy-button-action"
                                     data-url="{% url cols|attr_url:key obj.id %}" {%if cols|attr_disabled:key%}disabled="disabled"{%endif%}>
-                                    {{ value }}
+                                    <span class="mdl-chip__text">{{ value|default_if_none:'' }}</span>
                                     </button>
                                 {% else %}
-                                    <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
+                                    <button class="mdl-button mdl-chip crudy-button-action"
                                     data-url="{% url cols|attr_url:key obj.id %}" {%if cols|attr_disabled:key%}disabled="disabled"{%endif%}>
-                                    {{ value }}
+                                    <span class="mdl-chip__text">{{ value|default_if_none:'' }}</span>
                                     </button>
                                 {% endif %}
                             </td>

@@ -7,7 +7,6 @@ import collections
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import resolve
-from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from django.views.generic import ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -55,11 +54,10 @@ class WhistPartieSelectView(CrudyListView):
 
         title = "Sélection / ajout d'une partie"
         url_add = "f_whist_partie_create"
-        url_update = "f_whist_partie_update"
         url_folder = "f_whist_partie_folder"
         cols_ordered = ["name", "cartes"]
         cols = {
-            "name": {"title":"Partie"},
+            "name": {"title":"Partie", "type":"button", "url":"f_whist_partie_update"},
             "cartes": {"title":"Nombre de cartes max", "type": "numeric"},
         }
         order_by = ('name',)
@@ -129,7 +127,6 @@ def f_whist_partie_delete(request, record_id):
 """
     Gestion des participants
 """
-@method_decorator(folder_required, name="dispatch")
 class WhistParticipantSelectView(CrudyListView):
     """ Liste des participants """
 
@@ -139,15 +136,13 @@ class WhistParticipantSelectView(CrudyListView):
         title = "Sélection des Participants"
         cols_ordered = ["pseudo"]
         cols = {
-            "pseudo": {"title":"Nom du joueur"},
+            "pseudo": {"title":"Nom du joueur", "type":"button", "url":"f_whist_joueur_update"},
         }
         order_by = ('pseudo',)
         url_add = "f_whist_joueur_create"
-        url_update = "f_whist_joueur_update"
         url_join = "v_whist_participant_join"
         url_view = "v_whist_participant_select"
         help_page = "i_whist_participant_select.md"
-
 
     def get_queryset(self):
         """ queryset générique """
@@ -230,7 +225,6 @@ def f_whist_joueur_delete(request, record_id):
     obj.delete()
     return redirect("v_whist_participant_select")
 
-@method_decorator(folder_required, name="dispatch")
 class WhistParticipantListView(CrudyListView):
     """ Tri des participants """
 
@@ -243,13 +237,12 @@ class WhistParticipantListView(CrudyListView):
         url_order = "v_whist_participant_order"
         cols = {
             "order": {"title":"Nom du joueur", "hide": True},
-            "joueur__pseudo": {"title":"Nom du joueur", "type": "text"},
+            "joueur__pseudo": {"title":"Nom du joueur", "type": "button", "disabled": True},
             "donneur": {"title":"Donneur Initial", "type": "check", "url":"f_whist_participant_update"},
         }
         url_actions = [
             ("f_whist_jeu_create", "Initialiser les jeux")
         ]
-        url_delete = "v_whist_participant_list"
         url_view = "v_whist_participant_list"
         help_page = "i_whist_participant_list.md"
 
@@ -274,7 +267,6 @@ class WhistParticipantListView(CrudyListView):
 
         return self.objs
 
-@method_decorator(folder_required, name="dispatch")
 def f_whist_participant_update(request, record_id, checked):
     """ Mise à jour du donneur """
     crudy = Crudy(request, APP_NAME)
@@ -289,7 +281,6 @@ def f_whist_participant_update(request, record_id, checked):
 
     return redirect("v_whist_participant_list")
 
-@method_decorator(folder_required, name="dispatch")
 def v_whist_participant_order(request, record_id, orientation):
     """ On remonte le joueur dans la liste """
     crudy = Crudy(request, APP_NAME)
@@ -305,7 +296,6 @@ def v_whist_participant_order(request, record_id, orientation):
 """
     Gestion des jeux
 """
-@method_decorator(folder_required, name="dispatch")
 class WhistJeuListView(CrudyListView):
     """ Liste des jeux """
 
@@ -408,7 +398,6 @@ class WhistJeuListView(CrudyListView):
         crudy.url_sort = 'v_whist_jeu_sort'
         return self.objs
 
-@method_decorator(folder_required, name="dispatch")
 def f_whist_jeu_create(request, id):
     """ création des jeux (tours) de la partie """
     crudy = Crudy(request, APP_NAME)
@@ -417,7 +406,6 @@ def f_whist_jeu_create(request, id):
 
     return redirect("v_whist_jeu_list", 1)
 
-@method_decorator(folder_required, name="dispatch")
 def f_whist_jeu_compute(request, ijeu):
     """ Calcul des points du jeux, du score et du rang du joueur """
     crudy = Crudy(request, APP_NAME)
@@ -488,7 +476,6 @@ def f_whist_jeu_compute(request, ijeu):
 
     return redirect("v_whist_jeu_list", partie.jeu)
 
-@method_decorator(folder_required, name="dispatch")
 def f_whist_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
     crudy = Crudy(request, APP_NAME)
@@ -502,7 +489,6 @@ def f_whist_jeu_pari(request, record_id):
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
-@method_decorator(folder_required, name="dispatch")
 def f_whist_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, APP_NAME)
@@ -524,7 +510,6 @@ def f_whist_jeu_real(request, record_id):
         return redirect(crudy.url_view, obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
-@method_decorator(folder_required, name="dispatch")
 class WhistJeuParticipantView(CrudyListView):
     """ Liste des jeux par joueur """
     class Meta(CrudyListView.Options):

@@ -49,6 +49,10 @@ class WhistPartieForm(WhistForm):
             raise forms.ValidationError("Le nombre de carte doit être supérieur à 3")
         return cartes  # Ne pas oublier de renvoyer le contenu du champ traité
 
+    def clean_name(self):
+        field = self.cleaned_data['name']
+        return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
+
     # def clean(self):
     #     cleaned_data = super(WhistPartieForm, self).clean()
     #     # if self.errors:
@@ -68,11 +72,9 @@ class WhistJoueurForm(WhistForm):
         }
         readonly_fields = ()
 
-    # def clean_pseudo(self):
-    #     pseudo = self.cleaned_data['pseudo']
-    #     if not pseudo:
-    #         raise forms.ValidationError("Le pseudo est obligatoire")
-    #     return pseudo  # Ne pas oublier de renvoyer le contenu du champ traité
+    def clean_pseudo(self):
+        field = self.cleaned_data['pseudo']
+        return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
 
 class WhistJeuPariForm(WhistForm):
     """ Saisie du pari dun joueur """

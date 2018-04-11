@@ -39,6 +39,12 @@ class TarotPartieForm(TarotForm):
             }),
         }
 
+    def clean_name(self):
+        field = self.cleaned_data['name']
+        # if not pseudo:
+        #     raise forms.ValidationError("Le pseudo est obligatoire")
+        return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
+
 class TarotJoueurForm(TarotForm):
     """ Création / mise à jour d'un joueur """
     class Meta:
