@@ -1,12 +1,5 @@
 {% load crudy_tags %}
 {% load markup_tags %}
-<!-- bouton ajout -->
-{% comment %} {% if crudy.url_add %}
-    <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored crudy-btn-fixed-bottom crudy-button-action"
-        data-url="{% url crudy.url_add %}">
-        <i class="material-icons">add</i>
-    </button>
-{% endif %} {% endcomment %}
 <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet">
         <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
@@ -135,10 +128,16 @@
                         {% elif cols|attr_type:key == "category" %}
                             <td style="text-align: center">
                             {% for item in value %}
-                                <button class="mdl-button mdl-chip crudy-button-action" data-url="{% url cols|attr_url:key obj.id %}"
-                                {%if cols|attr_disabled:key%}disabled="disabled"{%endif%}>
-                                    <span class="mdl-chip__text">{{ item }}</span>
-                                </button>
+                                {% if cols|attr_disabled:key %}
+                                    <button class="mdl-button mdl-chip mdl-color-text--grey-800 mdl-color--grey-200"
+                                        disabled="disabled">
+                                        <span class="mdl-chip__text">{{ item }}</span>
+                                    </button>
+                                {% else %}
+                                    <button class="mdl-button mdl-chip crudy-button-action" data-url="{% url cols|attr_url:key obj.id %}">
+                                        <span class="mdl-chip__text">{{ item }}</span>
+                                    </button>
+                                {% endif %}
                             {% endfor %}
                             </td>
                         {% elif cols|attr_type:key == "check" %}
@@ -210,14 +209,24 @@
                             {% endif %}
                         {% elif cols|attr_type:key == "radio" %}
                             <td style="text-align: center">
-                                <button class="mdl-button mdl-chip crudy-button-action" data-url="{% url cols|attr_url:key obj.id %}"
-                                {%if cols|attr_disabled:key%}disabled="disabled"{%endif%}>
-                                    <span class="mdl-chip__text">
-                                    {% for kk, valeur in cols|attr_list:key %}
-                                        {% if kk == value %}{{valeur}}{% endif %}
-                                    {% endfor %}
-                                    </span>
-                                </button>
+                                {% if cols|attr_disabled:key %}
+                                    <button class="mdl-button mdl-chip mdl-color-text--grey-800 mdl-color--grey-200 crudy-button-action" data-url="{% url cols|attr_url:key obj.id %}"
+                                        disabled="disabled">
+                                        <span class="mdl-chip__text">
+                                        {% for kk, valeur in cols|attr_list:key %}
+                                            {% if kk == value %}{{valeur}}{% endif %}
+                                        {% endfor %}
+                                        </span>
+                                    </button>
+                                {% else %}
+                                    <button class="mdl-button mdl-chip crudy-button-action" data-url="{% url cols|attr_url:key obj.id %}">
+                                        <span class="mdl-chip__text">
+                                        {% for kk, valeur in cols|attr_list:key %}
+                                            {% if kk == value %}{{valeur}}{% endif %}
+                                        {% endfor %}
+                                        </span>
+                                    </button>
+                                {% endif %}
                             </td>
                         {% else %}
                         <td style="text-align: left">

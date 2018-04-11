@@ -789,7 +789,7 @@ class TarotJeuParticipantView(CrudyListView):
 
         partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
 
-        objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id, jeu__lt=partie.jeu)\
+        objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id)\
         .order_by('jeu')\
         .values(*self.meta.cols_ordered, prise=Subquery(prise.values('pari')))
 

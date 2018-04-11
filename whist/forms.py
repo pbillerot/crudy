@@ -53,14 +53,6 @@ class WhistPartieForm(WhistForm):
         field = self.cleaned_data['name']
         return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
 
-    # def clean(self):
-    #     cleaned_data = super(WhistPartieForm, self).clean()
-    #     # if self.errors:
-    #     #     raise forms.ValidationError("Corrigez les erreurs suivantes.")
-    #     # name = cleaned_data.get('name')
-    #     # err = self.errors
-    #     return cleaned_data  # N'oublions pas de renvoyer les données si tout est OK
-
 class WhistJoueurForm(WhistForm):
     """ Création / mise à jour d'un joueur """
     class Meta:

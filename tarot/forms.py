@@ -56,11 +56,9 @@ class TarotJoueurForm(TarotForm):
         }
         readonly_fields = ()
 
-    # def clean_pseudo(self):
-    #     pseudo = self.cleaned_data['pseudo']
-    #     if not pseudo:
-    #         raise forms.ValidationError("Le pseudo est obligatoire")
-    #     return pseudo  # Ne pas oublier de renvoyer le contenu du champ traité
+    def clean_pseudo(self):
+        field = self.cleaned_data['pseudo']
+        return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
 
 class TarotJeuPariForm(TarotForm):
     """ Saisie du pari dun joueur """
