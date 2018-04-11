@@ -6,9 +6,9 @@
     <span class="mdl-layout-title">{{title}}</span>
 {% elif crudy.layout == "view" %} 
     {% if crudy.url_back %}
-    <a class="mdl-navigation__link crudy-button-action" data-url="{{crudy.url_back}}">
+    <button class="mdl-button mdl-js-button mdl-color-text--grey-50 crudy-button-action" data-url="{{crudy.url_back}}">
             <i class="material-icons">arrow_back</i>
-    </a>
+    </button>
     {% endif %}
     <span class="mdl-layout-title">{{title}}</span>
     {% if crudy.url_join %}

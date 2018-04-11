@@ -22,6 +22,8 @@ class WhistPartie(models.Model):
                                  verbose_name='Nombre de cartes max / joueur',
                                  help_text="Le nombre de cartes maximum par joueur qui seront distribuées")
     jeu = models.IntegerField(default=0, verbose_name="n° du jeu en cours")
+    qparticipant = models.IntegerField(default=0, verbose_name="Nombre de joueurs")
+    modified = models.BooleanField(default=False, verbose_name="L'un des jeux a été modifié")
 
     def __str__(self):
         return self.name
@@ -99,7 +101,7 @@ class WhistJeu(models.Model):
     points = models.IntegerField(default=0, verbose_name='Points')
     score = models.IntegerField(default=0, verbose_name='Score')
     medal = models.IntegerField(default=0, verbose_name='Médaille') # Gold Silver Bronze Chocolate
-    donneur = models.IntegerField(default=0)
+    donneur = models.BooleanField(default=0)
 
     def __str__(self):
         # return "{0}_{1}_{2}".format(self.partie, self.joueur, self.jeu)

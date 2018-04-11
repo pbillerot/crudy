@@ -10,10 +10,10 @@ from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
 from django.urls import resolve
 from django.http import JsonResponse
-from django.views.generic import ListView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import OuterRef, Subquery
 from crudy.crudy import Crudy
+from crudy.views import CrudyListView
 from . import forms
 from .models import TarotPartie, TarotJoueur, TarotParticipant, TarotJeu
 
@@ -43,121 +43,14 @@ def p_tarot_help(request):
     form = None
     return render(request, 'p_crudy_help.html', locals())
 
-class TarotListView(ListView):
-    """
-        Gestion des vues
-    """
-    context_object_name = "objs"
-    template_name = "v_crudy_view.html"
-    context = None
-    objs = []
-    qcols = 0
-    paginator = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.meta = self.Meta()
-        if 'id' not in self.meta.cols:
-            self.meta.cols["id"] = { "hide": True }
-            self.meta.cols_ordered.append('id')
-        self.meta.cols_list = []
-        for key in self.meta.cols_ordered:
-            self.meta.cols_list.append((key, self.meta.cols[key]))
-
-    class Options:
-        # def __init__(self, *args, **kwargs):
-
-        title = "Titre de la vue"
-        model = None
-        template_name = "v_crudy_view.html"
-        application = APP_NAME
-        # urls définis dans ursl.py
-        url_add = None
-        url_update = None
-        url_delete = None
-        url_select = None
-        url_folder = None
-        url_join = None
-        url_order = None
-        url_actions = []
-        url_view = None
-        url_return = None
-        url_param = ""
-        url_back = None
-        # query sur la base
-        # liste des champs à afficher dans la vue
-        cols = {}
-        cols_ordered = []
-        cols_list = []
-
-        filters = {} # filtres du query_set
-        order_by = () # liste des colonnes à trier
-
-        help_page = None # nom du fichier markdown
-
-    class Meta(Options):
-        pass
-
-    def get_context_data(self, **kwargs):
-        """ fourniture des données à la vue """
-        crudy = Crudy(self.request, self.meta.application)
-        self.context = super().get_context_data(**kwargs)
-        # url = resolve(self.request.path)
-        # raz selected si nouvelle vue
-        if crudy.url_view != self.meta.url_view:
-            crudy.selected = []
-        self.context["title"] = self.meta.title
-        self.context["crudy"] = crudy
-        self.context["form"] = None
-        self.context["paginator"] = self.paginator
-        self.context["cols"] = self.meta.cols
-        self.context["cols_list"] = self.meta.cols_list
-
-        # cochage de tous les enregistrements
-        if 0 in crudy.selected:
-            for obj in self.objs:
-                crudy.selected.append(obj["id"])
-        # tri des objs dans l'ordre des cols
-        crudy.url_view = self.meta.url_view
-        crudy.url_back = self.meta.url_back
-        crudy.url_return = self.request.path
-        crudy.url_join = self.meta.url_join
-        crudy.url_param = self.meta.url_param
-        crudy.url_actions = self.meta.url_actions
-        crudy.url_order = self.meta.url_order
-        crudy.url_folder = self.meta.url_folder
-        crudy.url_add = self.meta.url_add
-        crudy.url_update = self.meta.url_update
-        crudy.url_delete = self.meta.url_delete
-        crudy.url_select = self.meta.url_select
-        crudy.qcols = len(self.meta.cols) -1
-        crudy.layout = "view"
-        crudy.help_page = self.meta.help_page
-        return self.context
-
-    def get_queryset(self):
-        """ queryset générique """
-        objs = self.meta.model.objects.all()\
-        .filter(**self.meta.filters)\
-        .order_by(*self.meta.order_by)\
-        .values(*self.meta.cols_ordered)
-        # Tri des colonnes dans l'ordre de cols ??? voir si toujours utile en python 3.5
-        self.objs = []
-        for row in objs:
-            ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols_ordered:
-                ordered_dict[col] = row[col]
-            self.objs.append(ordered_dict)
-
-        return self.objs
-
 """
     Gestion des parties
 """
-class TarotPartieSelectView(TarotListView):
+class TarotPartieSelectView(CrudyListView):
     """ Sélection d'une partie """
 
-    class Meta(TarotListView.Options):
+    class Meta(CrudyListView.Options):
+        application = APP_NAME
         model = TarotPartie
 
         title = "Sélection / ajout d'une partie"
@@ -173,7 +66,6 @@ class TarotPartieSelectView(TarotListView):
 
     def get_queryset(self):
         """ queryset générique """
-        # crudy = Crudy(self.request, APP_NAME)
         self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
@@ -203,6 +95,7 @@ def f_tarot_partie_create(request):
             form.save()
             post = form.save(commit=False)
             post.owner = request.user.username
+            post.name = post.name.upper()
             post.save()
             return redirect("v_tarot_partie_select")
     else:
@@ -235,10 +128,11 @@ def f_tarot_partie_delete(request, record_id):
     Gestion des participants
 """
 @method_decorator(folder_required, name="dispatch")
-class TarotParticipantSelectView(TarotListView):
+class TarotParticipantSelectView(CrudyListView):
     """ Liste des participants """
 
-    class Meta(TarotListView.Options):
+    class Meta(CrudyListView.Options):
+        application = APP_NAME
         model = TarotJoueur
         title = "Sélection des Participants"
         cols_ordered = ['pseudo']
@@ -276,6 +170,7 @@ class TarotParticipantSelectView(TarotListView):
 
         return self.objs
 
+@method_decorator(folder_required, name="dispatch")
 def v_tarot_participant_join(request, record_id):
     """ Création d'un participant à partir de la sélection dans la vue des joueurs """
     crudy = Crudy(request, APP_NAME)
@@ -294,6 +189,42 @@ def v_tarot_participant_join(request, record_id):
 
     return redirect("v_tarot_participant_select")
 
+@method_decorator(folder_required, name="dispatch")
+def f_tarot_joueur_create(request):
+    """ création d'un joueur """
+    crudy = Crudy(request, APP_NAME)
+    crudy.layout = "form"
+    title = "Nouveau Joueur"
+    crudy.message = ""
+    model = TarotJoueur
+    if request.POST:
+        form = forms.TarotJoueurForm(request.POST, request=request)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.owner = request.user.username
+            post.pseudo = post.pseudo.upper()
+            post.save()
+            return redirect("v_tarot_participant_select")
+    else:
+        form = forms.TarotJoueurForm(request=request)
+    return render(request, 'f_crudy_form.html', locals())
+
+@method_decorator(folder_required, name="dispatch")
+def f_tarot_joueur_update(request, record_id):
+    """ mise à jour d'un joueur """
+    crudy = Crudy(request, APP_NAME)
+    crudy.layout = "form"
+    crudy.url_delete = "f_tarot_joueur_delete"
+    title = "Modification d'un Joueur"
+    crudy.message = ""
+    obj = get_object_or_404(TarotJoueur, id=record_id)
+    form = forms.TarotJoueurForm(request.POST or None, instance=obj, request=request)
+    if form.is_valid():
+        form.save()
+        return redirect("v_tarot_participant_select")
+    return render(request, "f_crudy_form.html", locals())
+
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_joueur_delete(request, record_id):
     """ suppression de l'enregistrement """
     crudy = Crudy(request, APP_NAME)
@@ -302,10 +233,11 @@ def f_tarot_joueur_delete(request, record_id):
     return redirect("v_tarot_participant_select")
 
 @method_decorator(folder_required, name="dispatch")
-class TarotParticipantSortView(TarotListView):
+class TarotParticipantSortView(CrudyListView):
     """ Tri des participants """
 
-    class Meta(TarotListView.Options):
+    class Meta(CrudyListView.Options):
+        application = APP_NAME
         model = TarotParticipant
         title = "Ordre des Participants autour de la table"
         order_by = ('order', 'joueur__pseudo')
@@ -339,12 +271,12 @@ class TarotParticipantSortView(TarotListView):
 
         crudy.url_participant_update = 'f_tarot_participant_update'
         crudy.action_param = 0
-
         if len(self.objs) == 0:
             self.meta.url_actions = []
 
         return self.objs
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_participant_update(request, record_id, checked):
     """ Mise à jour du donneur """
     crudy = Crudy(request, APP_NAME)
@@ -359,6 +291,7 @@ def f_tarot_participant_update(request, record_id, checked):
 
     return redirect("v_tarot_participant_list")
 
+@method_decorator(folder_required, name="dispatch")
 def v_tarot_participant_order(request, record_id, orientation):
     """ On remonte le joueur dans la liste """
     crudy = Crudy(request, APP_NAME)
@@ -371,46 +304,15 @@ def v_tarot_participant_order(request, record_id, orientation):
 
     return redirect("v_tarot_participant_list")
 
-def f_tarot_joueur_create(request):
-    """ création d'un joueur """
-    crudy = Crudy(request, APP_NAME)
-    crudy.layout = "form"
-    title = "Nouveau Joueur"
-    crudy.message = ""
-    model = TarotJoueur
-    if request.POST:
-        form = forms.TarotJoueurForm(request.POST, request=request)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.owner = request.user.username
-            post.save()
-            return redirect("v_tarot_participant_list")
-    else:
-        form = forms.TarotJoueurForm(request=request)
-    return render(request, 'f_crudy_form.html', locals())
-
-def f_tarot_joueur_update(request, record_id):
-    """ mise à jour d'un joueur """
-    crudy = Crudy(request, APP_NAME)
-    crudy.layout = "form"
-    crudy.url_delete = "f_tarot_joueur_delete"
-    title = "Modification d'un Joueur"
-    crudy.message = ""
-    obj = get_object_or_404(TarotJoueur, id=record_id)
-    form = forms.TarotJoueurForm(request.POST or None, instance=obj, request=request)
-    if form.is_valid():
-        form.save()
-        return redirect("v_tarot_participant_list")
-    return render(request, "f_crudy_form.html", locals())
-
 """
     Gestion des jeux
 """
 @method_decorator(folder_required, name="dispatch")
-class TarotJeuListView(TarotListView):
+class TarotJeuListView(CrudyListView):
     """ Liste des jeux """
 
-    class Meta(TarotListView.Options):
+    class Meta(CrudyListView.Options):
+        application = APP_NAME
         model = TarotJeu
         title = "Faites vos Jeux"
         cols_ordered = ['donneur','participant__joueur__pseudo','participant__id','medal','score','pari','partenaire','real','primes'\
@@ -528,6 +430,7 @@ class TarotJeuListView(TarotListView):
         crudy.url_sort = 'v_tarot_jeu_sort'
         return self.objs
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_create(request, id):
     """ création des jeux (tours) de la partie """
     crudy = Crudy(request, APP_NAME)
@@ -536,6 +439,7 @@ def f_tarot_jeu_create(request, id):
 
     return redirect("v_tarot_jeu_list", 1)
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_add(request):
     """ ajout d'un jeu dans la partie """
     crudy = Crudy(request, APP_NAME)
@@ -567,6 +471,7 @@ primes = {
     "ppchelem": -100,
 }
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_compute(request, ijeu):
     """ Calcul des points du jeux, du score et du rang du joueur """
     crudy = Crudy(request, APP_NAME)
@@ -756,6 +661,7 @@ def f_tarot_jeu_compute(request, ijeu):
 
     return redirect("v_tarot_jeu_list", ijeu)
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
     crudy = Crudy(request, APP_NAME)
@@ -786,6 +692,7 @@ def f_tarot_jeu_pari(request, record_id):
         return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, APP_NAME)
@@ -801,6 +708,7 @@ def f_tarot_jeu_real(request, record_id):
         return redirect("v_tarot_jeu_list", obj.jeu)
     return render(request, "f_crudy_form.html", locals())
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_partenaire(request, record_id, checked):
     """ Saisie du partenaire """
     crudy = Crudy(request, APP_NAME)
@@ -819,6 +727,7 @@ def f_tarot_jeu_partenaire(request, record_id, checked):
 
     return redirect("v_tarot_jeu_list", tarotJeu.jeu)
 
+@method_decorator(folder_required, name="dispatch")
 def f_tarot_jeu_prime(request, record_id):
     """ Saisie des primes """
     crudy = Crudy(request, APP_NAME)
@@ -843,10 +752,11 @@ def f_tarot_jeu_prime(request, record_id):
     return render(request, "f_crudy_form.html", locals())
 
 @method_decorator(folder_required, name="dispatch")
-class TarotJeuParticipantView(TarotListView):
+class TarotJeuParticipantView(CrudyListView):
     """ Liste des jeux par joueur """
 
-    class Meta(TarotListView.Options):
+    class Meta(CrudyListView.Options):
+        application = APP_NAME
         model = TarotJeu
         title = "Jeux de"
         cols_ordered = ['jeu','participant__joueur__pseudo',"participant__id",'medal','score','pari','partenaire','real','primes'\

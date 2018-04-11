@@ -12,7 +12,6 @@ urlpatterns = [
     url(r'^partie/update/(.+)/$', login_required(views.f_whist_partie_update), name='f_whist_partie_update'),
     url(r'^partie/delete/(.+)$', login_required(views.f_whist_partie_delete), name='f_whist_partie_delete'),
 
-
     url(r'^participant/select/$', login_required(views.WhistParticipantSelectView.as_view()), name='v_whist_participant_select'),
     url(r'^participant/list/$', login_required(views.WhistParticipantListView.as_view()), name='v_whist_participant_list'),
     url(r'^participant/join/(.+)/$', login_required(views.v_whist_participant_join), name='v_whist_participant_join'),
@@ -28,5 +27,7 @@ urlpatterns = [
     url(r'^jeu/compute/(.+)/$', login_required(views.f_whist_jeu_compute), name='f_whist_jeu_compute'),
     url(r'^jeu/pari/(.+)/$', login_required(views.f_whist_jeu_pari), name='f_whist_jeu_pari'),
     url(r'^jeu/real/(.+)/$', login_required(views.f_whist_jeu_real), name='f_whist_jeu_real'),
+    url(r'^jeu/participant/(?P<participant_id>.+)/$', login_required(views.WhistJeuParticipantView.as_view()), name='v_whist_jeu_participant'),
+
 
 ]

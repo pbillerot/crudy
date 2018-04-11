@@ -111,16 +111,10 @@
                 {% endif %}
                 {% for key, value in obj.items %}
                     {% if cols|attr_hide:key != True %}
-                        {% if forloop.first %}
-                            {% if crudy.url_update %}
+                        {% if forloop.first and crudy.url_update %}
                             <td style="text-align: left"><button class="mdl-button mdl-chip crudy-button-action" data-url="{% url crudy.url_update obj.id %}">
                                     <span class="mdl-chip mdl-chip__text">{{ value|default_if_none:'' }}</span>
                             </button></td>
-                            {% else %}
-                            <td style="text-align: left">
-                                <span class="mdl-typography--body-1">{{ value|default_if_none:'' }}</span>
-                            </td>
-                            {% endif %}
                         {% elif cols|attr_type:key == "button" %}
                             <td style="text-align: center">
                                 {% if crudy.jeu > crudy.jeu_current %}
@@ -242,8 +236,13 @@
             <tr>
                 <td colspan="{{crudy.qcols}}" class="mdl-data-table__cell--non-numeric" style="text-align: center">
                 {% for jeu in paginator.page_range %}
-                    {% if objs.number == jeu %}
+                    {% if jeu == objs.number %}
                         <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary crudy-button-action"
+                        data-url="{% url crudy.url_view jeu %}"
+                            >{{ jeu }}
+                        </button>
+                    {% elif jeu == crudy.jeu_current %}
+                        <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--purple crudy-button-action"
                         data-url="{% url crudy.url_view jeu %}"
                             >{{ jeu }}
                         </button>
