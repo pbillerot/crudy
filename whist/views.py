@@ -479,7 +479,6 @@ def f_whist_jeu_compute(request, ijeu):
 def f_whist_jeu_pari(request, record_id):
     """ Saisie pari d'un joueur """
     crudy = Crudy(request, APP_NAME)
-    crudy.is_form_autovalid = True
     obj = get_object_or_404(WhistJeu, id=record_id)
     title = "Pari de %s" % (obj.participant.joueur.pseudo.upper())
     crudy.message = "**%s**, Combien penses-tu faire de plis ?" % (obj.participant.joueur.pseudo.upper())
@@ -492,7 +491,6 @@ def f_whist_jeu_pari(request, record_id):
 def f_whist_jeu_real(request, record_id):
     """ Saisie du réalisé 0 1 2 """
     crudy = Crudy(request, APP_NAME)
-    crudy.is_form_autovalid = True
     obj = get_object_or_404(WhistJeu, id=record_id)
     title = "Réalisé de %s" % (obj.participant.joueur.pseudo.upper())
     if obj.pari > 1:
@@ -539,7 +537,7 @@ class WhistJeuParticipantView(CrudyListView):
     def get_queryset(self):
         """ fournir les données à afficher dans la vue """
         crudy = Crudy(self.request, APP_NAME)
-
+        self.meta.url_back = "/whist/jeu/list/%s" % self.participant_id
         partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
 
         objs = WhistJeu.objects.all()\
