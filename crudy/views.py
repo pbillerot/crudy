@@ -43,6 +43,7 @@ class CrudyListView(ListView):
         url_return = None
         url_param = ""
         url_back = None
+        whist_carte = None
         # query sur la base
         # liste des champs à afficher dans la vue
         cols = {}
@@ -71,6 +72,7 @@ class CrudyListView(ListView):
         self.context["paginator"] = self.paginator
         self.context["cols"] = self.meta.cols
         self.context["cols_list"] = self.meta.cols_list
+        self.context["whist_carte"] = self.meta.whist_carte
 
         # cochage de tous les enregistrements
         if 0 in crudy.selected:

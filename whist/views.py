@@ -341,6 +341,7 @@ class WhistJeuListView(CrudyListView):
             order_by = ('jeu', 'participant__order',)
 
         partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
+        self.meta.whist_carte = partie.cartes
         crudy.modified = partie.modified
 
         objs = self.meta.model.objects.all()\

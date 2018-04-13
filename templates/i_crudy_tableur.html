@@ -244,17 +244,17 @@
                     {% if jeu == objs.number %}
                         <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-button--primary crudy-button-action"
                         data-url="{% url crudy.url_view jeu %}"
-                            >{{ jeu }}
+                            >{% if whist_carte %} {{jeu|whist_carte:whist_carte}} {% else %} {{jeu}} {% endif %}
                         </button>
                     {% elif jeu == crudy.jeu_current %}
                         <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab mdl-color-text--grey-50 mdl-color--purple crudy-button-action"
                         data-url="{% url crudy.url_view jeu %}"
-                            >{{ jeu }}
+                            >{% if whist_carte %} {{jeu|whist_carte:whist_carte}} {% else %} {{jeu}} {% endif %}
                         </button>
                     {% else %}
                         <button class="mdl-button mdl-js-button mdl-button--fab crudy-mdl-button--mini-fab crudy-button-action"
                         data-url="{% url crudy.url_view jeu %}"
-                            >{{ jeu }}
+                            >{% if whist_carte %} {{jeu|whist_carte:whist_carte}} {% else %} {{jeu}} {% endif %}
                         </button>
                     </button>
                     {% endif %}

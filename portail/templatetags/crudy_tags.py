@@ -118,3 +118,9 @@ def attr_sort(dico, key):
 @register.filter(name='attr_disabled')
 def attr_disabled(dico, key):
     return dico[key].get("disabled", False)
+@register.filter(name='whist_carte')
+def whist_carte(jeu, carte):
+    if int(jeu) <= int(carte):
+        return jeu
+    else:
+        return int(carte) - (int(jeu) - int(carte) - 1)
