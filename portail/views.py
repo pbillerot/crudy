@@ -51,4 +51,3 @@ def f_portail_logout(request):
         print(request.user.email, 'disconnecting')
     logout(request)
     return redirect('p_portail_home')
-    # return render(request, 'p_portail_home.html', locals())

@@ -82,42 +82,55 @@ def pluriel(num):
 @register.filter(name='attr_title')
 def attr_title(dico, key):
     return dico[key].get("title", "")
+
 @register.filter(name='attr_subtitle')
 def attr_subtitle(dico, key):
     return dico[key].get("subtitle", "")
+
 @register.filter(name='attr_td_class')
 def attr_td_class(dico, key):
     return dico[key].get("td_class", "crudy-data-table__cell--text-center")
+
 @register.filter(name='attr_class')
 def attr_class(dico, key):
     return dico[key].get("class", "")
+
 @register.filter(name='attr_style')
 def attr_style(dico, key):
     return dico[key].get("style", "")
+
 @register.filter(name='attr_type')
 def attr_type(dico, key):
     return dico[key].get("type", "text")
+
 @register.filter(name='attr_url')
 def attr_url(dico, key):
     return dico[key].get("url", "")
+
 @register.filter(name='attr_hide')
 def attr_hide(dico, key):
     return dico[key].get("hide", "")
+
 @register.filter(name='attr_tooltip')
 def attr_tooltip(dico, key):
     return dico[key].get("tooltip", "")
+
 @register.filter(name='attr_list')
 def attr_list(dico, key):
     return dico[key].get("list", "[]")
+
 @register.filter(name='attr_colored_number')
 def attr_colored_number(dico, key):
     return dico[key].get("colored_number", False)
+
 @register.filter(name='attr_sort')
 def attr_sort(dico, key):
     return dico[key].get("sort", False)
+
 @register.filter(name='attr_disabled')
 def attr_disabled(dico, key):
     return dico[key].get("disabled", False)
+
 @register.filter(name='whist_carte')
 def whist_carte(jeu, carte):
     if int(jeu) <= int(carte):

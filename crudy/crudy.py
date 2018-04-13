@@ -1,6 +1,7 @@
 # coding: utf-8
 """ Gestion du contexte de CRUDY """
 import sys
+CRUDY_VERSION = "1.22 du 13 avril 2018"
 
 class Crudy():
     ## Dictionnaire des applications
@@ -41,7 +42,7 @@ class Crudy():
     }
 
     # Contexte de la session
-    ses = {
+    ctx = {
         "app_id": None,
         "folder_id": None,
         "folder_name": None,
@@ -70,7 +71,6 @@ class Crudy():
         "message": None,
         "modified": False,
         "layout": None, # portail, help, view, form
-        "version": "1.21 du 12 avril 2018",
         "add_title": "Ajouter",
         "help_page": None
     }
@@ -80,23 +80,32 @@ class Crudy():
     def __init__(self, request, app_id="portail"):
         """ Récupération du contexte de la session """
         self.request = request
-        self.application = app_id
 
         # Contexte de la request
         # self.request_context = RequestContext(request)
         # if self.request_context.get("crudy_ctx", None):
-        #     self.ses = self.request_context.get("crudy_ctx")
+        #     self.request.session["crudy_ses") = self.request_context.get("crudy_ctx")
         # else:
-        #     self.request_context["crudy_ctx"] = self.ses
+        #     self.request_context["crudy_ctx") = self.request.session["crudy_ses")
         # contexte de la session
-        if self.request.session.get("crudy_ses", None):
-            self.ses = self.request.session.get("crudy_ses")
-        else:
-            self.request.session["crudy_ses"] = self.ses
 
-    def save(self):
-        """ Enregistrement du contexte dans la session """
-        self.request.session["crudy_ses"] = self.ses
+        # print("request:   ", request.COOKIES)
+        # print("session:   ", request.user, request.session)
+        # print("folder :   ", request.session.get("crudy_ses", {"folder_name": None}).get("folder_name"))
+        # if not self.request.session.get("crudy_ses", None):
+        #     self.request.session["crudy_ses"] = self.ctx.copy()
+
+        self.application = app_id
+
+    def read(self, key):
+        """ Lecture d'une variable dans le contexte de la session """
+        # print("read  :   ", self.request.user, self.request.session, key, self.request.session.get(key))
+        return self.request.session.get(key)
+
+    def write(self, key, value):
+        """ Enregistrement d'une variable dans le contexte de la session """
+        self.request.session[key] = value
+        # print("write  :   ", self.request.user, self.request.session, key, value, self.request.session.get(key))
 
     @property
     def applications(self):
@@ -108,225 +117,224 @@ class Crudy():
 
     @property
     def application(self):
-        return self.apps.get(self.ses.get("app_id"))
+        return self.apps.get(self.read("app_id"))
     @application.setter
-    def application(self, app_id):
-        self.ses["app_id"] = app_id
-        self.save()
+    def application(self, value):
+        self.write("app_id", value)
     @property
     def application_help(self):
-        return "i_%s_help.md" % self.ses.get("app_id")
+        return "i_%s_help.md" % self.read("app_id")
     @property
     def application_menu(self):
-        return "i_%s_menu.html" % self.ses.get("app_id")
+        return "i_%s_menu.html" % self.read("app_id")
 
     @property
     def selected(self):
-        return self.ses["selected"]
+        return self.read("selected")
     @selected.setter
     def selected(self, value):
-        self.ses["selected"] = value
-        self.save()
+        self.write("selected", value)
+
 
     @property
     def joined(self):
-        return self.ses["joined"]
+        return self.read("joined")
     @joined.setter
     def joined(self, value):
-        self.ses["joined"] = value
-        self.save()
+        self.write("joined", value)
+
 
     @property
     def folder_id(self):
-        return self.ses["folder_id"]
+        return self.read("folder_id")
     @folder_id.setter
     def folder_id(self, value):
-        self.ses["folder_id"] = value
-        self.save()
+        self.write("folder_id", value)
+
 
     @property
     def folder_name(self):
-        return self.ses["folder_name"]
+        return self.read("folder_name")
     @folder_name.setter
     def folder_name(self, value):
-        self.ses["folder_name"] = value
-        self.save()
+        self.write("folder_name", value)
+
 
     @property
     def carte(self):
-        return self.ses["carte"]
+        return self.read("carte")
     @carte.setter
     def carte(self, value):
-        self.ses["carte"] = value
-        self.save()
+        self.write("carte", value)
+
 
     @property
     def cartes(self):
-        return self.ses["cartes"]
+        return self.read("cartes")
     @cartes.setter
     def cartes(self, value):
-        self.ses["cartes"] = value
-        self.save()
+        self.write("cartes", value)
+
 
     @property
     def jeu(self):
-        return self.ses["jeu"]
+        return self.read("jeu")
     @jeu.setter
     def jeu(self, value):
-        self.ses["jeu"] = value
-        self.save()
+        self.write("jeu", value)
+
 
     @property
     def url_view(self):
-        return self.ses["url_view"]
+        return self.read("url_view")
     @url_view.setter
     def url_view(self, value):
-        self.ses["url_view"] = value
-        self.save()
+        self.write("url_view", value)
+
 
     @property
     def url_actions(self):
-        return self.ses["url_actions"]
+        return self.read("url_actions")
     @url_actions.setter
     def url_actions(self, value):
-        self.ses["url_actions"] = value
-        self.save()
+        self.write("url_actions", value)
+
 
     @property
     def url_delete(self):
-        return self.ses["url_delete"]
+        return self.read("url_delete")
     @url_delete.setter
     def url_delete(self, value):
-        self.ses["url_delete"] = value
-        self.save()
+        self.write("url_delete", value)
+
 
     @property
     def url_return(self):
-        return self.ses["url_return"]
+        return self.read("url_return")
     @url_return.setter
     def url_return(self, value):
-        self.ses["url_return"] = value
-        self.save()
+        self.write("url_return", value)
+
 
     @property
     def url_back(self):
-        return self.ses["url_back"]
+        return self.read("url_back")
     @url_back.setter
     def url_back(self, value):
-        self.ses["url_back"] = value
-        self.save()
+        self.write("url_back", value)
+
 
     @property
     def url_join(self):
-        return self.ses["url_join"]
+        return self.read("url_join")
     @url_join.setter
     def url_join(self, value):
-        self.ses["url_join"] = value
-        self.save()
+        self.write("url_join", value)
+
 
     @property
     def url_folder(self):
-        return self.ses["url_folder"]
+        return self.read("url_folder")
     @url_folder.setter
     def url_folder(self, value):
-        self.ses["url_folder"] = value
-        self.save()
+        self.write("url_folder", value)
+
 
     @property
     def sort(self):
-        return self.ses["sort"]
+        return self.read("sort")
     @sort.setter
     def sort(self, value):
-        self.ses["sort"] = value
-        self.save()
+        self.write("sort", value)
+
 
     @property
     def url_jeu_pari(self):
-        return self.ses["url_jeu_pari"]
+        return self.read("url_jeu_pari")
     @url_jeu_pari.setter
     def url_jeu_pari(self, value):
-        self.ses["url_jeu_pari"] = value
-        self.save()
+        self.write("url_jeu_pari", value)
+
 
     @property
     def url_jeu_real(self):
-        return self.ses["url_jeu_real"]
+        return self.read("url_jeu_real")
     @url_jeu_real.setter
     def url_jeu_real(self, value):
-        self.ses["url_jeu_real"] = value
-        self.save()
+        self.write("url_jeu_real", value)
+
 
     @property
     def url_participant(self):
-        return self.ses["url_participant"]
+        return self.read("url_participant")
     @url_participant.setter
     def url_participant(self, value):
-        self.ses["url_participant"] = value
-        self.save()
+        self.write("url_participant", value)
+
 
     @property
     def url_participant_update(self):
-        return self.ses["url_participant_update"]
+        return self.read("url_participant_update")
     @url_participant_update.setter
     def url_participant_update(self, value):
-        self.ses["url_participant_update"] = value
-        self.save()
+        self.write("url_participant_update", value)
+
 
     @property
     def action_param(self):
-        return self.ses["action_param"]
+        return self.read("action_param")
     @action_param.setter
     def action_param(self, value):
-        self.ses["action_param"] = value
-        self.save()
+        self.write("action_param", value)
+
 
     @property
     def url_sort(self):
-        return self.ses["url_sort"]
+        return self.read("url_sort")
     @url_sort.setter
     def url_sort(self, value):
-        self.ses["url_sort"] = value
-        self.save()
+        self.write("url_sort", value)
+
 
     @property
     def jeu_current(self):
-        return self.ses["jeu_current"]
+        return self.read("jeu_current")
     @jeu_current.setter
     def jeu_current(self, value):
-        self.ses["jeu_current"] = value
-        self.save()
+        self.write("jeu_current", value)
+
 
     @property
     def qcols(self):
-        return self.ses["qcols"]
+        return self.read("qcols")
     @qcols.setter
     def qcols(self, value):
-        self.ses["qcols"] = value
-        self.save()
+        self.write("qcols", value)
+
 
     @property
     def is_form_autovalid(self):
-        return self.ses["form_autovalid"]
+        return self.read("form_autovalid")
     @is_form_autovalid.setter
     def is_form_autovalid(self, value):
-        self.ses["form_autovalid"] = value
-        self.save()
+        self.write("form_autovalid", value)
+
 
     @property
     def message(self):
-        return self.ses["message"]
+        return self.read("message")
     @message.setter
     def message(self, value):
-        self.ses["message"] = value
-        self.save()
+        self.write("message", value)
+
 
     @property
     def modified(self):
-        return self.ses["modified"]
+        return self.read("modified")
     @modified.setter
     def modified(self, value):
-        self.ses["modified"] = value
-        self.save()
+        self.write("modified", value)
+
 
     @property
     def version_python(self):
@@ -334,30 +342,30 @@ class Crudy():
 
     @property
     def layout(self):
-        return self.ses["layout"]
+        return self.read("layout")
     @layout.setter
     def layout(self, value):
-        self.ses["layout"] = value
-        self.save()
+        self.write("layout", value)
+
 
     @property
     def add_title(self):
-        return self.ses["add_title"]
+        return self.read("add_title")
     @add_title.setter
     def add_title(self, value):
-        self.ses["add_title"] = value
-        self.save()
+        self.write("add_title", value)
+
 
     @property
     def help_page(self):
-        return self.ses["help_page"]
+        return self.read("help_page")
     @help_page.setter
     def help_page(self, value):
-        self.ses["help_page"] = value
-        self.save()
+        self.write("help_page", value)
+
 
     @property
     def version(self):
-        return self.ses["version"]
+        return CRUDY_VERSION
 
 
