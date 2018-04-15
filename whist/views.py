@@ -62,6 +62,7 @@ class WhistPartieSelectView(CrudyListView):
         }
         order_by = ('name',)
         url_view = "v_whist_partie_select"
+        url_next_page = "v_whist_participant_select"
 
     def get_queryset(self):
         """ queryset générique """
@@ -69,6 +70,11 @@ class WhistPartieSelectView(CrudyListView):
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
+
+        crudy = Crudy(self.request, APP_NAME)
+        if not crudy.folder_id:
+            self.meta.url_next_page = None
+        
         return self.objs
 
 
@@ -143,6 +149,7 @@ class WhistParticipantSelectView(CrudyListView):
         url_join = "v_whist_participant_join"
         url_view = "v_whist_participant_select"
         help_page = "i_whist_participant_select.md"
+        url_next_page = "v_whist_participant_list"
 
     def get_queryset(self):
         """ queryset générique """
@@ -245,6 +252,7 @@ class WhistParticipantListView(CrudyListView):
         ]
         url_view = "v_whist_participant_list"
         help_page = "i_whist_participant_list.md"
+        url_next_page = "v_whist_jeu_list"
 
     def get_queryset(self):
         """ queryset générique """

@@ -2,29 +2,10 @@
 from django import forms
 from .models import TarotPartie, TarotJoueur, TarotParticipant, TarotJeu
 from crudy.crudy import Crudy
+from crudy.forms import CrudyForm
 
-class TarotForm(forms.ModelForm):
 
-    class Meta:
-        model = None
-        fields = []
-        readonly_fields = ()
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super(TarotForm, self).__init__(*args, **kwargs)
-        for name, field in self.fields.items():
-            if name in self.Meta.readonly_fields:
-                field.widget.attrs['disabled'] = 'true'
-                field.required = False
-
-    def clean(self):
-        cleaned_data = super(TarotForm, self).clean()
-        for field in self.Meta.readonly_fields:
-            cleaned_data[field] = getattr(self.instance, field)
-        return cleaned_data
-
-class TarotPartieForm(TarotForm):
+class TarotPartieForm(CrudyForm):
     """ Création / mise à jour d'une partie """
     class Meta:
         model = TarotPartie
@@ -45,7 +26,7 @@ class TarotPartieForm(TarotForm):
         #     raise forms.ValidationError("Le pseudo est obligatoire")
         return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
 
-class TarotJoueurForm(TarotForm):
+class TarotJoueurForm(CrudyForm):
     """ Création / mise à jour d'un joueur """
     class Meta:
         model = TarotJoueur
@@ -60,7 +41,7 @@ class TarotJoueurForm(TarotForm):
         field = self.cleaned_data['pseudo']
         return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
 
-class TarotJeuPariForm(TarotForm):
+class TarotJeuPariForm(CrudyForm):
     """ Saisie du pari dun joueur """
 
     class Meta:
@@ -78,7 +59,7 @@ class TarotJeuPariForm(TarotForm):
         self.fields['pari'].choices = choices
         self.fields['pari'].label = ""
 
-class TarotJeuRealForm(TarotForm):
+class TarotJeuRealForm(CrudyForm):
     """ Saisie du réalisé dun joueur """
 
     class Meta:
@@ -97,7 +78,7 @@ class TarotJeuRealForm(TarotForm):
         self.fields['real'].choices = choices
         self.fields['real'].label = ""
 
-class TarotJeuPartenaireForm(TarotForm):
+class TarotJeuPartenaireForm(CrudyForm):
     """ Saisie du partenaire """
 
     class Meta:
@@ -108,7 +89,7 @@ class TarotJeuPartenaireForm(TarotForm):
         }
         readonly_fields = ()
 
-class TarotJeuPrimeForm(TarotForm):
+class TarotJeuPrimeForm(CrudyForm):
     """ Saisie des primes """
 
     class Meta:

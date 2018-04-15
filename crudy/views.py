@@ -43,6 +43,7 @@ class CrudyListView(ListView):
         url_return = None
         url_param = ""
         url_back = None
+        url_next_page = None # page suivante logique
         whist_carte = None
         # query sur la base
         # liste des champs à afficher dans la vue
@@ -91,9 +92,12 @@ class CrudyListView(ListView):
         crudy.url_update = self.meta.url_update
         crudy.url_delete = self.meta.url_delete
         crudy.url_select = self.meta.url_select
+        crudy.url_next_page = self.meta.url_next_page
         crudy.qcols = len(self.meta.cols) -1
         crudy.layout = "view"
         crudy.help_page = self.meta.help_page
+        for title, icon, url_page, param in crudy.application["menu"]:
+            print(title, icon, url_page, param)
         return self.context
 
     def get_queryset(self):

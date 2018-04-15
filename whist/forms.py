@@ -1,30 +1,9 @@
-# coding: utf-8
 from django import forms
 from .models import WhistPartie, WhistJoueur, WhistParticipant, WhistJeu
 from crudy.crudy import Crudy
+from crudy.forms import CrudyForm
 
-class WhistForm(forms.ModelForm):
-
-    class Meta:
-        model = None
-        fields = []
-        readonly_fields = ()
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super(WhistForm, self).__init__(*args, **kwargs)
-        for name, field in self.fields.items():
-            if name in self.Meta.readonly_fields:
-                field.widget.attrs['disabled'] = 'true'
-                field.required = False
-
-    def clean(self):
-        cleaned_data = super(WhistForm, self).clean()
-        for field in self.Meta.readonly_fields:
-            cleaned_data[field] = getattr(self.instance, field)
-        return cleaned_data
-
-class WhistPartieForm(WhistForm):
+class WhistPartieForm(CrudyForm):
     """ Création / mise à jour d'une partie """
     class Meta:
         model = WhistPartie
@@ -53,7 +32,7 @@ class WhistPartieForm(WhistForm):
         field = self.cleaned_data['name']
         return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
 
-class WhistJoueurForm(WhistForm):
+class WhistJoueurForm(CrudyForm):
     """ Création / mise à jour d'un joueur """
     class Meta:
         model = WhistJoueur
@@ -68,7 +47,7 @@ class WhistJoueurForm(WhistForm):
         field = self.cleaned_data['pseudo']
         return field.upper()  # Ne pas oublier de renvoyer le contenu du champ traité
 
-class WhistJeuPariForm(WhistForm):
+class WhistJeuPariForm(CrudyForm):
     """ Saisie du pari dun joueur """
 
     class Meta:
@@ -96,7 +75,7 @@ class WhistJeuPariForm(WhistForm):
         self.fields['pari'].choices = choices
         self.fields['pari'].label = ""
 
-class WhistJeuRealForm(WhistForm):
+class WhistJeuRealForm(CrudyForm):
     """ Saisie du réalisé dun joueur """
 
     class Meta:

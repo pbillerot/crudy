@@ -23,6 +23,12 @@ class Crudy():
             "menu_title": "Whist",
             "url_name": "p_whist_home",
             "image": "images/whist/Brewtnall_The-Whist-Party.jpg",
+            "menu": [
+                # Libellé du menu, icone, url_name, paramètre(s) url
+                ("Choix des Participants", "group", "v_whist_participant_select", ""),
+                ("Ordonner les Participants", "sort", "v_whist_participant_list", ""),
+                ("Faites vos jeux", "video_library", "v_whist_jeu_list", "1"),
+            ]
         },
         "tarot": {
             "id": "tarot",
@@ -41,39 +47,6 @@ class Crudy():
         },
     }
 
-    # Contexte de la session
-    ctx = {
-        "app_id": None,
-        "folder_id": None,
-        "folder_name": None,
-        "jeu": 0,
-        "jeu_current": 0,
-        "url_view": None,
-        "sort": None,
-        "url_return": None,
-        #
-        "selected": [],
-        "joined": [],
-        "carte": [],
-        "action_param": None,
-        "url_actions": None,
-        "url_delete": None,
-        "url_jeu_pari": None,
-        "url_jeu_real": None,
-        "url_participant": None,
-        "url_participant_update": None,
-        "url_sort": None,
-        "url_join": None,
-        "url_folder": None,
-        "url_back": None,
-        "qcols": None,
-        "form_autovalid": False,
-        "message": None,
-        "modified": False,
-        "layout": None, # portail, help, view, form
-        "add_title": "Ajouter",
-        "help_page": None
-    }
     request = None
     request_context = None
 
@@ -362,6 +335,13 @@ class Crudy():
     @help_page.setter
     def help_page(self, value):
         self.write("help_page", value)
+
+    @property
+    def url_next_page(self):
+        return self.read("url_next_page")
+    @url_next_page.setter
+    def url_next_page(self, value):
+        self.write("url_next_page", value)
 
 
     @property

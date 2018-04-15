@@ -265,6 +265,22 @@
         </table>
     </div>
 </div>
+{% if crudy.url_next_page %}
+{% for title, icon, url_page, param in crudy.application.menu %}
+    {% if url_page == crudy.url_next_page %}
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--6-col mdl-cell--12-col-tablet">
+            <div class="mdl-navigation">
+                <a class="mdl-navigation__link crudy-button-action" href="javascript:;"
+                    {% if param %}data-url="{% url url_page param  %}"{%else%}data-url="{% url url_page %}"{%endif%} >
+                    <b>Etape suivante:</b> <i class="material-icons" role="presentation">{{icon}}</i>{{title}}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif%}
+{% endfor %}
+{% endif %}
 {% if crudy.help_page %}
 <div class="mdl-card__supporting-text">
 {% filter apply_markup:"markdown" %} 
