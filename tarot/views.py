@@ -61,6 +61,7 @@ class TarotPartieSelectView(CrudyListView):
         }
         order_by = ('name',)
         url_view = "v_tarot_partie_select"
+        url_next_page = "v_tarot_participant_select"
 
     def get_queryset(self):
         """ queryset générique """
@@ -68,6 +69,11 @@ class TarotPartieSelectView(CrudyListView):
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
+
+        crudy = Crudy(self.request, APP_NAME)
+        if not crudy.folder_id:
+            self.meta.url_next_page = None
+
         return self.objs
 
 def f_tarot_partie_folder(request, record_id):
@@ -141,10 +147,12 @@ class TarotParticipantSelectView(CrudyListView):
         url_join = "v_tarot_participant_join"
         url_view = "v_tarot_participant_select"
         help_page = "i_tarot_participant_select.md"
+        url_next_page = "v_tarot_participant_list"
 
     def get_queryset(self):
         """ queryset générique """
         crudy = Crudy(self.request, APP_NAME)
+
         objs = TarotJoueur.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
@@ -224,7 +232,7 @@ def f_tarot_joueur_delete(request, record_id):
     obj.delete()
     return redirect("v_tarot_participant_select")
 
-class TarotParticipantSortView(CrudyListView):
+class TarotParticipantListView(CrudyListView):
     """ Tri des participants """
 
     class Meta(CrudyListView.Options):
@@ -244,6 +252,7 @@ class TarotParticipantSortView(CrudyListView):
         ]
         url_view = "v_tarot_participant_list"
         help_page = "i_tarot_participant_list.md"
+        url_next_page = "v_tarot_jeu_list"
 
     def get_queryset(self):
         """ queryset générique """

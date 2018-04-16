@@ -96,8 +96,6 @@ class CrudyListView(ListView):
         crudy.qcols = len(self.meta.cols) -1
         crudy.layout = "view"
         crudy.help_page = self.meta.help_page
-        for title, icon, url_page, param in crudy.application["menu"]:
-            print(title, icon, url_page, param)
         return self.context
 
     def get_queryset(self):

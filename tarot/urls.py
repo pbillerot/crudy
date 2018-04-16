@@ -14,7 +14,7 @@ urlpatterns = [
 
 
     url(r'^participant/select/$', views.folder_required(login_required(views.TarotParticipantSelectView.as_view())), name='v_tarot_participant_select'),
-    url(r'^participant/list/$', views.folder_required(login_required(views.TarotParticipantSortView.as_view())), name='v_tarot_participant_list'),
+    url(r'^participant/list/$', views.folder_required(login_required(views.TarotParticipantListView.as_view())), name='v_tarot_participant_list'),
     url(r'^participant/join/(.+)/$', views.folder_required(login_required(views.v_tarot_participant_join)), name='v_tarot_participant_join'),
     url(r'^participant/update/(.+)/(.+)/$', views.folder_required(login_required(views.f_tarot_participant_update)), name='f_tarot_participant_update'),
     url(r'^participant/order/(.+)/(.+)/$', views.folder_required(login_required(views.v_tarot_participant_order)), name='v_tarot_participant_order'),
