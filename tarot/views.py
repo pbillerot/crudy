@@ -257,16 +257,10 @@ class TarotParticipantListView(CrudyListView):
     def get_queryset(self):
         """ queryset générique """
         crudy = Crudy(self.request, APP_NAME)
-        objs = self.meta.model.objects.all()\
+        self.objs = self.meta.model.objects.all()\
         .filter(partie_id=crudy.folder_id)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
-        self.objs = []
-        for row in objs:
-            ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols_ordered:
-                ordered_dict[col] = row[col]  
-            self.objs.append(ordered_dict) 
 
         crudy.url_participant_update = 'f_tarot_participant_update'
         crudy.action_param = 0
@@ -370,15 +364,14 @@ class TarotJeuListView(CrudyListView):
         partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
         crudy.modified = partie.modified
 
-        objs = self.meta.model.objects.all()\
+        self.objs = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=crudy.folder_id)\
         .order_by(*order_by)\
         .values(*self.meta.cols_ordered)
 
-        # Tri des colonnes dans l'ordre de cols
-        objects_list = []
+        # Init cols 
         b_calcul_realised = False
-        for row in objs:
+        for row in self.objs:
             # on remplit la colonne ptbout avec la catégorie prime
             primes = []
             for key, col in self.meta.cols_list:
@@ -391,17 +384,12 @@ class TarotJeuListView(CrudyListView):
             # raz real si pas d'enchère
             if row["pari"] == ".":
                 row["real"] = 99
-            ordered_dict = collections.OrderedDict()
-            ordered_dict["id"] = row["id"]
-            for col in self.meta.cols_ordered:
-                ordered_dict[col] = row[col]
-            objects_list.append(ordered_dict)
 
         self.meta.url_actions = []
 
         qparticipant = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id).count()
         if qparticipant > 0:
-            self.paginator = Paginator(objects_list, qparticipant)
+            self.paginator = Paginator(self.objs, qparticipant)
             self.objs = self.paginator.get_page(self.page)
             for row in self.objs:
                 if row.get("points") != 0:

@@ -96,20 +96,25 @@ class CrudyListView(ListView):
         crudy.qcols = len(self.meta.cols) -1
         crudy.layout = "view"
         crudy.help_page = self.meta.help_page
+        self.sort_cols()
         return self.context
 
     def get_queryset(self):
         """ queryset générique """
-        objs = self.meta.model.objects.all()\
+        self.objs = self.meta.model.objects.all()\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
-        # Tri des colonnes dans l'ordre de cols ??? voir si toujours utile en python 3.5
-        self.objs = []
-        for row in objs:
+        return self.objs
+
+    def sort_cols(self):
+        """ Tri des colonnes du dataset self.objs dans le même ordre que cols_ordered """
+        objs = []
+        for row in self.objs:
             ordered_dict = collections.OrderedDict()
             for col in self.meta.cols_ordered:
                 ordered_dict[col] = row[col]
-            self.objs.append(ordered_dict)
+            objs.append(ordered_dict)
+        self.objs = objs
+        return True
 
-        return self.objs

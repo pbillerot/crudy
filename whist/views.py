@@ -154,25 +154,17 @@ class WhistParticipantSelectView(CrudyListView):
     def get_queryset(self):
         """ queryset générique """
         crudy = Crudy(self.request, "whist")
-        objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
+        self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
         # Cochage des participants dans la liste des joueurs
         participants = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id)
         crudy.joined = []
-        for obj in objs:
+        for obj in self.objs:
             for participant in participants:
                 if participant.joueur_id == obj["id"]:
                     crudy.joined.append(obj["id"])
-        self.objs = []
-        # tri des colonnes
-        for row in objs:
-            ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols_ordered:
-                ordered_dict[col] = row[col]  
-            self.objs.append(ordered_dict) 
-
         return self.objs
 
 def v_whist_participant_join(request, record_id):
@@ -257,16 +249,10 @@ class WhistParticipantListView(CrudyListView):
     def get_queryset(self):
         """ queryset générique """
         crudy = Crudy(self.request, APP_NAME)
-        objs = self.meta.model.objects.all()\
+        self.objs = self.meta.model.objects.all()\
         .filter(partie_id=crudy.folder_id)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
-        self.objs = []
-        for row in objs:
-            ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols_ordered:
-                ordered_dict[col] = row[col]  
-            self.objs.append(ordered_dict) 
 
         crudy.url_participant_update = 'f_whist_participant_update'
         crudy.action_param = 0
@@ -352,23 +338,14 @@ class WhistJeuListView(CrudyListView):
         self.meta.whist_carte = partie.cartes
         crudy.modified = partie.modified
 
-        objs = self.meta.model.objects.all()\
+        self.objs = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=crudy.folder_id)\
         .order_by(*order_by)\
         .values(*self.meta.cols_ordered)
 
-        # Tri des colonnes dans l'ordre de cols
-        objects_list = []
-        for row in objs:
-            ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols_ordered:
-                ordered_dict[col] = row[col]  
-            objects_list.append(ordered_dict) 
-
         qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
-        self.objs = None
         if qparticipant > 0:
-            self.paginator = Paginator(objects_list, qparticipant)
+            self.paginator = Paginator(self.objs, qparticipant)
             
             self.objs = self.paginator.get_page(self.page)
             # comptage de nombre de plis demandés et réalisés
