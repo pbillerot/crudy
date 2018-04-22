@@ -109,6 +109,7 @@ class CrudyListView(ListView):
 
     def sort_cols(self):
         """ Tri des colonnes du dataset self.objs dans le même ordre que cols_ordered """
+        print("avant", self.objs)
         objs = []
         for row in self.objs:
             ordered_dict = collections.OrderedDict()
@@ -116,5 +117,6 @@ class CrudyListView(ListView):
                 ordered_dict[col] = row[col]
             objs.append(ordered_dict)
         self.objs = objs
+        print("apres", self.objs)
         return True
 
