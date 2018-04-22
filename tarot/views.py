@@ -369,6 +369,9 @@ class TarotJeuListView(CrudyListView):
         .order_by(*order_by)\
         .values(*self.meta.cols_ordered)
 
+        # tri des colonnes si utilisation du paginator
+        self.sort_cols()
+
         # Init cols 
         b_calcul_realised = False
         for row in self.objs:

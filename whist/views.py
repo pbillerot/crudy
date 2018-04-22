@@ -342,6 +342,8 @@ class WhistJeuListView(CrudyListView):
         .filter(participant__partie__id__exact=crudy.folder_id)\
         .order_by(*order_by)\
         .values(*self.meta.cols_ordered)
+        # tri des colonnes si utilisation du paginator
+        self.sort_cols()
 
         qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
         if qparticipant > 0:
