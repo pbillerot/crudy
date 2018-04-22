@@ -70,6 +70,8 @@ class WhistPartieSelectView(CrudyListView):
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
+        # tri des colonnes si version python 3.5
+        self.sort_cols()
 
         crudy = Crudy(self.request, APP_NAME)
         if not crudy.folder_id:
@@ -158,6 +160,8 @@ class WhistParticipantSelectView(CrudyListView):
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
+        # tri des colonnes si version python 3.5
+        self.sort_cols()
         # Cochage des participants dans la liste des joueurs
         participants = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id)
         crudy.joined = []
@@ -253,6 +257,8 @@ class WhistParticipantListView(CrudyListView):
         .filter(partie_id=crudy.folder_id)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
+        # tri des colonnes si version python 3.5
+        self.sort_cols()
 
         crudy.url_participant_update = 'f_whist_participant_update'
         crudy.action_param = 0
@@ -338,16 +344,14 @@ class WhistJeuListView(CrudyListView):
         self.meta.whist_carte = partie.cartes
         crudy.modified = partie.modified
 
-        self.objs = self.meta.model.objects.all()\
+        objs = self.meta.model.objects.all()\
         .filter(participant__partie__id__exact=crudy.folder_id)\
         .order_by(*order_by)\
         .values(*self.meta.cols_ordered)
-        # tri des colonnes si utilisation du paginator
-        self.sort_cols()
 
         qparticipant = WhistParticipant.objects.all().filter(partie__id__exact=crudy.folder_id).count()
         if qparticipant > 0:
-            self.paginator = Paginator(self.objs, qparticipant)
+            self.paginator = Paginator(objs, qparticipant)
             
             self.objs = self.paginator.get_page(self.page)
             # comptage de nombre de plis demandés et réalisés
@@ -384,6 +388,8 @@ class WhistJeuListView(CrudyListView):
             self.meta.url_actions.append(("f_whist_jeu_compute", "Calculer les points"))
 
         crudy.url_sort = 'v_whist_jeu_sort'
+        # tri des colonnes
+        self.sort_cols()
         return self.objs
 
 def f_whist_jeu_create(request, id):
@@ -528,20 +534,17 @@ class WhistJeuParticipantView(CrudyListView):
         self.meta.url_back = "/whist/jeu/list/%s" % self.participant_id
         partie = get_object_or_404(WhistPartie, id=crudy.folder_id)
 
-        objs = WhistJeu.objects.all()\
+        self.objs = WhistJeu.objects.all()\
         .filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id, jeu__lt=partie.jeu)\
         .order_by('jeu')\
         .values(*self.meta.cols_ordered)
+        # tri des colonnes si version python 3.5
+        self.sort_cols()
 
         # Tri des colonnes dans l'ordre de cols
         participant_name = ""
-        self.objs = []
-        for row in objs:
+        for row in self.objs:
             participant_name = row["participant__joueur__pseudo"]
-            ordered_dict = collections.OrderedDict()
-            for col in self.meta.cols_ordered:
-                ordered_dict[col] = row[col]  
-            self.objs.append(ordered_dict) 
 
         self.meta.title = 'Jeux de "%s"' % participant_name
 

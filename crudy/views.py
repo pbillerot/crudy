@@ -96,7 +96,6 @@ class CrudyListView(ListView):
         crudy.qcols = len(self.meta.cols) -1
         crudy.layout = "view"
         crudy.help_page = self.meta.help_page
-        self.sort_cols()
         return self.context
 
     def get_queryset(self):
@@ -105,6 +104,8 @@ class CrudyListView(ListView):
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
+        # tri des colonnes si version python 3.5
+        self.sort_cols()
         return self.objs
 
     def sort_cols(self):
