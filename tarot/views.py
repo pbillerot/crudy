@@ -65,12 +65,12 @@ class TarotPartieSelectView(CrudyListView):
 
     def get_queryset(self):
         """ queryset générique """
-        self.objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
+        objs = self.meta.model.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
         # tri des colonnes si version python 3.5
-        self.sort_cols()
+        self.objs = self.sort_cols(objs)
 
         crudy = Crudy(self.request, APP_NAME)
         if not crudy.folder_id:
@@ -155,12 +155,13 @@ class TarotParticipantSelectView(CrudyListView):
         """ queryset générique """
         crudy = Crudy(self.request, APP_NAME)
 
-        self.objs = TarotJoueur.objects.all().filter(owner=self.request.user.username)\
+        objs = TarotJoueur.objects.all().filter(owner=self.request.user.username)\
         .filter(**self.meta.filters)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
         # tri des colonnes si version python 3.5
-        self.sort_cols()
+        self.objs = self.sort_cols(objs)
+
         # Cochage des participants dans la liste des joueurs
         participants = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id)
         crudy.joined = []
@@ -254,12 +255,12 @@ class TarotParticipantListView(CrudyListView):
     def get_queryset(self):
         """ queryset générique """
         crudy = Crudy(self.request, APP_NAME)
-        self.objs = self.meta.model.objects.all()\
+        objs = self.meta.model.objects.all()\
         .filter(partie_id=crudy.folder_id)\
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
         # tri des colonnes si version python 3.5
-        self.sort_cols()
+        self.objs = self.sort_cols(objs)
 
         crudy.url_participant_update = 'f_tarot_participant_update'
         crudy.action_param = 0
@@ -367,7 +368,6 @@ class TarotJeuListView(CrudyListView):
         .filter(participant__partie__id__exact=crudy.folder_id)\
         .order_by(*order_by)\
         .values(*self.meta.cols_ordered)
-
         # Init cols 
         b_calcul_realised = False
         for row in objs:
@@ -383,12 +383,13 @@ class TarotJeuListView(CrudyListView):
             # raz real si pas d'enchère
             if row["pari"] == ".":
                 row["real"] = 99
+        objs_all = self.sort_cols(objs)
 
         self.meta.url_actions = []
 
         qparticipant = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id).count()
         if qparticipant > 0:
-            self.paginator = Paginator(objs, qparticipant)
+            self.paginator = Paginator(objs_all, qparticipant)
             self.objs = self.paginator.get_page(self.page)
             for row in self.objs:
                 if row.get("points") != 0:
@@ -411,8 +412,6 @@ class TarotJeuListView(CrudyListView):
             self.meta.cols["partenaire"]["hide"] = False
 
         crudy.url_sort = 'v_tarot_jeu_sort'
-        # tri des colonnes si utilisation du paginator
-        self.sort_cols()
 
         return self.objs
 
@@ -788,11 +787,11 @@ class TarotJeuParticipantView(CrudyListView):
 
         partie = get_object_or_404(TarotPartie, id=crudy.folder_id)
 
-        self.objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id)\
+        objs = TarotJeu.objects.filter(participant__partie__id=crudy.folder_id, participant__id=self.participant_id)\
         .order_by('jeu')\
         .values(*self.meta.cols_ordered, prise=Subquery(prise.values('pari')))
         # tri des colonnes si version python 3.5
-        self.sort_cols()
+        self.objs = self.sort_cols(objs)
 
         # Tri des colonnes dans l'ordre de cols + remplissage des colonnes calculées
         participant_name = ""

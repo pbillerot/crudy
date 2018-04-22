@@ -105,17 +105,15 @@ class CrudyListView(ListView):
         .order_by(*self.meta.order_by)\
         .values(*self.meta.cols_ordered)
         # tri des colonnes si version python 3.5
-        self.sort_cols()
-        return self.objs
+        return self.sort_cols(self.objs)
 
-    def sort_cols(self):
+    def sort_cols(self, objs):
         """ Tri des colonnes du dataset self.objs dans le même ordre que cols_ordered """
-        objs = []
-        for row in self.objs:
+        objs_sort = []
+        for row in objs:
             ordered_dict = collections.OrderedDict()
             for col in self.meta.cols_ordered:
                 ordered_dict[col] = row[col]
-            objs.append(ordered_dict)
-        self.objs = objs
-        return True
+            objs_sort.append(ordered_dict)
+        return objs_sort
 
