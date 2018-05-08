@@ -5,21 +5,26 @@ from django.utils.safestring import mark_safe
 from . import forms
 
 class TarotJoueurAdmin(admin.ModelAdmin):
-    list_display = ('pseudo', 'email')
-    search_fields = ('pseudo', 'email')
+    list_display = ('owner', 'pseudo', 'email')
+    list_filter = ('owner',)
+    # search_fields = ('pseudo', 'email')
+    pass
 
 class TarotPartieAdmin(admin.ModelAdmin):
-    list_display = ('name', 'date')
-    fields = ('name',)
-    search_fields = ('name',)
+    list_display = ('owner', 'name', 'jeu', 'modified')
+    list_filter = ('owner',)
+    # fields = ('name',)
+    # search_fields = ('name',)
     # list_editable = ['jeu']
+    pass
 
 class TarotParticipantAdmin(admin.ModelAdmin):
-    list_display = ('partie', 'joueur', 'score')
-    search_fields = ('partie', 'joueur')
-    ordering = ('partie', '-score')
+    list_display = ('partie', 'joueur', 'score', 'order', 'donneur')
+    # search_fields = ('partie', 'joueur')
+    # ordering = ('partie', '-score')
     list_filter = ('partie',)
-    readonly_fields = ('score',)
+    # readonly_fields = ('score',)
+    pass
 
 admin.site.register(TarotJoueur, TarotJoueurAdmin)
 admin.site.register(TarotPartie, TarotPartieAdmin)
