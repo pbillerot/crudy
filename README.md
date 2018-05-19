@@ -15,6 +15,9 @@ Sources disponible sur [Github](https://github.com/pbillerot/crudy)
 - Templates : <https://docs.djangoproject.com/fr/2.0/ref/templates/builtins/>
 - django-markup: <http://django-markup.readthedocs.io/en/latest/index.html> 
 
+### Version 1.3 du 19 mai 2018
+- Correction Paginator.get_page()
+
 ### Version 1.22 du 11 avril 2018
 - L'application Whist intégrée dans le framework CRUDY
 - Protection de toutes les URLs

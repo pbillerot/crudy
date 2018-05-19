@@ -353,7 +353,7 @@ class WhistJeuListView(CrudyListView):
         if qparticipant > 0:
             self.paginator = Paginator(objs_all, qparticipant)
             
-            self.objs = self.paginator.get_page(self.page)
+            self.objs = self.paginator.page(self.page)
             # comptage de nombre de plis demandés et réalisés
             qplis = 0
             qreal = 0

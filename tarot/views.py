@@ -390,7 +390,7 @@ class TarotJeuListView(CrudyListView):
         qparticipant = TarotParticipant.objects.all().filter(partie__id=crudy.folder_id).count()
         if qparticipant > 0:
             self.paginator = Paginator(objs_all, qparticipant)
-            self.objs = self.paginator.get_page(self.page)
+            self.objs = self.paginator.page(self.page)
             for row in self.objs:
                 if row.get("points") != 0:
                     b_calcul_realised = True
